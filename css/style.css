@@ -1,7 +1,47 @@
+div.header {
+    overflow:auto;
+    background-color: #dbdbdb;
+    padding: 10px;
+    height: 5vh;
+
+}
+
+div.header div {
+    width:25%;  
+    float:left;
+}
+
+div.header div.search {
+    width:50%;  
+    float:left;
+}
+
+div.search input[type="text"] {
+    width: 80%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+div.user-card {
+    text-align: right;
+    text-indent: 20px;
+    direction: rtl;
+}
+
+div#main-card {
+    margin: 10px auto 0;
+    background-color: #fff;
+    border: #000 solid 1px;
+    height: 80vh;
+    width: 97.5%;
+}
+
 nav.navbar {
-    background-color: #333;
+    background-color: #cacaca;
     padding: 1rem 2rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 5vh;
 }
 
 nav.navbar ul {
@@ -19,7 +59,7 @@ nav.navbar li {
 }
 
 nav.navbar a {
-    color: #fff;
+    color: #000;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
@@ -30,4 +70,11 @@ nav.navbar a {
 nav.navbar a:hover {
     color: #4CAF50;
     border-bottom: 2px solid #4CAF50;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
 }

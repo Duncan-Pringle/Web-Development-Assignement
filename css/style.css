@@ -53,24 +53,20 @@ nav.navbar ul {
     align-items: center;
 }
 
-nav.navbar li {
+nav.navbar li.nav-item {
     margin: 0;
-    padding: 0;
-}
-
-nav.navbar a {
-    color: #000;
-    text-decoration: none;
+    padding: 0.5rem 0;  
+    color: #fff;
     font-weight: 500;
     transition: color 0.3s ease;
-    display: block;
-    padding: 0.5rem 0;
+    cursor: pointer;
 }
 
-nav.navbar a:hover {
+nav.navbar li.nav-item:hover {
     color: #4CAF50;
     border-bottom: 2px solid #4CAF50;
 }
+
 
 body {
     font-family: Arial, sans-serif;

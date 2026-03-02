@@ -55,8 +55,8 @@ nav.navbar ul {
 
 nav.navbar li.nav-item {
     margin: 0;
-    padding: 0.5rem 0;  
-    color: #fff;
+    padding: 0.5rem 0;      
+    color: #000;
     font-weight: 500;
     transition: color 0.3s ease;
     cursor: pointer;

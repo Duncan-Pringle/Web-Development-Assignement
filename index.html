@@ -3,28 +3,30 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Test</title>
+    <title>MovieHub</title>
     <link rel="stylesheet" href="css/style.css">
   </head>
+
   <body>
     <div class = "header">
         <div class = "logo">LOGO</div>
+
         <div class = "search">
-          <input type = "text" placeholder = "Search..." id = "search-input">
+          <input type = "text" placeholder = "Search..." id = "searchInput">
         </div>
-        <div class = "user-card">Login/Signup</div>
+
+        <div class = "user-card" id="autoNav">Login/Signup</div>
           
       </div>
-    <nav class = "navbar">
+       <nav class = "navbar">
        
-        <ul >
-            <li class = "nav-item">Movies</li>
-            <li class = "nav-item">TV Shows</li>
-            <li class = "nav-item">People</li>
-            <li class = "nav-item">Watchlist</li>
-        </ul>
-    </nav>
+           <ul >
+             <li href="#" id="homeNav">Movies</li>
+             <li href="#">TV Shows</li>
+             <li href="#">People</li>
+             <li href="#">Watchlist</li>
+          </ul>
+      </nav>
 
     
       <div id = main-card></div>

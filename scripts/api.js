@@ -13,7 +13,7 @@ export const API= {
     popular: () => request ("/api/popular"),
 
     //Search movies
-    search: (query) => request ('/api/search?q=$(query)'),
+    search: (query) => request (`/api/search?q=$(query)`),
 
     // Login request 
      login:(data) =>
@@ -24,10 +24,10 @@ export const API= {
     }),
 
     //Get movie details 
-    movie:(id)=>request('/api/reviews/${id}'),
+    movie:(id)=>request(`/api/reviews/${id}`),
 
     //Movie reviews
-    reviews:(id)=>request('/api/reviews/${id}'),
+    reviews:(id)=>request(`/api/reviews/${id}`),
 
     //Add review
     addReview:(data)=>

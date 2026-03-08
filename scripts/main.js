@@ -1,30 +1,134 @@
-import { createFeaturedCard, createPosterCard, createPopularSection } from './skeleton.js';
+import {API} from "./api.js";
+import {API, state} from "./state.js";
 
-const mainContainer = document.getElementById('main-card');
+import {renderLogin} from "./loginView.js";
+import {renderAdmin} from "./adminView.js";
+import {renderMovie} from "./movieView.js";
 
-//Mock Data
-const featuredData = {
-    title: "Featured Movie/Show Title",
-    description: "Short synopsis or description of the featured movie/show. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-};
+import {createReviewCard} from "./reviewCard.js";
+import {createFeaturedCard,createPosterCard,createPopularSection} from  "./skeleton.js"
+const mainContainer =document.getElementById("main-card");
 
-const popularTitles = ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"];
+// Home Page
+async function loadHome() {
 
-// UI
-function renderApp() {
-    // Generate Featured Section
-    const featuredHtml = createFeaturedCard(featuredData);
+    try{
+        const movies= await API.popular();
+        const featured= createFeaturedCard(movies[0]);
+        const posters= movies.slice(1,6)
+        .map(t=> createPosterCard(t.title))
+        .join("");
 
-    // Generate Popular Section Grid
-    const postersHtml = popularTitles
-        .map(title => createPosterCard(title))
-        .join('');
+        const popular = createPopularSection(posters);
+        mainContainer.innerHTML= featured + popular;
+
+    }
+
+    catch{
+       mainContainer.innerHTML="<p>Error Occured. Movies can't be loaded.</p>";
+    }
     
-    const popularHtml = createPopularSection(postersHtml);
-
-    // Inject into DOM
-    mainContainer.innerHTML = featuredHtml + popularHtml;
 }
 
-// Run render
-renderApp();
+// Login Page
+
+function showLogin(){
+    mainContainer.innerHTML= renderLogin();
+    document.getElementById("submitLogin").onclick= async ()=>{
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const user= await API.login({username,password});
+      state.user= user;
+
+      if(user.role==="admin"){
+        loadAdmin();
+      }
+      else{
+        loadHome();
+      }
+    };
+}
+f
+// Admin Dashboard
+async function loadAdmin() {
+    mainContainer.innerHTML = renderAdmin();
+
+    try{
+       const reviews= await fetch ("/api/admin/reviews");
+       const reviewData= await reviews.json();
+       const reviewList= document.getElementById("reviewAdminList");
+      
+       reviewData.forEach(e => {
+        
+        reviewList.innerHTML += `
+          <div>
+          $ (e.text)
+
+         <button onclick="deleteReview(${e.id})">
+          Delete
+         </button>
+        `;
+       });
+        
+    }
+
+    catch{}
+    
+}
+
+// Delete Review 
+window.deleteReview= async function (id) {
+    
+    await fetch (`/api/admin/review/${id}`,{
+        method: "DELETE"
+    }
+
+    );
+
+    loadAdmin();
+};
+
+// Movie Details
+window.loadMovie = async function (id) {
+    
+    const movie= await API.movie(id);
+    mainContainer.innerHTML= renderMovie(movie);
+    document.getElementById("backButton").onclick= loadHome;
+
+    const reviews= await API.reviews(id);
+    const list= document.getElementById("reviewList");
+
+    reviews.forEach(e=> {
+        list.innerHTML += createReviewCard(e);
+    });
+
+    document.getElementById("submitReview").onclick= async ()=>{
+       const text= document.getElementById("reviewText").value;
+       await API.addReview({movieId:id,text});
+       loadMovie(id);
+    };
+
+};
+
+// Search
+document.getElementById("searchInput")
+    .addEventListener("keypress", async x=>{
+
+      if (x.key==="Enter"){
+        const movies= await API.search(x.target.value);
+        const posters= movies
+        .map(e=>createPosterCard(e.title))
+        .join("");
+
+        mainContainer.innerHTML=createPopularSection(posters); }
+    }
+
+    );
+
+    // Navigation
+    document.getElementById("homeNavigation").onclick=loadHome;
+    document.getElementById("loginButton").onclick=showLogin;
+
+    // Intitial page
+    loadHome();

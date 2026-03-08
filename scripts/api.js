@@ -3,7 +3,7 @@ async function request(url, options={}) {
     const response = await fetch (url,options);
 
     if (! response.ok){
-       throw new Error("API reques failed");
+       throw new Error("API request failed");
     }
     return response.json();
 }
@@ -13,7 +13,7 @@ export const API= {
     popular: () => request ("/api/popular"),
 
     //Search movies
-    search: (query) => request (`/api/search?q=$(query)`),
+    search: (query) => request (`/api/search?q=${query}`),
 
     // Login request 
      login:(data) =>
@@ -24,7 +24,7 @@ export const API= {
     }),
 
     //Get movie details 
-    movie:(id)=>request(`/api/reviews/${id}`),
+    movie:(id)=>request(`/api/movie/${id}`),
 
     //Movie reviews
     reviews:(id)=>request(`/api/reviews/${id}`),

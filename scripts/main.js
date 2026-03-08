@@ -1,5 +1,5 @@
 import {API} from "./api.js";
-import {API, state} from "./state.js";
+import {state} from "./state.js";
 
 import {renderLogin} from "./loginView.js";
 import {renderAdmin} from "./adminView.js";
@@ -49,7 +49,7 @@ function showLogin(){
       }
     };
 }
-f
+
 // Admin Dashboard
 async function loadAdmin() {
     mainContainer.innerHTML = renderAdmin();
@@ -63,7 +63,7 @@ async function loadAdmin() {
         
         reviewList.innerHTML += `
           <div>
-          $ (e.text)
+          ${e.text}
 
          <button onclick="deleteReview(${e.id})">
           Delete

@@ -78,15 +78,18 @@ body{
 }
 
 /* --- Main Card Container --- */
-div#main-card {
-    margin: 20px auto 20px;
-    background-color: #fff;
-    border: #ccc solid 1px; /* Softened from #000 to match wireframe style */
-    min-height: 80vh;
-    width: 97.5%;
-    padding: 30px;
-}
+/* ---------- Main Content Container ---------- */
 
+#main-card{
+ margin:20px auto;
+ width:98%;            
+ max-width:1600px;     
+ background:white;
+ padding:40px;
+ border-radius:10px;
+ box-shadow:0 4px 12px rgba(0,0,0,0.15);
+ min-height:80vh;      
+}
 
 /* --- Featured Section --- */
 .featured-section h2{
@@ -94,21 +97,21 @@ div#main-card {
 }
 
 .featured-content{
-   display:flex;
-   gap:30px;
-   margin-bottom:50px;
+  display:flex;
+  gap:40px;
+  margin-bottom:60px;
+  align-items:flex-start;
 }
 
 .featured-img{
-  width:250px;
-  height:350px;
-  background:#e0e0e0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.15);
-  color:#777;
+ width:280px;
+ height:400px;
+ background:#e0e0e0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ border-radius:8px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
 .featured-details{

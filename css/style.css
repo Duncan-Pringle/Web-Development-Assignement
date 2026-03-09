@@ -3,135 +3,141 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f8f8;
+body{
+  font-family:"Segoe UI", Arial, sans-serif;
+  margin:0;
+  padding:0;
+  background:#f4f6f9;
+  color:#333;
 }
+
 
 /* --- Header --- */
-div.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #dbdbdb;
-    padding: 15px 20px;
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1e1e2f;
+  padding:15px 30px;
+  color:white;
 }
 
-div.header .logo {
-    width: 25%;
-    font-weight: bold;
-    font-size: 1.2rem;
+.logo{
+   font-size:22px;
+   font-weight:bold;
 }
 
-div.header .search {
-    width: 50%;
-    text-align: center;
+.search{
+  flex:1;
+  text-align:center;
 }
 
-div.search input[type="text"] {
-    width: 80%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.search input{
+  width:60%;
+  padding:8px 12px;
+  border-radius:5px;
+  border:none;
+  outline:none;
 }
 
-div.header .user-card {
-    width: 25%;
-    text-align: right;
-    cursor: pointer;
+.user-card{
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.user-card:hover{
+  color:#4CAF50;
 }
 
 /* --- Navbar --- */
-nav.navbar {
-    background-color: #cacaca;
-    padding: 0 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.navbar{
+  background:#2c2c3a;
 }
 
-nav.navbar ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 2rem;
-    align-items: center;
+.navbar ul{
+  list-style:none;
+  margin:0;
+  padding:12px 30px;
+  display:flex;
+  gap:25px;
 }
 
-nav.navbar li.nav-item {
-    margin: 0;
-    padding: 1rem 0;      
-    color: #000;
-    font-weight: 500;
-    transition: color 0.3s ease;
-    cursor: pointer;
-    border-bottom: 2px solid transparent; /* Prevents layout jump on hover */
+.navbar li{
+  display:inline;
 }
 
-nav.navbar li.nav-item:hover {
-    color: #4CAF50;
-    border-bottom: 2px solid #4CAF50;
+.navbar a{
+  text-decoration:none;
+  color:white;
+  font-weight:500;
+  transition:0.2s;
+}
+
+.navbar a:hover{
+  color:#4CAF50;
 }
 
 /* --- Main Card Container --- */
-div#main-card {
-    margin: 20px auto 20px;
-    background-color: #fff;
-    border: #ccc solid 1px; /* Softened from #000 to match wireframe style */
-    min-height: 80vh;
-    width: 97.5%;
-    padding: 30px;
+#main-card{
+  margin:30px auto;
+   width:95%;
+   background:white;
+   padding:30px;
+   border-radius:8px;
+   box-shadow:0 4px 10px rgba(0,0,0,0.1);
+   min-height:500px;
 }
+
 
 /* --- Featured Section --- */
-.featured-section h2 {
-    margin-top: 0;
+.featured-section h2{
+   margin-top:0;
 }
 
-.featured-content {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 50px;
+.featured-content{
+   display:flex;
+   gap:30px;
+   margin-bottom:50px;
 }
 
-.featured-img {
-    width: 250px;
-    height: 350px;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #999;
-    color: #666;
-    flex-shrink: 0; /* Prevents image from shrinking */
+.featured-img{
+  width:250px;
+  height:350px;
+  background:#e0e0e0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.15);
+  color:#777;
 }
 
-.featured-details {
-    flex-grow: 1;
+.featured-details{
+   flex-grow:1;
 }
 
-.synopsis {
-    line-height: 1.5;
-    color: #333;
+.synopsis{
+  line-height:1.6;
+  color:#444;
 }
 
-.button-group {
-    margin-top: 20px;
+.button-group{
+margin-top:20px;
 }
 
-.btn {
-    padding: 10px 20px;
-    margin-right: 10px;
-    background: #e0e0e0;
-    border: 1px solid #999;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
+.btn{
+ padding:10px 20px;
+ margin-right:10px;
+ background:#4CAF50;
+ border:none;
+ border-radius:4px;
+ color:white;
+ cursor:pointer;
+ font-size:14px;
 }
 
-.btn:hover {
-    background: #d0d0d0;
+.btn:hover{
+ background:#45a049;
 }
 
 /* --- Popular Section Grid --- */

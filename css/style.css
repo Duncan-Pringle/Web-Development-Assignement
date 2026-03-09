@@ -78,14 +78,13 @@ body{
 }
 
 /* --- Main Card Container --- */
-#main-card{
-  margin:30px auto;
-   width:95%;
-   background:white;
-   padding:30px;
-   border-radius:8px;
-   box-shadow:0 4px 10px rgba(0,0,0,0.1);
-   min-height:500px;
+div#main-card {
+    margin: 20px auto 20px;
+    background-color: #fff;
+    border: #ccc solid 1px; /* Softened from #000 to match wireframe style */
+    min-height: 80vh;
+    width: 97.5%;
+    padding: 30px;
 }
 
 
@@ -173,4 +172,71 @@ margin-top:20px;
     margin-top: 10px;
     font-size: 14px;
     color: #333;
+}
+
+/* ---Hover Effects--- */
+
+.poster-item:hover{
+  transform:scale(1.05);
+  transition:0.2s;
+  cursor:pointer;
+}
+
+
+/* --- Buttons --- */
+
+button{
+  padding:8px 15px;
+  border:none;
+  border-radius:4px;
+  background:#4CAF50;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#45a049;
+}
+
+
+/* --- Scrollbar Styling --- */
+
+.poster-grid::-webkit-scrollbar{
+  height:6px;
+}
+
+.poster-grid::-webkit-scrollbar-thumb{
+  background:#bbb;
+  border-radius:3px;
+}
+
+
+/* --- Responsive Layout --- */
+
+@media (max-width:768px){
+
+.header{
+ flex-direction:column;
+ gap:10px;
+}
+
+.search input{
+ width:100%;
+}
+
+.navbar ul{
+ flex-direction:column;
+gap:10px;
+}
+
+.featured-content{
+  flex-direction:column;
+  align-items:center;
+}
+
+.poster-img{
+  width:120px;
+ height:180px;
+}
+
 }

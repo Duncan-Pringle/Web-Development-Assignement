@@ -13,7 +13,14 @@ const mainContainer =document.getElementById("main-card");
 async function loadHome() {
 
     try{
-        const movies= await API.popular();
+        const movies= [
+            {title:"Batman"},
+            {title:"Inception"},
+            {title:"Interstellar"},
+            {title:"Avatar"},
+            {title:"Dune"},
+            {title:"Oppenheimer"}
+        ];
         const featured= createFeaturedCard(movies[0]);
         const posters= movies.slice(1,6)
         .map(t=> createPosterCard(t.title))

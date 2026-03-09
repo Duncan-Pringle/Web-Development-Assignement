@@ -13,8 +13,8 @@ const mainContainer =document.getElementById("main-card");
 async function loadHome() {
 
     try{
-       const movies= [
-       {t:"Movie 1"},
+       const movies= // await API.movies();
+       [{t:"Movie 1"},
        {t:"Movie 2"},
        {t:"Movie 3"},
        {t:"Movie 4"},

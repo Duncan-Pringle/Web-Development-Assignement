@@ -144,9 +144,9 @@ document.getElementById("searchInput")
 
     // Navigation
     document.getElementById("homeNavigation").onclick=loadHome;
-    document.getElementById("tvShowsNavigation").onclick=showComingSoon("TV Shows");
-    document.getElementById("peopleNavigation").onclick=showComingSoon("People");
-    document.getElementById("watchListNavigation").onclick=showComingSoon("Watchlist");
+    document.getElementById("tvShowsNavigation").onclick= () =>showComingSoon("TV Shows");
+    document.getElementById("peopleNavigation").onclick= () => showComingSoon("People");
+    document.getElementById("watchListNavigation").onclick= () =>showComingSoon("Watchlist");
     document.getElementById("loginButton").onclick=showLogin;
 
 

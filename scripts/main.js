@@ -35,6 +35,17 @@ async function loadHome() {
     
 }
 
+function showComingSoon(feature){
+
+   mainContainer.innerHTML = `
+     <div style="text-align:center;padding:60px">
+     <h2> ${feature} </h2>
+     <p>This feature is coming soon.</p>
+     </div>
+   `;
+
+}
+
 // Login Page
 
 function showLogin(){
@@ -133,7 +144,11 @@ document.getElementById("searchInput")
 
     // Navigation
     document.getElementById("homeNavigation").onclick=loadHome;
+    document.getElementById("tvShowsNavigation").onclick=showComingSoon("TV Shows");
+    document.getElementById("peopleNavigation").onclick=showComingSoon("People");
+    document.getElementById("watchListNavigation").onclick=showComingSoon("Watchlist");
     document.getElementById("loginButton").onclick=showLogin;
+
 
     // Intitial page
     loadHome();

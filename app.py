@@ -9,7 +9,8 @@ def hello_world():
 
 @app.route("/test")
 def test_display():
-    return db_functions.getAllUsers()
+    return 'Test route works!'
+    #return db_functions.getAllUsers()
 
 @app.teardown_appcontext
 def close_connection(exception):

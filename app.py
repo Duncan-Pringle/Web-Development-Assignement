@@ -1,5 +1,6 @@
 from flask import Flask
 import db_functions
+import db as database
 app = Flask(__name__)
 
 @app.route('/')
@@ -12,6 +13,5 @@ def test_display():
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    database.close_connection(exception)
+

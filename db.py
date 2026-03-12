@@ -3,8 +3,7 @@ import db_functions
 from flask import g
 from flask import jsonify
 from flask import Flask
-
-app = Flask(__name__)
+from app import app
 
 DATABASE = 'database.db'
 
@@ -20,8 +19,6 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-@app.route("/test")
-def test_display():
-    db_functions.getAllUsers()
+
     
 

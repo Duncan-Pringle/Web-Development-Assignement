@@ -11,10 +11,11 @@ def getUserFromID(userID):
 def getAllUsers():
     db = database.get_db()
     users = db.execute("SELECT * FROM userTable").fetchall()
-    return jsonify([dict(user) for user in users])
+    result = [dict(user) for user in users]
+    return jsonify(result)
 
 def getUserFromEmail(email):
     db = database.get_db()
-    user = db.execute("SELECT * FROM userTable WHERE email = ?",(email,)).fetchone()
+    user = db.execute("SELECT * FROM userTable WHERE email = ?",(email)).fetchone()
     return dict(user) if user else None
 

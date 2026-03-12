@@ -8,12 +8,13 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row
-    return db
+    return g.db
 
 def close_connection(exception):
-    db = getattr(g, '_database', None)
+    db = g.pop("db", None)
     if db is not None:
         db.close()
+
 
 
     

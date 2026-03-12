@@ -1,5 +1,4 @@
 import sqlite3
-import db_functions
 from flask import g
 from flask import jsonify
 from flask import Flask

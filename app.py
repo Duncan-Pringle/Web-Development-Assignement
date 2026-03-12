@@ -8,5 +8,10 @@ def hello_world():
 
 @app.route("/test")
 def test_display():
-    db_functions.getAllUsers()
+    return db_functions.getAllUsers()
 
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()

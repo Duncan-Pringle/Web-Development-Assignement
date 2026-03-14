@@ -25,6 +25,7 @@ def test_display():
         [{"id": 18,"name": "Drama"},{"id": 53,"name": "Thriller"}], 8.9)
         db_functions.createLikedMovie(2, 550)
         test.append(db_functions.getAllMovies())
+        test.append(db_functions.getUserFromID(2))
         db_functions.createReview("reviewText", 1, 550)
         return jsonify(test)
     except Exception as e:

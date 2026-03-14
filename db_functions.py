@@ -11,8 +11,7 @@ def getUserFromID(userID):
 def getAllUsers():
     db = database.get_db()
     users = db.execute("SELECT * FROM userTable").fetchall()
-    result = [dict(user) for user in users]
-    return jsonify(result)
+    return [dict(user) for user in users]
 
 def getUserFromEmail(email):
     db = database.get_db()

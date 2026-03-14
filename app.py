@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import jsonify
 import db_functions
 import db as database
 import os
@@ -11,9 +12,10 @@ def hello_world():
 @app.route("/test")
 def test_display():
     try: 
-        return db_functions.getAllUsers()
+        users =  db_functions.getAllUsers()
+        return jsonify(users)
     except Exception as e:
-        return str(e)
+        return jsonify({"error": str(e)}), 500
 
 @app.teardown_appcontext
 def close_connection(exception):

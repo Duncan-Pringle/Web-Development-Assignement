@@ -15,6 +15,6 @@ def getAllUsers():
 
 def getUserFromEmail(email):
     db = database.get_db()
-    user = db.execute("SELECT * FROM userTable WHERE email = ?",(email)).fetchone()
+    user = db.execute("SELECT * FROM userTable WHERE email = ?",(email,)).fetchone()
     return dict(user) if user else None
 

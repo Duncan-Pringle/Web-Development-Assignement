@@ -2,17 +2,19 @@ from flask import Flask
 from flask import jsonify
 import db_functions
 import db as database
-import os
+
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/') #Base route for the home page "https://web-development-assignement.onrender.com/"
 def hello_world():
     return 'Hello, World!'
 
-@app.route("/test")
+@app.route("/test") #Route for test route "https://web-development-assignement.onrender.com/test"
 def test_display():
     try: 
         users =  db_functions.getAllUsers()
+        users.append(db_functions.getUserFromID(1))
+        users.append(db_functions.getUserFromEmail("username3@email.com"))
         return jsonify(users)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -21,6 +23,4 @@ def test_display():
 def close_connection(exception):
     database.close_connection(exception)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 

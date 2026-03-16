@@ -4,25 +4,24 @@ import db as database
 
 #Basic function for creating a user in the database
 def createUser(username, email, hashedPass):
-    database.query_db(
+    database.query_db_write(
         "INSERT INTO usertable (username, email, hashedPass) values (%s, %s, %s)",
-        (username,email, hashedPass,),
-        commit = True
+        (username,email, hashedPass,)
     )
 
 #Gets
 def getUserFromID(userID):
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getAllUsers():
-    database.query_db("SELECT * FROM usertable",)
+    database.query_db_read("SELECT * FROM usertable",)
 
 def getUserFromEmail(email):
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM usertable WHERE email = %s",
         (email,),
         fetchone = True
@@ -30,21 +29,21 @@ def getUserFromEmail(email):
 
 
 def getEmailFromID(userID):
-    database.query_db(
+    database.query_db_read(
         "SELECT email FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getUsernameFromID(userID):
-    database.query_db(
+    database.query_db_read(
         "SELECT username FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getIDFromUsername(username):
-    database.query_db(
+    database.query_db_read(
         "SELECT userID FROM usertable WHERE username = %s",
         (username,),
         fetchone = True
@@ -54,51 +53,46 @@ def getIDFromUsername(username):
 
 #Sets
 def setUsername(userID, username):
-    database.query_db(
+    database.query_db_write(
         "UPDATE usertable SET username = %s where userID = %s",
-        (username, userID),
-        commit = True
+        (username, userID)
     )
 
 def setEmail(userID, email):
-    database.query_db(
+    database.query_db_write(
         "UPDATE usertable SET email = %s where userID = %s",
-        (email, userID),
-        commit = True
+        (email, userID)
     )
    
 
 def setLevel(userID, userLevel): #Used to update userlevel (default 1 = regular user)
 
-    database.query_db(
+    database.query_db_write(
         "UPDATE usertable SET userLevel = %s where userID = %s",
-        (userLevel, userID),
-        commit = True
+        (userLevel, userID)
     )
 
 def setPassword(userID, hashedPass):
-    database.query_db(
+    database.query_db_write(
         "UPDATE usertable SET hashedPass = %s where userID = %s",
-        (hashedPass, userID),
-        commit = True
+        (hashedPass, userID)
     )
 
 #Removes a user from the database
 def deleteUser(userID):
-    database.query_db(
+    database.query_db_write(
         "DELETE FROM usertable where userID = %s",
-        (userID),
-        commit = True)
+        (userID)
+    )
 
 #==========Movie Functions==========
 
 #Inserts a movie into the movie table, and uses the genres json to insert the genres
 def createMovie(movieID, title, description, poster_url, year, genres, rating):
 
-    database.query_db( #Inserts everything except for the genres   
+    database.query_db_write( #Inserts everything except for the genres   
         "INSERT INTO movie (movieID, title, description, poster_url, year, rating) values (%s, %s, %s, %s, %s, %s)",
-        (movieID, title, description, poster_url, year, rating),
-        commit = True
+        (movieID, title, description, poster_url, year, rating)
     )                
     
 
@@ -107,31 +101,30 @@ def createMovie(movieID, title, description, poster_url, year, genres, rating):
         genreID = genre["id"]
         genreName = genre["name"]
         #Insert into genre table
-        database.query_db(
+        database.query_db_write(
             "INSERT INTO genre (genreID, name) values (%s, %s) ON CONFLICT DO NOTHING", 
-            (genreID, genreName),
+            (genreID, genreName)
         )
         #Insert into movieGenres join table
-        database.query_db(
+        database.query_db_write(
             "INSERT INTO movieGenres (movieID, genreID) values (%s, %s) ON CONFLICT DO NOTHING", 
-            (movieID, genreID),
+            (movieID, genreID)
         )
     db = database.get_db()
     db.commit() #Commit once after all genres are inserted
     
 
 def createLikedMovie(userID, movieID):
-    database.query_db(
+    database.query_db_write(
         "INSERT INTO likedmovies (userID, movieID) values (%s, %s)", 
-        (userID, movieID),
-        commit = True
+        (userID, movieID)
     )
 
                       
 #Gets
 def getMovieFromID(movieID): #Returns 1 movie from its movieID
 
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM movie WHERE movieID = %s",
         (movieID,),
         fetchone = True
@@ -139,49 +132,46 @@ def getMovieFromID(movieID): #Returns 1 movie from its movieID
 
 
 def getAllMovies(): #Returns json of all movies in the database
-    database.query_db("SELECT * FROM movie")
+    database.query_db_read("SELECT * FROM movie")
 
 #==========Review Functions==========
 
 def createReview(reviewText, userID, movieID):
-    database.query_db(
+    database.query_db_write(
         "INSERT INTO review (reviewText, userID, movieID) values (%s, %s, %s)",
-        (reviewText,userID, movieID,),
-        commit = True
+        (reviewText,userID, movieID,)
     )
 
 def deleteReview(reviewID):
-    database.query_db(
+    database.query_db_write(
         "DELETE FROM review WHERE reviewID = %s",
-        (reviewID),
-        commit = True
+        (reviewID)
     )
     
 #Sets
 def setReviewText(reviewID, text):
-    database.query_db(
+    database.query_db_write(
         "UPDATE review SET reviewText = %s where reviewID = %s", 
-        (text, reviewID),
-        commit = True
+        (text, reviewID)
     )
 
 
 #Gets
 def getUserReviews(userID): #Returns all reviews created by a user
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM review WHERE userID = %s",
         (userID,)
     )
 
 
 def getMovieReviews(movieID): #Returns all reviews created by a user
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM review WHERE movieID = %s",
         (movieID,)
     )
 
 def getReviewFromID(reviewID): #Returns a review from a reviewID
-    database.query_db(
+    database.query_db_read(
         "SELECT * FROM review WHERE reviewID = %s",
         (reviewID,),
         fetchone = True

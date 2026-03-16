@@ -13,29 +13,36 @@ def get_db():
     return db
 
 
-#Function to handle all database queries 
+#Function to handle read database queries (SELECT)
 #(SQL QUERY, params like userID etc, false if fetching multiple items, commit if you want changes to be saved in the DB)
 #Returns none if no data found
-def query_db(query, params=None, fetchone=False, commit=False):
+def query_db_read(query, params=None, fetchone=False):
     database = get_db()
     cur = database.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
         cur.execute(query, params)
 
-        if commit:
-            database.commit()
-
         if fetchone:
             return cur.fetchone()
-        try:
-            return cur.fetchall()
-        except psycopg2.ProgrammingError:
-            return None
-    
-    except Exception as e:
+
+        return cur.fetchall()
+
+    finally:
+        cur.close()
+
+#Function to handle read database queries (INSERT, UPDATE, DELETE)
+def query_db_write(query, params=None):
+    database = get_db()
+    cur = database.cursor()
+
+    try:
+        cur.execute(query, params)
+        database.commit()
+
+    except Exception:
         database.rollback()
-        raise e
+        raise
 
     finally:
         cur.close()

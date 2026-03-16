@@ -3,8 +3,6 @@ import os
 import psycopg2
 import psycopg2.extras
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, "database", "database.db")
 #DATABASE = "database/database.db"
 
 def get_db():
@@ -13,6 +11,27 @@ def get_db():
         db = g._database = psycopg2.connect(os.environ.get("INTERNAL_DATABASE_URL"),
         cursor_factory=psycopg2.extras.RealDictCursor)
     return db
+
+
+#Function to handle all database queries 
+#(SQL QUERY, params like userID etc, false if fetching multiple items, commit if you want changes to be saved in the DB)
+def query_db(query, params=None, fetchone=False, commit=False):
+    database = get_db()
+    cur = database.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute(query, params)
+
+    result = None
+    if fetchone:
+        result = cur.fetchone()
+    else:
+        result = cur.fetchall()
+
+    if commit:
+        database.commit()
+
+    cur.close()
+    return result
 
 def close_connection(exception):
     db = g.pop("db", None)

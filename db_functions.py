@@ -11,39 +11,38 @@ def createUser(username, email, hashedPass):
 
 #Gets
 def getUserFromID(userID):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getAllUsers():
-    database.query_db_read("SELECT * FROM usertable",)
+    return database.query_db_read("SELECT * FROM usertable",)
 
 def getUserFromEmail(email):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM usertable WHERE email = %s",
         (email,),
         fetchone = True
     )
 
-
 def getEmailFromID(userID):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT email FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getUsernameFromID(userID):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT username FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getIDFromUsername(username):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT userID FROM usertable WHERE username = %s",
         (username,),
         fetchone = True
@@ -124,7 +123,7 @@ def createLikedMovie(userID, movieID):
 #Gets
 def getMovieFromID(movieID): #Returns 1 movie from its movieID
 
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM movie WHERE movieID = %s",
         (movieID,),
         fetchone = True
@@ -132,7 +131,7 @@ def getMovieFromID(movieID): #Returns 1 movie from its movieID
 
 
 def getAllMovies(): #Returns json of all movies in the database
-    database.query_db_read("SELECT * FROM movie")
+    return database.query_db_read("SELECT * FROM movie")
 
 #==========Review Functions==========
 
@@ -158,20 +157,20 @@ def setReviewText(reviewID, text):
 
 #Gets
 def getUserReviews(userID): #Returns all reviews created by a user
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM review WHERE userID = %s",
         (userID,)
     )
 
 
 def getMovieReviews(movieID): #Returns all reviews created by a user
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM review WHERE movieID = %s",
         (movieID,)
     )
 
 def getReviewFromID(reviewID): #Returns a review from a reviewID
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM review WHERE reviewID = %s",
         (reviewID,),
         fetchone = True

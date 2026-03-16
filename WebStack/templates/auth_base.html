@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>{% block auth_title %}{% endblock %}</h2>
+        </div>
+
+        <div class="auth-body">
+            {% block auth_form %}{% endblock %}
+        </div>
+
+        <div class="auth-footer">
+            {% block auth_footer %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

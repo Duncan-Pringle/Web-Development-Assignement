@@ -1,0 +1,517 @@
+/*  1. Base & Reset */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif; 
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f9; 
+    color: #333;
+    
+    /* for the footer layout */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+}
+
+/* Header Layout */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e1e2f; 
+    color: white;
+    padding: 0 10px; /* Base padding for the bar */
+}
+
+.headerItem {
+    padding: 15px 20px;
+}
+
+
+#hub {
+    font-weight: bold;
+    font-size: 1.4rem; 
+    color: white;       /* Forces the text to stay white */
+    text-decoration: none; /* Removes any link underlines */
+    display: inline-block;
+}
+
+/* Ensure the link wrapper doesn't change the look */
+a:has(#hub), a:has(#hub):visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+/*  hover effect for the logo */
+#hub:hover {
+    color: #4CAF50; /* Turns green on hover to match theme */
+    transition: color 0.3s ease;
+}
+
+/*  Search Bar  */
+#search {
+    width: 50%;
+    text-align: center;
+}
+
+#search input[type="text"] {
+    width: 80%;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+}
+
+#search input[type="text"]:focus {
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+}
+
+/* User Card & Dropdown  */
+#user-card {
+    position: relative;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-block;
+    border-bottom: 2px solid transparent; /* Prevents jumping on hover */
+    transition: border-color 0.3s;
+}
+
+#user-card:hover {
+    border-bottom: 2px solid #4CAF50;
+}
+
+#loginLink {
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown-content {
+    display: none; /* Hidden by JS toggle */
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    z-index: 100;
+    padding: 10px 0; /* Padding on top/bottom of list */
+    text-align: left;
+}
+
+.dropdown-content p {
+    color: #333;
+    margin: 0;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.dropdown-content hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 5px 0;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #f4f6f9;
+    color: #4CAF50;
+}
+
+.show {
+    display: block; /* Class toggled by JavaScript */
+}
+
+/* Navbar  */
+.navbar {
+    background-color: #2c2c3a;
+    padding: 0 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-item {
+    padding: 1rem 0;
+    color: #fff;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-item:hover {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: white;
+}
+
+/* Main Content & Sections */
+#main-content {
+    padding: 20px;
+}
+
+.featured-content {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.featured-img {
+    width: 250px;
+    height: 350px;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #666;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.featured-details {
+    flex-grow: 1;
+}
+
+.synopsis {
+    line-height: 1.6;
+    color: #444;
+}
+
+.btn {
+    padding: 10px 20px;
+    margin-right: 10px;
+    background: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #45a049;
+}
+
+/* Grid & Horizontal Scroll  */
+.poster-grid {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    padding-top: 20px;
+}
+
+.poster-item {
+    display: flex;
+    flex-direction: column;
+    width: 160px; /* Matches poster-img width to fix shawshank problem */
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.poster-item:hover {
+    transform: scale(1.05);
+}
+
+.poster-img {
+    width: 160px;
+    height: 240px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.poster-title {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Custom Scrollbar */
+.poster-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.poster-grid::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 3px;
+}
+
+/*  Login Page Specifics */
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh; /* Centers the card vertically */
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px; /* Keeps the form from getting too wide */
+    padding: 40px;
+    text-align: center;
+}
+
+.login-card h1 {
+    margin-bottom: 30px;
+    color: #1e1e2f;
+}
+
+
+
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.form-footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 10px 0;
+    }
+    
+    #search {
+        width: 90%;
+        margin: 10px 0;
+    }
+
+    .navbar ul {
+        flex-direction: column;
+        gap: 5px;
+        padding-bottom: 10px;
+    }
+
+    .featured-content {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+#footer {
+    background-color: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 20px 10px;
+    border-top: 1px solid #333;
+    font-size: 14px;
+    
+    /* removed margin-top because flex: 1 handles the spacing*/
+}
+
+#footer a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+#footer a:visited {
+    color: #4CAF50;
+}
+
+#footer a:hover {
+    color: #81c784; 
+    text-decoration: underline;
+}
+/* Auth Layout */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Centers the card vertically on the page */
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+}
+
+.auth-header h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #1e1e2f;
+    font-size: 1.8rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#content {
+    flex: 1; 
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.auth-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/*  Profile Page */
+.profile-container {
+    display: flex;
+    max-width: 1100px;
+    margin: 40px auto;
+    gap: 30px;
+    padding: 0 20px;
+}
+
+.profile-sidebar {
+    flex: 1;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    text-align: center;
+    height: fit-content;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.profile-nav {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-top: 20px;
+}
+
+.profile-nav a {
+    padding: 12px;
+    text-decoration: none;
+    color: #555;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.profile-nav a:hover, .profile-nav a.active {
+    background: #f0f0f0;
+    color: #4CAF50;
+}
+
+.profile-main {
+    flex: 3;
+}
+
+.profile-section {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.profile-section h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #f4f6f9;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.activity-feed p {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+/* Mobile Responsive Profile */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+    }
+}

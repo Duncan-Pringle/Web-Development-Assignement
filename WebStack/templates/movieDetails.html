@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+    {% include 'header.html' %}
+    <div class="movie-details">
+        <h1>{{ movie.title }}</h1>
+        <p><strong>Year:</strong> {{ movie.year }}</p>
+        <p><strong>Genre:</strong> {{ movie.genre }}</p>
+        <p><strong>Rating:</strong> {{ movie.rating }}</p>
+        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+        <p>{{ movie.description }}</p>
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'auth_base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+{% block auth_title %}Join MovieHub{% endblock %}
+
+{% block auth_form %}
+<form method="POST" action="/signup">
+    <div class="form-group">
+        <label>Forename</label>
+        <input type="text" name="forename" required placeholder="John">
+    </div>
+    <div class="form-group">
+        <label>Surname</label>
+        <input type="text" name="surname" required placeholder="Doe">
+    </div>
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" required placeholder="Choose a username">
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="Create a password">
+    </div>
+    <button type="submit" class="btn auth-btn">Sign Up</button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<p>Already have an account? <a href="/login">Login here</a></p>
+{% endblock %}

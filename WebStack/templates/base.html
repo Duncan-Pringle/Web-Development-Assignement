@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <link rel="stylesheet" href="static/css/styles.css" />
+    <title>{% block title %}{% endblock %} - MovieHub</title>
+    {% endblock %}
+</head>
+<body>
+
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2026 by <a href="#">Movie Hub</a>.
+        {% endblock %}
+    </div>
+    <script src="static/js/main.js"></script>
+</body>
+</html>

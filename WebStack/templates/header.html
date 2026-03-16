@@ -1,0 +1,35 @@
+<div class = "header">
+  <a href="/"><div class = "headerItem" id = "hub">HUB</div></a>
+  <div id = "search">
+    <input type = "text" placeholder = "Search..." id = "searchInput">
+  </div>
+  <div class="headerItem" id="user-card">
+    {% if username %}
+      <div onclick="toggleDropdown()" style="cursor: pointer;">
+        Welcome, {{ username }}
+        <div id="dropdown-menu" class="dropdown-content">
+          <p><strong>{{ session.username }}</strong></p>
+          <hr>
+          <a href="/profile">My Profile</a>
+          <a href="/settings">Settings</a>
+          <a href="/logout" style="color: red;">Sign Out</a>
+        </div>
+      </div>
+    {% else %}
+      <a href="/login" id="loginLink">Login/Signup</a>
+    {% endif %}
+    </div>
+</div>
+{% if show_nav != False %}
+<nav class = "navbar">
+       
+           <ul >
+             <li class="nav-item"> <a href="/movies">Movies</a></li>
+             <li class = "nav-item"><a href="/tv-shows">TV Shows</a></li>
+             <li class = "nav-item"><a href="/people">People</a></li>
+             {%if username%}
+             <li class = "nav-item"><a href="/watchlist">Watchlist</a></li>
+             {%endif%}
+          </ul>
+</nav>
+{% endif %}

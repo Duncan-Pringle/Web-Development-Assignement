@@ -5,7 +5,7 @@ import db as database
 #Basic function for creating a user in the database
 def createUser(username, email, hashedPass):
     database.query_db(
-        "INSERT INTO userTable (username, email, hashedPass) values (%s, %s, %s)",
+        "INSERT INTO usertable (username, email, hashedPass) values (%s, %s, %s)",
         (username,email, hashedPass,),
         commit = True
     )
@@ -13,17 +13,17 @@ def createUser(username, email, hashedPass):
 #Gets
 def getUserFromID(userID):
     database.query_db(
-        "SELECT * FROM userTable WHERE userID = %s",
+        "SELECT * FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getAllUsers():
-    database.query_db("SELECT * FROM userTable",)
+    database.query_db("SELECT * FROM usertable",)
 
 def getUserFromEmail(email):
     database.query_db(
-        "SELECT * FROM userTable WHERE email = %s",
+        "SELECT * FROM usertable WHERE email = %s",
         (email,),
         fetchone = True
     )
@@ -31,21 +31,21 @@ def getUserFromEmail(email):
 
 def getEmailFromID(userID):
     database.query_db(
-        "SELECT email FROM userTable WHERE userID = %s",
+        "SELECT email FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getUsernameFromID(userID):
     database.query_db(
-        "SELECT username FROM userTable WHERE userID = %s",
+        "SELECT username FROM usertable WHERE userID = %s",
         (userID,),
         fetchone = True
     )
 
 def getIDFromUsername(username):
     database.query_db(
-        "SELECT userID FROM userTable WHERE username = %s",
+        "SELECT userID FROM usertable WHERE username = %s",
         (username,),
         fetchone = True
     )
@@ -55,14 +55,14 @@ def getIDFromUsername(username):
 #Sets
 def setUsername(userID, username):
     database.query_db(
-        "UPDATE userTable SET username = %s where userID = %s",
+        "UPDATE usertable SET username = %s where userID = %s",
         (username, userID),
         commit = True
     )
 
 def setEmail(userID, email):
     database.query_db(
-        "UPDATE userTable SET email = %s where userID = %s",
+        "UPDATE usertable SET email = %s where userID = %s",
         (email, userID),
         commit = True
     )
@@ -71,14 +71,14 @@ def setEmail(userID, email):
 def setLevel(userID, userLevel): #Used to update userlevel (default 1 = regular user)
 
     database.query_db(
-        "UPDATE userTable SET userLevel = %s where userID = %s",
+        "UPDATE usertable SET userLevel = %s where userID = %s",
         (userLevel, userID),
         commit = True
     )
 
 def setPassword(userID, hashedPass):
     database.query_db(
-        "UPDATE userTable SET hashedPass = %s where userID = %s",
+        "UPDATE usertable SET hashedPass = %s where userID = %s",
         (hashedPass, userID),
         commit = True
     )
@@ -86,7 +86,7 @@ def setPassword(userID, hashedPass):
 #Removes a user from the database
 def deleteUser(userID):
     database.query_db(
-        "DELETE FROM userTable where userID = %s",
+        "DELETE FROM usertable where userID = %s",
         (userID),
         commit = True)
 
@@ -122,7 +122,7 @@ def createMovie(movieID, title, description, poster_url, year, genres, rating):
 
 def createLikedMovie(userID, movieID):
     database.query_db(
-        "INSERT INTO likedMovies (userID, movieID) values (%s, %s)", 
+        "INSERT INTO likedmovies (userID, movieID) values (%s, %s)", 
         (userID, movieID),
         commit = True
     )
@@ -149,7 +149,6 @@ def createReview(reviewText, userID, movieID):
         (reviewText,userID, movieID,),
         commit = True
     )
-
 
 def deleteReview(reviewID):
     database.query_db(

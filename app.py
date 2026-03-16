@@ -24,7 +24,7 @@ def testselects():
         test.append(db_functions.getMovieReviews(550))
         test.append(db_functions.getUserReviews(4))
         test.append(db_functions.getReviewFromID(1))
-        return test
+        return jsonify(test), 200
 
 @app.teardown_appcontext
 def close_connection(exception):

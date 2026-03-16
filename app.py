@@ -9,7 +9,7 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/test1') #Base route for the home page "https://web-development-assignement.onrender.com/"
+@app.route('/test1') 
 def testinserts():
     try:
         db_functions.createUser("username1","user1email@email.com","hashedpass1")
@@ -22,7 +22,7 @@ def testinserts():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/test2') #Base route for the home page "https://web-development-assignement.onrender.com/"
+@app.route('/test2') 
 def testselects():
         test = db_functions.getAllUsers()
         test.append(db_functions.getUserFromID(1))

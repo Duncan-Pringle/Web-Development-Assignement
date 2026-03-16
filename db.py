@@ -22,10 +22,11 @@ def query_db(query, params=None, fetchone=False, commit=False):
     cur.execute(query, params)
 
     result = None
-    if fetchone:
-        result = cur.fetchone()
-    else:
-        result = cur.fetchall()
+    if query.strip().lower().startswith("select"):
+        if fetchone:
+            result = cur.fetchone()
+        else:
+            result = cur.fetchall()
 
     if commit:
         database.commit()

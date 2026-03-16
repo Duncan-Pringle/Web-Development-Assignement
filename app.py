@@ -11,20 +11,21 @@ def hello_world():
 
 @app.route('/test2') 
 def testselects():
-        test = db_functions.getAllUsers()
+
         try:
+            test = db_functions.getAllUsers()
             test.append(db_functions.getUserFromID(1))
+            test.append(db_functions.getUserFromEmail("user2email@email.com"))
+            test.append(db_functions.getEmailFromID(2))
+            test.append(db_functions.getIDFromUsername("username3"))
+            test.append(db_functions.getAllMovies())
+            test.append(db_functions.getUserFromID(2))
+            test.append(db_functions.getMovieReviews(550))
+            test.append(db_functions.getUserReviews(4))
+            test.append(db_functions.getReviewFromID(1))
+            return jsonify(test), 200
         except Exception as e:
-             print("Error getting user by ID:", e)
-        test.append(db_functions.getUserFromEmail("user2email@email.com"))
-        test.append(db_functions.getEmailFromID(2))
-        test.append(db_functions.getIDFromUsername("username3"))
-        test.append(db_functions.getAllMovies())
-        test.append(db_functions.getUserFromID(2))
-        test.append(db_functions.getMovieReviews(550))
-        test.append(db_functions.getUserReviews(4))
-        test.append(db_functions.getReviewFromID(1))
-        return jsonify(test), 200
+             return jsonify({"error": str(e)}), 500
 
 @app.teardown_appcontext
 def close_connection(exception):

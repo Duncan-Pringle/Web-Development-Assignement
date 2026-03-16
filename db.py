@@ -15,6 +15,7 @@ def get_db():
 
 #Function to handle all database queries 
 #(SQL QUERY, params like userID etc, false if fetching multiple items, commit if you want changes to be saved in the DB)
+#Returns none if no data found
 def query_db(query, params=None, fetchone=False, commit=False):
     database = get_db()
     cur = database.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

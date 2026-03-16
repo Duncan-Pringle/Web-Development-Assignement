@@ -2,11 +2,11 @@ import db as database
 
 #==========User Functions==========
 
-#Basic function for creating a user in the database
+#Inserts a new user into the database, username & email must be unique in the database
 def createUser(username, email, hashedPass):
     database.query_db_write(
         "INSERT INTO usertable (username, email, hashedPass) values (%s, %s, %s)",
-        (username,email, hashedPass,)
+        (username,email,hashedPass,)
     )
 
 #Gets
@@ -48,7 +48,7 @@ def getIDFromUsername(username):
         fetchone = True
     )
 
-#function to get all user reviews is in review section further down vvvvv
+#A function that returns all reviews made by a user is further down vvvvv
 
 #Sets
 def setUsername(userID, username):
@@ -62,7 +62,6 @@ def setEmail(userID, email):
         "UPDATE usertable SET email = %s where userID = %s",
         (email, userID)
     )
-   
 
 def setLevel(userID, userLevel): #Used to update userlevel (default 1 = regular user)
 
@@ -77,7 +76,7 @@ def setPassword(userID, hashedPass):
         (hashedPass, userID)
     )
 
-#Removes a user from the database
+#Removes a user from the database, database will cascade reviews and likedMovies
 def deleteUser(userID):
     database.query_db_write(
         "DELETE FROM usertable where userID = %s",
@@ -87,13 +86,14 @@ def deleteUser(userID):
 #==========Movie Functions==========
 
 #Inserts a movie into the movie table, and uses the genres json to insert the genres
+#(movieID - int, title - text/string, description - text/string, poster_url - text/string)
+#(year - int, genres - json, rating - decimal)
 def createMovie(movieID, title, description, poster_url, year, genres, rating):
 
     database.query_db_write( #Inserts everything except for the genres   
         "INSERT INTO movie (movieID, title, description, poster_url, year, rating) values (%s, %s, %s, %s, %s, %s)",
         (movieID, title, description, poster_url, year, rating)
     )                
-    
 
 # Genre Format example from TMDB ----- [{"id": 18,"name": "Drama"}, {"id": 53,"name": "Thriller"}]
     for genre in genres:
@@ -112,14 +112,12 @@ def createMovie(movieID, title, description, poster_url, year, genres, rating):
     db = database.get_db()
     db.commit() #Commit once after all genres are inserted
     
-
 def createLikedMovie(userID, movieID):
     database.query_db_write(
         "INSERT INTO likedmovies (userID, movieID) values (%s, %s)", 
         (userID, movieID)
     )
-
-                      
+                
 #Gets
 def getMovieFromID(movieID): #Returns 1 movie from its movieID
 
@@ -129,8 +127,7 @@ def getMovieFromID(movieID): #Returns 1 movie from its movieID
         fetchone = True
     )
 
-
-def getAllMovies(): #Returns json of all movies in the database
+def getAllMovies(): #Returns dictionary of all movies in the database
     return database.query_db_read("SELECT * FROM movie")
 
 #==========Review Functions==========
@@ -154,14 +151,12 @@ def setReviewText(reviewID, text):
         (text, reviewID)
     )
 
-
 #Gets
 def getUserReviews(userID): #Returns all reviews created by a user
     return database.query_db_read(
         "SELECT * FROM review WHERE userID = %s",
         (userID,)
     )
-
 
 def getMovieReviews(movieID): #Returns all reviews created by a user
     return database.query_db_read(

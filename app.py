@@ -9,13 +9,6 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/test1') 
-def testinserts():
-    try:
-        db_functions.createReview("reviewText", 4, 550)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/test2') 
 def testselects():
         test = db_functions.getAllUsers()
@@ -31,6 +24,7 @@ def testselects():
         test.append(db_functions.getMovieReviews(550))
         test.append(db_functions.getUserReviews(4))
         test.append(db_functions.getReviewFromID(1))
+        return test
 
 @app.teardown_appcontext
 def close_connection(exception):

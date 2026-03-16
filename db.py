@@ -19,20 +19,28 @@ def query_db(query, params=None, fetchone=False, commit=False):
     database = get_db()
     cur = database.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    cur.execute(query, params)
+    try:
+        cur.execute(query, params)
+        result = None
 
-    result = None
-    if query.strip().lower().startswith("select"):
-        if fetchone:
-            result = cur.fetchone()
-        else:
-            result = cur.fetchall()
+        if query.strip().lower().startswith("select"):
+            if fetchone:
+                result = cur.fetchone()
+            else:
+                result = cur.fetchall()
 
-    if commit:
-        database.commit()
+        if commit:
+            database.commit()
 
-    cur.close()
-    return result
+        return result
+    
+    except Exception as e:
+        database.rollback()
+        raise e
+
+    finally:
+        cur.close()
+
 
 def close_connection(exception):
     db = g.pop("db", None)

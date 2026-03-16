@@ -22,18 +22,16 @@ def query_db(query, params=None, fetchone=False, commit=False):
 
     try:
         cur.execute(query, params)
-        result = None
-
-        if query.strip().lower().startswith("select"):
-            if fetchone:
-                result = cur.fetchone()
-            else:
-                result = cur.fetchall()
 
         if commit:
             database.commit()
 
-        return result
+        if fetchone:
+            return cur.fetchone()
+        try:
+            return cur.fetchall()
+        except psycopg2.ProgrammingError:
+            return None
     
     except Exception as e:
         database.rollback()

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import jsonify
+from flask import request
 import db_functions
 import db as database
 import os
@@ -71,6 +72,43 @@ def get_movie(movie_id):
             "rating": tmdb_data.get("vote_average"),
             "genres": tmdb_data.get("genres", [])
         }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+        
+#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
+@app.route('/search') 
+def search_movies():
+    query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+ 
+    if not query:
+        return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
+ 
+    try:
+        results = api.TMDB_search(query, page=page)
+        if "error" in results:
+            return jsonify(results), 502
+ 
+        movies = []
+        for m in results.get("results", []):
+            movies.append({
+                "id": m["id"],
+                "title": m["title"],
+                "overview": m.get("overview"),
+                "release_date": m.get("release_date"),
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "vote_average": m.get("vote_average"),
+                "genre_ids": m.get("genre_ids", [])
+            })
+ 
+        return jsonify({
+            "results": movies,
+            "total_results": results.get("total_results"),
+            "total_pages": results.get("total_pages"),
+            "page": results.get("page")
+        }), 200
  
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+

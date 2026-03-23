@@ -209,9 +209,9 @@ def popular_movies():
 #very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
 #might be useless, but it was very simple to add regardless so figured why not, can just delete later
 @app.route('/GENRESNEEDSEDITED') 
-def genres():
+async def genres():
     try:
-        result = api.get_genres()
+        result = await api.get_genres()
         if "error" in result:
             return jsonify(result), 502
         return jsonify(result), 200

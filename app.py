@@ -15,6 +15,12 @@ popular_movies = {
     5: {"title": "Forrest Gump", "year": 1994, "genre": "Drama", "rating": 8.8, "poster_url": "https://m.media-amazon.com/images/I/41c9r+eH7-L._AC_.jpg", "description": "The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold through the perspective of an Alabama man with an IQ of 75."}
 }
 
+
+#This if statement is try to fix an issue when deploying where the page infinite loads until restart
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000)) #Default to 8000 if PORT not set
+    app.run(host="0.0.0.0", port=port, debug=False)
+    
 @app.route('/')
 def home():
     username = session.get('username') 
@@ -69,12 +75,6 @@ if __name__ == '__main__':
     
 
 
-app = Flask(__name__)
-
-#This if statement is try to fix an issue when deploying where the page infinite loads until restart
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000)) #Default to 8000 if PORT not set
-    app.run(host="0.0.0.0", port=port, debug=False)
 
 @app.route('/HELLOWORLD') #Base route for the home page "https://web-development-assignement.onrender.com/"
 def hello_world():

@@ -23,6 +23,7 @@ USER_DB = {
 def home():
     username = session.get('username') 
     data = popular_movies()
+    print(data)
     movie_list = data["results"]
     print(movie_list)
     return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)

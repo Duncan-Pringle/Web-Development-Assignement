@@ -22,7 +22,8 @@ USER_DB = {
 @app.route("/")
 def home():
     username = session.get('username') 
-    return render_template("index.html", username=username, featured_movie=pop_movies.get(0), popular_movies=pop_movies)
+    print(popular_movies())
+    return render_template("index.html", username=username, featured_movie=popular_movies()[0], popular_movies=popular_movies())
 
 
 @app.route('/movie/<int:movie_id>')
@@ -169,6 +170,7 @@ def popular_movies():
     try:
         results = api.TMDB_popular(page=page)
         if "error" in results:
+            print(f"Error fetching popular movies: {results['error']}")
             return jsonify(results), 502
  
         movies = []
@@ -182,7 +184,7 @@ def popular_movies():
                 "vote_average": m.get("vote_average"),
                 "genre_ids": m.get("genre_ids", [])
             })
- 
+        print("Fetched popular movies from TMDB")
         return jsonify({
             "results": movies,
             "total_results": results.get("total_results"),
@@ -191,6 +193,7 @@ def popular_movies():
         }), 200
  
     except Exception as e:
+        print(f"Error fetching popular movies: {e}")
         return jsonify({"error": str(e)}), 500
 
 #very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids

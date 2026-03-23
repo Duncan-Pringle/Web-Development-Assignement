@@ -1,4 +1,8 @@
-from flask import Flask, redirect, request, render_template, session
+from flask import Flask, redirect, request, render_template, session, jsonify
+import db_functions
+import db as database
+import os
+import api
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
@@ -14,7 +18,7 @@ popular_movies = {
 @app.route('/')
 def home():
     username = session.get('username') 
-    return render_template('index.html', username=username, featured_movie=popular_movies.get(0), popular_movies=popular_movies)
+    return render_template('/templates/index.html', username=username, featured_movie=popular_movies.get(0), popular_movies=popular_movies)
 USER_DB = {
     "admin": "password123"
 }
@@ -63,13 +67,7 @@ def profile():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
     
-from flask import Flask
-from flask import jsonify
-from flask import request
-import db_functions
-import db as database
-import os
-import api
+
 
 app = Flask(__name__)
 

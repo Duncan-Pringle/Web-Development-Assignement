@@ -22,8 +22,10 @@ USER_DB = {
 @app.route("/")
 def home():
     username = session.get('username') 
-    print(popular_movies())
-    return render_template("index.html", username=username, featured_movie=popular_movies()[0], popular_movies=popular_movies())
+    data = popular_movies
+    movie_list = data["results"]
+    print(movie_list)
+    return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
 
 
 @app.route('/movie/<int:movie_id>')

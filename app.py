@@ -141,7 +141,7 @@ def search_movies():
     try:
         results = api.TMDB_search(query, page=page)
         if "error" in results:
-            return jsonify(results), 502
+            return results, 502
  
         movies = []
         for m in results.get("results", []):
@@ -155,15 +155,15 @@ def search_movies():
                 "genre_ids": m.get("genre_ids", [])
             })
  
-        return jsonify({
+        return {
             "results": movies,
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }), 200
+        }, 200
  
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 #Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
 @app.route('/POPMOVIESNEEDSEDITED/popular') 

@@ -193,7 +193,7 @@ def popular_movies():
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }, 200
+        }
  
     except Exception as e:
         print(f"Error fetching popular movies: {e}")

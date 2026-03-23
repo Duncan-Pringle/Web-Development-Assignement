@@ -1,8 +1,10 @@
 from flask import Flask
 from flask import jsonify
+from flask import request
 import db_functions
 import db as database
 import os
+import api
 
 app = Flask(__name__)
 
@@ -38,4 +40,119 @@ def testselects():
 def close_connection(exception):
     database.close_connection(exception)
 
+#Returns movie data from tmdb, but checks if we have it in the db first to instead use that
+#caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
+@app.route('/movie/<int:movie_id>') 
+def get_movie(movie_id):
+    try:
+        movie = db_functions.getMovieFromID(movie_id)
+        if movie:
+            return jsonify(dict(movie)), 200
+ 
+        tmdb_data = api.TMDB_by_id(movie_id)
+        if "error" in tmdb_data:
+            return jsonify(tmdb_data), 502
+ 
+        db_functions.createMovie(
+            movieID=tmdb_data["id"],
+            title=tmdb_data["title"],
+            description=tmdb_data.get("overview"),
+            poster_url=tmdb_data.get("poster_path"),
+            year=tmdb_data.get("release_date", "")[:4] or None,
+            genres=tmdb_data.get("genres", []), 
+            rating=tmdb_data.get("vote_average")
+        )
+ 
+        return jsonify({
+            "movieID": tmdb_data["id"],
+            "title": tmdb_data["title"],
+            "description": tmdb_data.get("overview"),
+            "poster_url": tmdb.get_poster_url(tmdb_data.get("poster_path")),
+            "year": tmdb_data.get("release_date", "")[:4] or None,
+            "rating": tmdb_data.get("vote_average"),
+            "genres": tmdb_data.get("genres", [])
+        }), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+        
+#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
+@app.route('/search') 
+def search_movies():
+    query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+ 
+    if not query:
+        return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
+ 
+    try:
+        results = api.TMDB_search(query, page=page)
+        if "error" in results:
+            return jsonify(results), 502
+ 
+        movies = []
+        for m in results.get("results", []):
+            movies.append({
+                "id": m["id"],
+                "title": m["title"],
+                "overview": m.get("overview"),
+                "release_date": m.get("release_date"),
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "vote_average": m.get("vote_average"),
+                "genre_ids": m.get("genre_ids", [])
+            })
+ 
+        return jsonify({
+            "results": movies,
+            "total_results": results.get("total_results"),
+            "total_pages": results.get("total_pages"),
+            "page": results.get("page")
+        }), 200
+ 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+#Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
+@app.route('/movies/popular') 
+def popular_movies():
+    page = request.args.get('page', 1, type=int)
+    try:
+        results = api.TMDB_popular(page=page)
+        if "error" in results:
+            return jsonify(results), 502
+ 
+        movies = []
+        for m in results.get("results", []):
+            movies.append({
+                "id": m["id"],
+                "title": m["title"],
+                "overview": m.get("overview"),
+                "release_date": m.get("release_date"),
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "vote_average": m.get("vote_average"),
+                "genre_ids": m.get("genre_ids", [])
+            })
+ 
+        return jsonify({
+            "results": movies,
+            "total_results": results.get("total_results"),
+            "total_pages": results.get("total_pages"),
+            "page": results.get("page")
+        }), 200
+ 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+#very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
+#might be useless, but it was very simple to add regardless so figured why not, can just delete later
+@app.route('/genres') 
+def genres():
+    try:
+        result = api.get_genres()
+        if "error" in result:
+            return jsonify(result), 502
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+        

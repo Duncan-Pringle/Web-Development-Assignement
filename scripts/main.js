@@ -14,11 +14,7 @@ async function loadHome() {
 
     try{
        const movies=  await API.popular();
-       //[{t:"Movie 1"},
-      // {t:"Movie 2"},
-      // {t:"Movie 3"},
-      // {t:"Movie 4"},
-      // {t:"Movie 5"}];
+       
         const featured= createFeaturedCard(movies[0]);
         const posters= movies.slice(1,6)
         .map(t=> createPosterCard(t.title))

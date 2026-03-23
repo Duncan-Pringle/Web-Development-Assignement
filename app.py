@@ -21,10 +21,10 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000)) #Default to 8000 if PORT not set
     app.run(host="0.0.0.0", port=port, debug=False)
     
-@app.route('/')
+@app.route("/")
 def home():
     username = session.get('username') 
-    return render_template('/templates/index.html', username=username, featured_movie=popular_movies.get(0), popular_movies=popular_movies)
+    return render_template("/index.html", username=username, featured_movie=popular_movies.get(0), popular_movies=popular_movies)
 USER_DB = {
     "admin": "password123"
 }

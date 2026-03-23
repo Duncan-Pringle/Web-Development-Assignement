@@ -171,7 +171,7 @@ def popular_movies():
         results = api.TMDB_popular(page=page)
         if "error" in results:
             print(f"Error fetching popular movies: {results['error']}")
-            return jsonify(results), 502
+            return results, 502
  
         movies = []
         for m in results.get("results", []):
@@ -185,16 +185,16 @@ def popular_movies():
                 "genre_ids": m.get("genre_ids", [])
             })
         print("Fetched popular movies from TMDB")
-        return jsonify({
+        return {
             "results": movies,
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }), 200
+        }, 200
  
     except Exception as e:
         print(f"Error fetching popular movies: {e}")
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 #very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
 #might be useless, but it was very simple to add regardless so figured why not, can just delete later

@@ -142,3 +142,17 @@ def popular_movies():
  
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+#very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
+#might be useless, but it was very simple to add regardless so figured why not, can just delete later
+@app.route('/genres') 
+def genres():
+    try:
+        result = api.get_genres()
+        if "error" in result:
+            return jsonify(result), 502
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+        

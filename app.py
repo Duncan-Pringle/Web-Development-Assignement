@@ -13,7 +13,7 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000)) #Default to 8000 if PORT not set
     app.run(host="0.0.0.0", port=port, debug=False)
 
-@app.route('/') #Base route for the home page "https://web-development-assignement.onrender.com/"
+@app.route('/HELLOWORLD') #Base route for the home page "https://web-development-assignement.onrender.com/"
 def hello_world():
     return 'Hello, World!'
 
@@ -42,7 +42,7 @@ def close_connection(exception):
 
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
-@app.route('/movie/<int:movie_id>') 
+@app.route('/MOVIENEEDSEDITED/<int:movie_id>') 
 def get_movie(movie_id):
     try:
         movie = db_functions.getMovieFromID(movie_id)
@@ -77,7 +77,7 @@ def get_movie(movie_id):
         return jsonify({"error": str(e)}), 500
         
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
-@app.route('/search') 
+@app.route('/SEARCHNEEDSEDITED') 
 def search_movies():
     query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
@@ -113,7 +113,7 @@ def search_movies():
         return jsonify({"error": str(e)}), 500
 
 #Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
-@app.route('/movies/popular') 
+@app.route('/POPMOVIESNEEDSEDITED/popular') 
 def popular_movies():
     page = request.args.get('page', 1, type=int)
     try:
@@ -145,7 +145,7 @@ def popular_movies():
 
 #very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
 #might be useless, but it was very simple to add regardless so figured why not, can just delete later
-@app.route('/genres') 
+@app.route('/GENRESNEEDSEDITED') 
 def genres():
     try:
         result = api.get_genres()

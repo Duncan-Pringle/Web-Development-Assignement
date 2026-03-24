@@ -1,4 +1,4 @@
-Flask
+Flask[async]
 Gunicorn
 psycopg2
 httpx

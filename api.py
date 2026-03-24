@@ -52,7 +52,7 @@ async def get_genres():
 async def TMDB_search(query: str, page: int = 1):
     search = httpx.get(f"{TMDB}/search/movie", headers=HEADERS, params={"query": query, "page": page})
     if search.status_code != 200:
-        return {"error": f"Request failed with status {response.status_code}"}
+        return {"error": f"Request failed with status {search.status_code}"}
     return search.json()
 
 
@@ -60,8 +60,8 @@ async def TMDB_search(query: str, page: int = 1):
 def TMDB_popular(page: int = 1):
     popular = httpx.get(f"{TMDB}/movie/popular", headers=HEADERS, params={"page": page})
     if popular.status_code != 200:
-        return {"error": f"Request failed with status {response.status_code}"}
-    return response.json()
+        return {"error": f"Request failed with status {popular.status_code}"}
+    return popular.json()
     
 #helper method that lets us build a full poster URL from a poster_path suffix, size options are w92, w154, w185, w342, w500 and w780
 def TMDB_poster_url(poster_path, size="w342"):

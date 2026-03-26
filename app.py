@@ -6,7 +6,7 @@ import api
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
-popular_movies = {
+pop_movies = {
     0: {"title": "Inception", "year": 2010, "genre": "Sci-Fi", "rating": 8.8, "poster_url": "https://m.media-amazon.com/images/I/51s+qjv9ZlL._AC_.jpg", "description": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO."},
     1: {"title": "The Shawshank Redemption", "year": 1994, "genre": "Drama", "rating": 9.3, "poster_url": "https://m.media-amazon.com/images/I/51NiGlapXlL._AC_.jpg", "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency."},
     2: {"title": "The Godfather", "year": 1972, "genre": "Crime", "rating": 9.2, "poster_url": "https://m.media-amazon.com/images/I/41+eK8zBwQL._AC_.jpg", "description": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son."},
@@ -15,19 +15,19 @@ popular_movies = {
     5: {"title": "Forrest Gump", "year": 1994, "genre": "Drama", "rating": 8.8, "poster_url": "https://m.media-amazon.com/images/I/41c9r+eH7-L._AC_.jpg", "description": "The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold through the perspective of an Alabama man with an IQ of 75."}
 }
 
-
-#This if statement is try to fix an issue when deploying where the page infinite loads until restart
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000)) #Default to 8000 if PORT not set
-    app.run(host="0.0.0.0", port=port, debug=False)
-    
-@app.route("/")
-def home():
-    username = session.get('username') 
-    return render_template("index.html", username=username, featured_movie=popular_movies.get(0), popular_movies=popular_movies)
 USER_DB = {
     "admin": "password123"
 }
+
+@app.route("/")
+def home():
+    username = session.get('username') 
+    data = popular_movies()
+    print(data)
+    movie_list = data["results"]
+    print(movie_list)
+    return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
+
 
 @app.route('/movie/<int:movie_id>')
 def movie_detail(movie_id):
@@ -70,15 +70,6 @@ def page_not_found(e):
 def profile():
     return render_template('profile.html', username=session['username'], show_nav=False)
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
-    
-
-
-
-@app.route('/HELLOWORLD') #Base route for the home page "https://web-development-assignement.onrender.com/"
-def hello_world():
-    return 'Hello, World!'
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"
 def testselects():
@@ -151,7 +142,7 @@ def search_movies():
     try:
         results = api.TMDB_search(query, page=page)
         if "error" in results:
-            return jsonify(results), 502
+            return results, 502
  
         movies = []
         for m in results.get("results", []):
@@ -165,15 +156,15 @@ def search_movies():
                 "genre_ids": m.get("genre_ids", [])
             })
  
-        return jsonify({
+        return {
             "results": movies,
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }), 200
+        }, 200
  
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 #Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
 @app.route('/POPMOVIESNEEDSEDITED/popular') 
@@ -182,7 +173,8 @@ def popular_movies():
     try:
         results = api.TMDB_popular(page=page)
         if "error" in results:
-            return jsonify(results), 502
+            print(f"Error fetching popular movies: {results['error']}")
+            return results, 502
  
         movies = []
         for m in results.get("results", []):
@@ -195,16 +187,17 @@ def popular_movies():
                 "vote_average": m.get("vote_average"),
                 "genre_ids": m.get("genre_ids", [])
             })
- 
-        return jsonify({
+        print("Fetched popular movies from TMDB")
+        return {
             "results": movies,
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }), 200
+        }
  
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error fetching popular movies: {e}")
+        return {"error": str(e)}, 500
 
 #very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
 #might be useless, but it was very simple to add regardless so figured why not, can just delete later
@@ -219,3 +212,5 @@ async def genres():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
         
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=8000)

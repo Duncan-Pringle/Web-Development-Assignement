@@ -9,7 +9,7 @@
         <section class="popular-section">
             <h2 style="margin-bottom: 0px;">Popular Movies/Shows</h2>
             <div class="poster-grid">
-            {%for movie in popular_movies.values() %}
+            {%for movie in popular_movies %}
                 {% include 'poster.html' with context %}
             {% endfor %}
             </div>  

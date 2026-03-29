@@ -52,7 +52,7 @@ def getUserFromUsername(username):
     return database.query_db_read(
         "SELECT * FROM usertable WHERE username = %s",
         (username,),
-        fetchone = true
+        fetchone = True
     )
 
 #A function that returns all reviews made by a user is further down vvvvv

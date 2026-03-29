@@ -1,7 +1,9 @@
 <section class="featured-section">
             <h2>{{ featured_movie.title }}</h2>
             <div class="featured-content">
-                <div class="image-placeholder featured-img"></div>
+                <div class="image-placeholder featured-img">
+                    <img src="{{ featured_movie.poster_url }}" alt="{{ featured_movie.title }}"
+                </div>
                 <div class="featured-details">
                     <p class="synopsis">{{ featured_movie.description }}</p>
                     <div class="button-group">

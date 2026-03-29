@@ -49,8 +49,6 @@ def login():
             return render_template('login.html', error="Invalid username or password")
 
         session['username'] = user['username']
-        session['userID'] = user['userID']
-        session['email'] = user['email']
         return redirect('/')
 
     return render_template('login.html')
@@ -58,8 +56,6 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    session.pop('email', None)
-    session.pop('UserID', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -77,10 +73,7 @@ def signup():
 ###hash the pw before storing @me
         db_functions.createUser(username, email, password)
 
-        newuser = db_functions.getUserFromUsername(username)
-        session['username'] = newuser['username']
-        session['userID'] = newuser['userID']
-        session['email'] = newuser['email']
+        session['username'] = username
         return redirect('/')        
 
     return render_template('signup.html')

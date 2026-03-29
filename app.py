@@ -39,22 +39,50 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        user = db_functions.getUserFromUsername(username)
 
-        
-        if username in USER_DB and USER_DB[username] == password:
-            session['username'] = username  
-            return redirect('/')
-        else:
-            return "Invalid username or password", 401
+        if user is None:
+            return render_template('login.html', error="Invalid username or password")
+
+###replace this with a proper hash check @me
+        if password != user['hashedpass']:
+            return render_template('login.html', error="Invalid username or password")
+
+        session['username'] = user['username']
+        session['userID'] = user['userID']
+        session['email'] = user['email']
+        return redirect('/')
+
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
+    session.pop('email', None)
+    session.pop('UserID', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if db_functions.getUserFromUsername(username):
+            return render_template('signup.html', error = "username is taken")
+        if db_functions.getUserFromEmail(email):
+            return render_template('signup.html', error = "email already in use")
+
+###hash the pw before storing @me
+        db_functions.createUser(username, email, password)
+
+        newuser = db_functions.getUserFromUsername(username)
+        session['username'] = newuser['username']
+        session['userID'] = newuser['userID']
+        session['email'] = newuser['email']
+        return redirect('/')        
+
     return render_template('signup.html')
 
 @app.route('/search')

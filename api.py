@@ -52,7 +52,7 @@ async def get_genres():
 async def TMDB_search(query: str, page: int = 1):
     search = httpx.get(f"{TMDB}/search/movie", headers=HEADERS, params={"query": query, "page": page})
     if search.status_code != 200:
-        return {"error": f"Request failed with status {response.status_code}"}
+        return {"error": f"Request failed with status {search.status_code}"}
     return search.json()
 
 

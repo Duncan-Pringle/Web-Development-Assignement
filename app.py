@@ -109,8 +109,10 @@ def userdetails():
     try:
         test = {
             "Details": db_functions.getEverything()
-
-
+            }
+        return jsonify(test), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"
 def testselects():

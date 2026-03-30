@@ -94,7 +94,7 @@ def page_not_found(e):
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')), show_nav=False, email=db_functions.getEmailFromID(session.get('id')))
+    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"))
 
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"

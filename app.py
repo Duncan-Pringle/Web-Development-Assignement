@@ -51,16 +51,11 @@ def login():
 ###replace this with a proper hash check @me
         if password != user['hashedpass']:
             return render_template('login.html', error="Invalid username or password")
-
-        session['username'] = user['username']
+        
+        session['id'] = db_functions.getIDFromUsername(username)
         return redirect('/')
 
-        
-        if username in USER_DB and USER_DB[username] == password:
-            session['id'] = db_functions.getIDFromUsername(username)  # Store user ID in session
-            return redirect('/')
-        else:
-            return "Invalid username or password", 401
+    
     return render_template('login.html')
 
 @app.route('/logout')

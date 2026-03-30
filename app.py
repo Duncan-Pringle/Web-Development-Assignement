@@ -52,7 +52,7 @@ def login():
         if password != user['hashedpass']:
             return render_template('login.html', error="Invalid username or password")
         
-        session['id'] = db_functions.getIDFromUsername(username)
+        session['id'] = db_functions.getIDFromUsername(username)['userid']
         return redirect('/')
 
     
@@ -75,10 +75,10 @@ def signup():
         if db_functions.getUserFromEmail(email):
             return render_template('signup.html', error = "email already in use")
 
-###hash the pw before storing @me
+        ###hash the pw before storing @me
         db_functions.createUser(username, email, password)
 
-        session['username'] = username
+        session['id'] = db_functions.getIDFromUsername(username)
         return redirect('/')        
 
     return render_template('signup.html')

@@ -23,7 +23,7 @@ USER_DB = {
 def home():
     print(session.get('id'))
     if 'id' in session:
-        username = db_functions.getUsernameFromID(session.get('id'))
+        username = db_functions.getUsernameFromID(session.get('id')).get("username")
     else:
         username = None
     data = popular_movies()
@@ -52,7 +52,7 @@ def login():
         if password != user['hashedpass']:
             return render_template('login.html', error="Invalid username or password")
         
-        session['id'] = db_functions.getIDFromUsername(username)['userid']
+        session['id'] = db_functions.getIDFromUsername(username).get("userid")
         return redirect('/')
 
     
@@ -78,7 +78,7 @@ def signup():
         ###hash the pw before storing @me
         db_functions.createUser(username, email, password)
 
-        session['id'] = db_functions.getIDFromUsername(username)
+        session['id'] = db_functions.getIDFromUsername(username).get("userid")
         return redirect('/')        
 
     return render_template('signup.html')

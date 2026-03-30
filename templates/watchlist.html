@@ -1,0 +1,23 @@
+{extends 'base.html'}
+
+{% block title %}{{ username }}'s Watchlist{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div class="watchlist-container">
+    <h2>{{ username }}'s Watchlist</h2>
+    {% if watchlist %}
+        <div class="poster-grid">
+            {% for movie in watchlist %}
+                <div class="poster-item">
+                    <div class="poster-img">{{ movie.title }}</div>
+                    <div class="poster-title">{{ movie.title }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Your watchlist is currently empty. Start adding movies and shows to keep track of them!</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -71,9 +71,9 @@ def signup():
         password = request.form.get('password')
 
         if db_functions.getUserFromUsername(username):
-            return render_template('signup.html', error = "username is taken")
+            return render_template('signup.html', error = "Username is taken")
         if db_functions.getUserFromEmail(email):
-            return render_template('signup.html', error = "email already in use")
+            return render_template('signup.html', error = "Email already in use")
 
         ###hash the pw before storing @me
         db_functions.createUser(username, email, password)

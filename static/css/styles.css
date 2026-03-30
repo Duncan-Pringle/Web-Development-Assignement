@@ -509,7 +509,7 @@ a:has(#hub), a:has(#hub):visited {
     font-size: 14px;
 }
 
-#alert {
+.alert {
     padding: 15px;
     color: red;
     margin-bottom: 20px;

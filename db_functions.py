@@ -191,6 +191,7 @@ def getEverything(): #Prints the entire database
     results = {}
 
     for table in tables:
+        print(f"Getting data from {table}...")
         result = database.query_db_read(f"SELECT * FROM {table}")
         results[table] = result
 

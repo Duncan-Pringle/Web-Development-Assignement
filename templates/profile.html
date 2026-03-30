@@ -9,7 +9,7 @@
         <div class="profile-avatar">
             {{ username[0].upper() }} </div>
         <h2>{{ username }}</h2>
-        <p class="user-email">{{ session.get('email', 'Error - No email found') }}</p>
+        <p class="user-email">{{ if email }}{{ email }}{{ else }}Email not available{{ endif }}</p>
         <hr>
         <nav class="profile-nav">
             <a href="#" class="active">Overview</a>

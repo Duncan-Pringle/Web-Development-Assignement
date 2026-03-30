@@ -21,7 +21,10 @@ USER_DB = {
 
 @app.route("/")
 def home():
-    username = session.get('username') 
+    if 'id' in session:
+        username = db_functions.getUsernameFromID(session.get('id'))
+    else:
+        username = None
     data = popular_movies()
     print(data)
     movie_list = data["results"]
@@ -42,7 +45,7 @@ def login():
 
         
         if username in USER_DB and USER_DB[username] == password:
-            session['username'] = username  
+            session['id'] = db_functions.getIDFromUsername(username)  # Store user ID in session
             return redirect('/')
         else:
             return "Invalid username or password", 401
@@ -50,7 +53,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.pop('id', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -68,7 +71,7 @@ def page_not_found(e):
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', username=session['username'], show_nav=False)
+    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')), show_nav=False, email=db_functions.getEmailFromID(session.get('id')))
 
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"

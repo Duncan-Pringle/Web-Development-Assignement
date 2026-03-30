@@ -217,7 +217,7 @@ def deleteWatchlistMovie(userID, movieID):
 def getUserWatchlist(userID):
     database.query_db_read(
         "SELECT * FROM watchlist WHERE userID = %s",
-        (userID)
+        (userID,)
     )
 
 #=========userreports functions===========

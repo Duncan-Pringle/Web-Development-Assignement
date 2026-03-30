@@ -181,3 +181,63 @@ def getReviewFromID(reviewID): #Returns a review from a reviewID
 
 
 
+#======================================================
+#GET EVERYTHING FROM THE DATABASE FUNCTION DELETE LATER
+#======================================================
+
+def getEverything(): #Prints the entire database
+    tables = ["usertable", "movie", "genre", "likedmovies", "moviegenres", "review", "watchlist", "userreports"]
+
+    results = {}
+
+    for table in tables:
+        result = database.query_db_read(f"SELECT * FROM {table}")
+        results[table] = result
+
+    print(results)
+
+#=========watchlist functions===========
+
+def createWatchlistMovie(userID, movieID): #Inserts a value into the watchlist, also has a timestamp
+    database.query_db_write(
+        "INSERT INTO watchlist (userID, movieID) values (%s, %s)", 
+        (userID, movieID)
+    )
+
+def deleteWatchlistMovie(userID, movieID):
+    database.query_db_write(
+        "DELETE FROM watchlist WHERE userID = %s AND movieID = %s",
+        (userID, movieID)
+    )
+
+def getUserWatchlist(userID):
+    database.query_db_read(
+        "SELECT * FROM watchlist WHERE userID = %s",
+        (userID)
+    )
+
+#=========userreports functions===========
+
+def createReportWithReview(reporter, reported, reviewID): #Creates a report from 2 userid's with a reviewID
+    database.query_db_write(
+        "INSERT INTO userreports (reporter, reported, reviewid) values (%s, %s, %s)", 
+        (reporter, reported, reviewID)
+    )
+
+def createReport(reporter, reported): #Creates a report from 2 userid's
+    database.query_db_write(
+        "INSERT INTO userreports (reporter, reported) values (%s, %s)", 
+        (reporter, reported)
+    )
+
+def deleteReportFromID(reportid):
+    database.query_db_write(
+        "DELETE FROM userreports WHERE reportid = %s",
+        (reportid)
+    )
+
+def getAllUnhandledReports(): #Returns everything from the userreports table where handled = false
+    database.query_db_read("SELECT * FROM userreports WHERE handled = false")
+
+def handleReport(reportid): #Changes the "handled" variable from false to true in a report
+    database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))

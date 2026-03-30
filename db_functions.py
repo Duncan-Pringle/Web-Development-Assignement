@@ -185,17 +185,20 @@ def getReviewFromID(reviewID): #Returns a review from a reviewID
 #GET EVERYTHING FROM THE DATABASE FUNCTION DELETE LATER
 #======================================================
 
-def getEverything(): #Prints the entire database
+def getEverything():
     tables = ["usertable", "movie", "genre", "likedmovies", "moviegenres", "review", "watchlist", "userreports"]
-
     results = {}
 
     for table in tables:
-        print(f"Getting data from {table}...")
         result = database.query_db_read(f"SELECT * FROM {table}")
-        results[table] = result
+        
+        # Convert the list of RealDictRows into a list of regular dicts
+        if result:
+            results[table] = [dict(row) for row in result]
+        else:
+            results[table] = [] # Keep it as an empty list if no data
 
-    print(results)
+    return results
 
 #=========watchlist functions===========
 

@@ -21,11 +21,15 @@ USER_DB = {
 
 @app.route("/")
 def home():
-    username = session.get('username') 
+    print(session.get('id'))
+    if 'id' in session:
+        username = db_functions.getUsernameFromID(session.get('id')).get("username")
+    else:
+        username = None
     data = popular_movies()
-    print(data)
+    
     movie_list = data["results"]
-    print(movie_list)
+    
     return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
 
 
@@ -47,15 +51,16 @@ def login():
 ###replace this with a proper hash check @me
         if password != user['hashedpass']:
             return render_template('login.html', error="Invalid username or password")
-
-        session['username'] = user['username']
+        
+        session['id'] = db_functions.getIDFromUsername(username).get("userid")
         return redirect('/')
 
+    
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.pop('id', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -70,10 +75,10 @@ def signup():
         if db_functions.getUserFromEmail(email):
             return render_template('signup.html', error = "email already in use")
 
-###hash the pw before storing @me
+        ###hash the pw before storing @me
         db_functions.createUser(username, email, password)
 
-        session['username'] = username
+        session['id'] = db_functions.getIDFromUsername(username).get("userid")
         return redirect('/')        
 
     return render_template('signup.html')
@@ -89,7 +94,7 @@ def page_not_found(e):
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', username=session['username'], show_nav=False)
+    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"))
 
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"

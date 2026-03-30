@@ -22,6 +22,7 @@ USER_DB = {
 @app.route("/")
 def home():
     username = session.get('username') 
+    userlvl = session.get('userlvl')
     data = popular_movies()
     print(data)
     movie_list = data["results"]
@@ -49,6 +50,7 @@ def login():
             return render_template('login.html', error="Invalid username or password")
 
         session['username'] = user['username']
+        session['userlvl'] = db_functions.getUserLevelFromUsername(username)
         return redirect('/')
 
     return render_template('login.html')
@@ -56,6 +58,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
+    session.pop('userlvl', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])

@@ -96,6 +96,23 @@ def page_not_found(e):
 def profile():
     return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"))
 
+@app.route('/watchlist')
+def watchlist():
+    #shouldn't be possible to get here without being logged in but just in case, redirect to login if we don't have a user id in the session
+    if 'id' not in session:
+        return redirect('/login')
+    watchlist = db_functions.getUserWatchlist(session.get('id'))
+    return render_template('watchlist.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), watchlist=watchlist)
+
+@app.route('/userdetails')
+def userdetails():
+    try:
+        test = {
+            "Details": db_functions.getEverything()
+        }
+        return jsonify(test), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"
 def testselects():
@@ -237,6 +254,8 @@ async def genres():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-        
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

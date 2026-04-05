@@ -140,7 +140,7 @@ def close_connection(exception):
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
 @app.route('/MOVIENEEDSEDITED/<int:movie_id>') #To fix, added await and removed error
-def get_movie(movie_id):
+async def get_movie(movie_id):
     try:
         movie = await db_functions.getMovieFromID(movie_id)
         if movie:
@@ -175,7 +175,7 @@ def get_movie(movie_id):
         
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
 @app.route('/SEARCHNEEDSEDITED') #To fix, added await and removed error
-def search_movies():
+async def search_movies():
     query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
  
@@ -211,7 +211,7 @@ def search_movies():
 
 #Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
 @app.route('/POPMOVIESNEEDSEDITED/popular') #To fix, added await and removed error 
-def popular_movies():
+async def popular_movies():
     page = request.args.get('page', 1, type=int)
     try:
         results = await api.TMDB_popular(page=page)

@@ -142,7 +142,7 @@ def close_connection(exception):
 @app.route('/MOVIENEEDSEDITED/<int:movie_id>') #To fix, added await and removed error
 def get_movie(movie_id):
     try:
-        movie = await db_functions.getMovieFromID(movie_id)
+        movie = db_functions.getMovieFromID(movie_id)
         if movie:
             return jsonify(dict(movie)), 200
  
@@ -175,7 +175,7 @@ def get_movie(movie_id):
         
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
 @app.route('/SEARCHNEEDSEDITED') #To fix, added await and removed error
-def search_movies():
+async def search_movies():
     query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
  
@@ -214,7 +214,7 @@ def search_movies():
 def popular_movies():
     page = request.args.get('page', 1, type=int)
     try:
-        results = await api.TMDB_popular(page=page)
+        results = api.TMDB_popular(page=page)
         if "error" in results:
             print(f"Error fetching popular movies: {results['error']}")
             return results, 502

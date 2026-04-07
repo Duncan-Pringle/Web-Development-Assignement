@@ -9,7 +9,6 @@
     <h1>Admin Dashboard</h1>
     <div class="admin-stats">
         <div class="stat-card">Total Users: {{ users|length }}</div>
-        <!-- add more stats later if needed -->
     </div>
 
     <h2>Manage Users</h2>

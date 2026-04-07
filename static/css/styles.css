@@ -522,3 +522,58 @@ a:has(#hub), a:has(#hub):visited {
         flex-direction: column;
     }
 }
+
+/* Admin Panel Page*/
+.admin-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+.admin-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: #2c2c3a;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: bold;
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+.admin-table th, .admin-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+.admin-table th {
+    background: #f4f6f9;
+}
+.btn-small {
+    background: #4CAF50;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 2px;
+}
+.btn-small.danger {
+    background: #e74c3c;
+}
+@media (max-width: 700px) {
+    .admin-table, .admin-table thead, .admin-table tbody, .admin-table th, .admin-table td, .admin-table 
+    tr {
+        display: block;
+    }
+    .admin-table 
+    tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+    }
+}

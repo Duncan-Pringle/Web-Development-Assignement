@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div class="admin-container">
+    <h1>Admin Dashboard</h1>
+    <div class="admin-stats">
+        <div class="stat-card">Total Users: {{ users|length }}</div>
+        <!-- add more stats later if needed -->
+    </div>
+
+    <h2>Manage Users</h2>
+    <table class="admin-table">
+        <thead>
+            <tr><th>ID</th><th>Username</th><th>Email</th><th>Admin?</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+                <td>
+                    <form method="POST" action="/admin/toggle_admin/{{ user.id }}" style="display:inline">
+                        <button type="submit" class="btn-small">Toggle Admin</button>
+                    </form>
+                    {% if user.id != session.user_id %}
+                    <form method="POST" action="/admin/delete_user/{{ user.id }}" style="display:inline">
+                        <button type="submit" class="btn-small danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

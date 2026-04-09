@@ -52,15 +52,19 @@ def login():
         if password != user['hashedpass']:
             return render_template('login.html', error="Invalid username or password")
         
-        session['id'] = db_functions.getIDFromUsername(username).get("userid")
+        session['id'] = user['userid']
+        session['is_admin'] = (user['userlevel'] == 2)
         return redirect('/')
 
     
     return render_template('login.html')
 
+
+
 @app.route('/logout')
 def logout():
     session.pop('id', None)
+    session.pop('is_admin', None)
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -259,3 +263,42 @@ async def genres():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
+
+@app.route('/admin')
+def admin():
+    if 'id' not in session:
+        return redirect('/login')
+
+    if not session.get('is_admin'):
+        return "Access denied", 403
+
+    users = db_functions.getAllUsers()
+    movies = db_functions.getAllMovies()
+
+    return render_template("admin.html", users=users, movies=movies)
+
+
+@app.route('/admin/delete_user/<int:user_id>')
+def delete_user(user_id):
+    if not session.get('is_admin'):
+        return "Access denied", 403
+
+    db_functions.deleteUser(user_id)
+    return redirect('/admin')        
+    
+
+@app.route('/admin/promote/<int:user_id>')
+def promote(user_id):
+    if not session.get('is_admin'):
+        return "Access denied", 403
+
+    db_functions.setLevel(user_id, 2)
+    return redirect('/admin')
+
+@app.route('/admin/delete_review/<int:review_id>')
+def delete_review(review_id):
+    if not session.get('is_admin'):
+        return "Access denied", 403
+
+    db_functions.deleteReview(review_id)
+    return redirect('/admin')    

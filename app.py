@@ -372,11 +372,11 @@ def toggle_watchlist(movie_id):
     try:
         if movie_id in db_functions.getUserWatchlist(session.get('id')):
             print(f"DEBUG: Movie {movie_id} is currently in watchlist, removing...")
-            db_functions.deleteWatchlistMovie(movie_id)
+            db_functions.deleteWatchlistMovie(session.get('id'), movie_id)
             return jsonify(status='removed')
         else:
             print(f"DEBUG: Movie {movie_id} is not in watchlist, adding...")
-            db_functions.createWatchlistMovie(movie_id)
+            db_functions.createWatchlistMovie(session.get('id'), movie_id)
             return jsonify(status='added')
 
     except Exception as e:

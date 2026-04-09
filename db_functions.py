@@ -248,17 +248,44 @@ def getAllUnhandledReports(): #Returns everything from the userreports table whe
 def handleReport(reportid): #Changes the "handled" variable from false to true in a report
     database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))
 
-###tv show functions
+#==========Tv Show Functions==========
 
-def createShow(showID, name, description, poster_url, first_air_date, number_of_seasons, rating):
-    database.query_db_write(
-        "INSERT INTO tvshow (showID, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
+#Inserts a show into the tvshow table, and uses the genres json to insert the genres
+def createShow(showID, name, description, poster_url, first_air_date, genres, number_of_seasons, rating):
+
+
+    database.query_db_write( #Inserts everything except for the genres   
+        "INSERT INTO tvshow (showid, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
         (showID, name, description, poster_url, first_air_date, number_of_seasons, rating)
-    )
+    )                
 
-def getShowFromID(showID):
+# Genre Format example from TMDB ----- [{"id": 18,"name": "Drama"}, {"id": 53,"name": "Thriller"}]
+    for genre in genres:
+        genreID = genre["id"]
+        genreName = genre["name"]
+        #Insert into genre table
+        database.query_db_write(
+            "INSERT INTO tvgenre (tvgenreid, name) values (%s, %s) ON CONFLICT DO NOTHING", 
+            (genreID, genreName)
+        )
+        #Insert into tvgenres join table
+        database.query_db_write(
+            "INSERT INTO tvgenres (showid, tvgenreid) values (%s, %s) ON CONFLICT DO NOTHING", 
+            (showID, genreID)
+        )
+    db = database.get_db()
+    db.commit() #Commit once after all genres are inserted
+
+def getShowFromID(showID): #Returns 1 show from its showID
+
     return database.query_db_read(
-        "SELECT * FROM tvshow WHERE showID = %s",
+        "SELECT * FROM tvshow WHERE showid = %s",
         (showID,),
         fetchone = True
     )
+
+def getAllShows(): #Returns dictionary of all shows in the database
+    return database.query_db_read("SELECT * FROM tvshow")
+
+def getShowGenres(showID): #Returns dictionary of all genres for a tv show
+    return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID), fetchone = True)

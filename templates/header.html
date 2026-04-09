@@ -11,7 +11,7 @@
           <p><strong>{{ username }}</strong></p>
           <hr>
           <a href="/profile">My Profile</a>
-          {% if session.is_admin %}
+          {% if session.get('is_admin') %}
           <a href="/admin">Admin Panel</a>
           {% endif %}
           <a href="/settings">Settings</a>

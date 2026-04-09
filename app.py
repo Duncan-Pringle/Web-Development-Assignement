@@ -33,10 +33,6 @@ def home():
     return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
 
 
-@app.route('/movie/<int:movie_id>')
-def movie_detail(movie_id):
-    movie = popular_movies.get(movie_id)
-    return render_template('movieDetails.html', movie=movie)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -54,8 +50,7 @@ def login():
         
         session['id'] = db_functions.getIDFromUsername(username).get("userid")
         return redirect('/')
-
-    
+   
     return render_template('login.html')
 
 @app.route('/logout')
@@ -83,11 +78,6 @@ def signup():
 
     return render_template('signup.html')
 
-@app.route('/search')
-def search():
-    term = request.args.get('term', 'nothing')
-    return f'Searching for: {term}'
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -114,24 +104,7 @@ def userdetails():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"
-def testselects():
-        try:
-            test = {
-                "All users test": db_functions.getAllUsers(),
-                "userid 1": db_functions.getUserFromID(1),
-                "user from email": db_functions.getUserFromEmail("user2email@email.com"),
-                "email from id": db_functions.getEmailFromID(2),
-                "id from username": db_functions.getIDFromUsername("username3"),
-                "all movies": db_functions.getAllMovies(),
-                "user from id 2": db_functions.getUserFromID(2),
-                "movie reviews 550": db_functions.getMovieReviews(550),
-                "user reviews 4": db_functions.getUserReviews(4),
-                "review id 2": db_functions.getReviewFromID(2)
-            }
-            return jsonify(test), 200
-        except Exception as e:
-             return jsonify({"error": str(e)}), 500
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -139,7 +112,7 @@ def close_connection(exception):
 
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
-@app.route('/MOVIENEEDSEDITED/<int:movie_id>') #To fix, added await and removed error
+@app.route('/movie/<int:movie_id>') #To fix, added await and removed error
 def get_movie(movie_id):
     try:
         movie = db_functions.getMovieFromID(movie_id)
@@ -173,8 +146,8 @@ def get_movie(movie_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
         
-#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
-@app.route('/SEARCHNEEDSEDITED') #To fix, added await and removed error
+#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
+@app.route('/search') #To fix, added await and removed error
 async def search_movies():
     query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)

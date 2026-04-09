@@ -102,6 +102,68 @@ def userdetails():
 def close_connection(exception):
     database.close_connection(exception)
 
+# Updated fetch movie
+def fetch_movie_by_name_logic(movie_name):
+    try:
+        # check DB by Title 
+        movie = db_functions.getMovieByTitle(movie_name) 
+        if movie:
+            movie_data = dict(movie)
+            movie_data['genres'] = db_functions.getGenresForMovie(movie['movieID'])
+            # ensure poster_url is a full URL 
+            if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
+                 movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
+            return movie_data
+
+        #search TMDB by string
+        tmdb_data = api.TMDB_search_first(movie_name)
+        if not tmdb_data:
+            return None
+
+        # format
+        movie_info = {
+            "movieID": full_details.get("id"),
+            "title": full_details.get("title"),
+            "description": full_details.get("overview"),
+            "poster_url": api.TMDB_poster_url(full_details.get("poster_path")),
+            "year": full_details.get("release_date", "")[:4] or "N/A",
+            "rating": full_details.get("vote_average"),
+            "genres": full_details.get("genres", []) 
+        }
+        full_details = api.TMDB_by_id(tmdb_data['id'])
+
+        # save to DB
+        db_functions.createMovie(
+            movieID=movie_info["movieID"],
+            title=movie_info["title"],
+            description=movie_info["description"],
+            poster_url=full_details.get("poster_path"), # Save suffix only
+            year=movie_info["year"],
+            genres=movie_info["genres"],
+            rating=movie_info["rating"]
+        )
+
+        movie_info['genres'] = [g['name'] for g in movie_info['genres']]
+        return movie_info
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+#updated route
+@app.route('/movie/<path:movie_name>')
+def movie_details_page(movie_name):
+    # handle URL-encoded spaces (%20)
+    from urllib.parse import unquote
+    clean_name = unquote(movie_name)
+    
+    data = fetch_movie_by_name_logic(clean_name)
+    if not data:
+        return "Movie not found", 404
+
+    return render_template('movieDetails.html', movie=data)
+
+#Think we can delete this despite all the refactoring I did 😭
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
 def fetch_movie_logic(movie_id):
@@ -143,7 +205,7 @@ def fetch_movie_logic(movie_id):
     except Exception as e:
         print(f"Server-side error: {e}")
         return None
-
+#don't think I'm using this anymore so we can probably delete
 @app.route('/movie/<int:movie_id>')
 def movie_details_page(movie_id):
     # route that actually renders the HTML page.

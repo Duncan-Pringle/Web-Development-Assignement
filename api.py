@@ -70,15 +70,10 @@ def TMDB_poster_url(poster_path, size="w342"):
     return f"{TMDB_IMAGE}{size}{poster_path}"
 
 #declan api code (might break)
+#don't think I'm using this anymore so we can probably delete
 def TMDB_by_id(movie_id):
-    """Fetch a single movie's details by its ID."""
+    #Fetch a single movie's details by its ID.
     response = httpx.get(f"{TMDB}/movie/{movie_id}", headers=HEADERS)
     if response.status_code != 200:
         return {"error": "Movie not found"}
     return response.json()
-
-def TMDB_poster_url(poster_path, size="w342"):
-    """Build the full URL for a movie poster."""
-    if not poster_path:
-        return None
-    return f"{TMDB_IMAGE}{size}{poster_path}" 

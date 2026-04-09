@@ -9,9 +9,7 @@ app.secret_key = 'super_secret_key'
 
 @app.route("/")
 def home():
-    if 'id' in session:
-        username = db_functions.getUsernameFromID(session.get('id')).get("username")
-    else:
+
         username = None
 
     data = popular_movies()
@@ -19,7 +17,6 @@ def home():
 
     return render_template(
         "index.html",
-        username=username,
         featured_movie=movie_list[0] if movie_list else None,
         popular_movies=movie_list
     )
@@ -334,7 +331,7 @@ def admin():
     users = db_functions.getAllUsers()
     movies = db_functions.getAllMovies()
 
-    return render_template("admin.html", users=users, movies=movies)
+    return render_template("admin.html", users=users, movies=movies, username=db_functions.getUsernameFromID(session.get('id')).get("username"))
 
 
 @app.route('/admin/delete_user/<int:user_id>')

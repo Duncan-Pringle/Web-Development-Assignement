@@ -368,7 +368,7 @@ def close_connection(exception):
 
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
-    if movie_id in getUserWatchlist(session.get('id')):
+    if movie_id in db_functions.getUserWatchlist(session.get('id')):
         db_functions.deleteWatchlistMovie(movie_id)
         return jsonify(status='removed')
     else:

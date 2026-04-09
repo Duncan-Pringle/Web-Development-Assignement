@@ -31,39 +31,40 @@ HEADERS = {
 #vote count
 #video#vote_average
 
-#use this to get any movie by its id
-def TMDB_by_id(movie_id: int):
-    movie = httpx.get(f"{TMDB}/movie/{movie_id}", headers=HEADERS)
-    if movie.status_code != 200:
-        return {"error": f"Request failed with status {movie.status_code}"}
-    return movie.json()
-
-
-#other methods
-
-#use this to get the key for translating the genre ids to english, it'll return us a very large list formatted like {"id": x, "name": "y"}, ...
- def get_genres():
+# use this to get the key for translating the genre ids to english
+def get_genres():
     genrenames = httpx.get(f"{TMDB}/genre/movie/list", headers=HEADERS)
     if genrenames.status_code != 200:
         return {"error": f"Request failed with status {genrenames.status_code}"}
-    return genrenames.json()  
+    return genrenames.json()
 
-#use this to run a search on tmdb including the option to grab a different page of seach results from tmdb  def TMDB_search(query: str, page: int = 1):
-    search = httpx.get(f"{TMDB}/search/movie", headers=HEADERS, params={"query": query, "page": page})
+
+# use this to run a search on tmdb
+def TMDB_search(query: str, page: int = 1):
+    search = httpx.get(
+        f"{TMDB}/search/movie",
+        headers=HEADERS,
+        params={"query": query, "page": page}
+    )
     if search.status_code != 200:
         return {"error": f"Request failed with status {search.status_code}"}
     return search.json()
 
 
-#use this to get a page of popular movies from tmdb
- def TMDB_popular(page: int = 1):
-    popular = httpx.get(f"{TMDB}/movie/popular", headers=HEADERS, params={"page": page})
+# use this to get a page of popular movies
+def TMDB_popular(page: int = 1):
+    popular = httpx.get(
+        f"{TMDB}/movie/popular",
+        headers=HEADERS,
+        params={"page": page}
+    )
     if popular.status_code != 200:
         return {"error": f"Request failed with status {popular.status_code}"}
     return popular.json()
-    
-#helper method that lets us build a full poster URL from a poster_path suffix, size options are w92, w154, w185, w342, w500 and w780
- def TMDB_poster_url(poster_path, size="w342"):
+
+
+# helper method for poster URL
+def TMDB_poster_url(poster_path, size="w342"):
     if not poster_path:
         return None
     return f"{TMDB_IMAGE}{size}{poster_path}"

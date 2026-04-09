@@ -1,4 +1,3 @@
-// 1. Dropdown Toggle Logic
 function toggleDropdown() {
     const menu = document.getElementById("dropdown-menu");
     if (menu) {
@@ -6,7 +5,6 @@ function toggleDropdown() {
     }
 }
 
-// 2. Global click handler to close dropdowns
 window.onclick = function(event) {
     if (!event.target.closest('#user-card')) {
         const dropdowns = document.getElementsByClassName("dropdown-content");
@@ -20,12 +18,11 @@ window.onclick = function(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const watchlistBtn = document.getElementById('watchlist-btn');
-    console.log('Watchlist Button:', watchlistBtn); // Debugging line
     if (watchlistBtn) {
         watchlistBtn.addEventListener('click', function() {
             const btn = this;
             const movieId = btn.getAttribute('data-movie-id');
-
+            console.log('Testing'); // Debugging log
             // If movieId is missing, stop here
             if (!movieId) return;
 

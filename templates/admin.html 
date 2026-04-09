@@ -10,13 +10,13 @@
 
     <h1>Admin Dashboard</h1>
 
-    <!-- Stats -->
+
     <div class="admin-stats">
         <div class="stat-card">Users: {{ users|length }}</div>
         <div class="stat-card">Movies: {{ movies|length }}</div>
     </div>
 
-    <!-- USERS TABLE -->
+    
     <h2>Manage Users</h2>
     <table class="admin-table">
         <thead>
@@ -48,7 +48,7 @@
 
     <br><br>
 
-    <!-- MOVIES TABLE -->
+
     <h2>Movies in Database</h2>
     <table class="admin-table">
         <thead>

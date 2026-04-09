@@ -122,7 +122,7 @@ def fetch_movie_by_name_logic(movie_name):
         if not tmdb_data:
             print(f"DEBUG: TMDB Search returned ZERO results for '{movie_name}'")
             return None
-        print(f"DEBUG: TMDB found a match: {tmdb_search_result.get('title')} (ID: {tmdb_search_result.get('id')})")
+        print(f"DEBUG: TMDB found a match: {tmdb_data.get('title')} (ID: {tmdb_data.get('id')})")
         # format
         
         full_details = api.TMDB_by_id(tmdb_data['id'])

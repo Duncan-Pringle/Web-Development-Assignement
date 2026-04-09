@@ -298,6 +298,7 @@ def get_show(show_id):
             first_air_date=tmdb_data.get("first_air_date"),
             number_of_seasons=tmdb.data.get("number_of_seasons"),
             rating=tmdb_data.get("vote_average")
+            genres=tmdb_data.get("genres", []), 
         )
  
         return jsonify({
@@ -308,6 +309,7 @@ def get_show(show_id):
             "first_air_date": tmdb_data.get("first_air_date"),
             "number of seasons": tmdb_data.get("number_of_seasons"),
             "rating": tmdb_data.get("vote_average")
+            "genres": tmdb_data.get("genres", [])
         })
 
     except Exception as e:
@@ -331,6 +333,7 @@ def popular_shows():
                 "first_air_date": m.get("first_air_date"),
                 "poster_url": api.TMDB_poster_url(m.get("poster_path")),
                 "vote_average": m.get("vote_average"),
+                "genre_ids": m.get("genre_ids", [])
             })
         print("Fetched popular shos from TMDB")
         return {
@@ -366,6 +369,7 @@ async def search_shows():
                 "first_air_date": m.get("first_air_date"),
                 "poster_url": api.TMDB_poster_url(m.get("poster_path")),
                 "vote_average": m.get("vote_average"),
+                "genre_ids": m.get("genre_ids", [])
             })
  
         return {

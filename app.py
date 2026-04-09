@@ -368,12 +368,20 @@ def close_connection(exception):
 
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
-    if movie_id in db_functions.getUserWatchlist(session.get('id')):
-        db_functions.deleteWatchlistMovie(movie_id)
-        return jsonify(status='removed')
-    else:
-        db_functions.createWatchlistMovie(movie_id)
-        return jsonify(status='added')
+    print(f"DEBUG: Toggling watchlist for movie_id={movie_id} and user_id={session.get('id')}")
+    try:
+        if movie_id in db_functions.getUserWatchlist(session.get('id')):
+            print(f"DEBUG: Movie {movie_id} is currently in watchlist, removing...")
+            db_functions.deleteWatchlistMovie(movie_id)
+            return jsonify(status='removed')
+        else:
+            print(f"DEBUG: Movie {movie_id} is not in watchlist, adding...")
+            db_functions.createWatchlistMovie(movie_id)
+            return jsonify(status='added')
+
+    except Exception as e:
+        print(f"DEBUG: Error occurred while toggling watchlist for movie_id={movie_id}: {e}")
+        return jsonify(status='error'), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -89,8 +89,31 @@ def signup():
 
 @app.route('/search')
 def search():
-    term = request.args.get('term', 'nothing')
-    return f'Searching for: {term}'
+    query = request.args.get('term', '').strip()
+
+    if not query:
+        return render_template('index.html', popular_movies=[])
+
+    try:
+        results = api.TMDB_search(query)
+
+        if "error" in results:
+            return render_template('index.html', popular_movies=[])
+
+        movies = []
+        for m in results.get("results", []):
+            movies.append({
+                "id": m["id"],
+                "title": m["title"],
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "description": m.get("overview"),
+                "rating": m.get("vote_average")
+            })
+
+        return render_template("index.html", popular_movies=movies)
+
+    except Exception as e:
+        return render_template("index.html", popular_movies=[])
 
 @app.errorhandler(404)
 def page_not_found(e):

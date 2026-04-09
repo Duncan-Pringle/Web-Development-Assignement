@@ -274,20 +274,6 @@ def close_connection(exception):
     database.close_connection(exception)
 
 
-@app.route('/POPMOVIESNEEDSEDITED/popular')
-def popular_movies():
-    results = api.TMDB_popular()
-
-    movies = []
-    for m in results.get("results", []):
-        movies.append({
-            "id": m["id"],
-            "title": m["title"],
-            "poster_url": api.TMDB_poster_url(m.get("poster_path")),
-        })
-
-    return {"results": movies}
-
 
 if __name__ == '__main__':
     app.run(debug=True)

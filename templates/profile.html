@@ -26,15 +26,15 @@
         <section class="profile-section">
             <h3>My Watchlist</h3>
             <div class="poster-grid">
-                <div class="poster-item">
-                    <div class="poster-img">Movie 1</div>
-                    <div class="poster-title">The Dark Knight</div>
-                </div>
-                <div class="poster-item">
-                    <div class="poster-img">Movie 2</div>
-                    <div class="poster-title">Inception</div>
-                </div>
-                </div>
+                {% for movie in watchlist %}
+                    <div class="poster-item">
+                        <div class="poster-img">
+                            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">  
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
         </section>
 
         <section class="profile-section">

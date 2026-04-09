@@ -171,9 +171,9 @@ def movie_details_page(movie_name):
     if not data:
         return "Movie not found", 404
     is_in_watchlist = False
-    if session.get('user_id'):
+    if session.get('id'):
     # Check if this specific movie is in this user's list
-        is_in_watchlist = db_functions.checkWatchlist(session['user_id'], data['movieID'])
+        is_in_watchlist = db_functions.checkWatchlist(session.get('id'), data['movieID'])
     return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist, username = db_functions.getUsernameFromID(session.get('id')).get("username") if 'id' in session else None)
 
 #Think we can delete this despite all the refactoring I did 😭

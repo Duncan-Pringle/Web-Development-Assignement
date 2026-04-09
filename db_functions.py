@@ -268,3 +268,12 @@ def getGenresForMovie(movieID):
     results = database.query_db_read(query, (movieID,))
     # Convert list of dicts/rows to a simple list of strings: ['Action', 'Comedy']
     return [row['name'] for row in results] if results else []
+    
+def checkWatchlist(userID, movieID):
+#Returns True if the movie is in the user's watchlist, False otherwise
+    result = database.query_db_read(
+        "SELECT 1 FROM watchlist WHERE userID = %s AND movieID = %s",
+        (userID, movieID),
+        fetchone=True
+    )
+    return result is not None

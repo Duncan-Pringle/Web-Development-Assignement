@@ -25,6 +25,13 @@
             
             <div style="margin-top: 30px;">
                 <a href="/" class="btn">Back to Hub</a>
+                <button id="watchlist-btn" class="btn {% if is_in_watchlist %}btn-added{% endif %}" data-movie-id="{{ movie.movieID }}">
+                {% if is_in_watchlist %}
+                    ✓ In Watchlist
+                {% else %}
+                    + Add to Watchlist
+                {% endif %}
+                </button>
             </div>
         </div>
 

@@ -162,6 +162,12 @@ def fetch_movie_by_name_logic(movie_name):
 #updated route
 @app.route('/movie/<path:movie_name>')
 def movie_details_page(movie_name):
+    is_in_watchlist = False
+    if session.get('user_id'):
+    # Check if this specific movie is in this user's list
+        is_in_watchlist = db_functions.checkWatchlist(session['user_id'], data['movieID'])
+
+return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist)
     # handle URL-encoded spaces (%20)
     from urllib.parse import unquote
     clean_name = unquote(movie_name)
@@ -362,7 +368,22 @@ def make_admin():
 def close_connection(exception):
     database.close_connection(exception)
 
+@app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
+def toggle_watchlist(movie_id):
+    # Check if user is logged in
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "unauthorized"}), 401
 
+    # Check if it's already there
+    existing = db_functions.checkWatchlist(user_id, movie_id)
+
+    if existing:
+        db_functions.deleteWatchlistMovie(user_id, movie_id)
+        return jsonify({"status": "removed"})
+    else:
+        db_functions.createWatchlistMovie(user_id, movie_id)
+        return jsonify({"status": "added"})
 
 if __name__ == '__main__':
     app.run(debug=True)

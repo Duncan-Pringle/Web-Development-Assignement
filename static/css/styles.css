@@ -762,3 +762,15 @@ a:has(#hub), a:has(#hub):visited {
         justify-content: center;
     }
 }
+
+/* Styling for when the movie is in the watchlist */
+.btn-added {
+    background-color: #2c2c3a !important; /* Darker color */
+    border: 1px solid #4CAF50 !important;
+    color: #4CAF50 !important;
+}
+
+#watchlist-btn {
+    transition: all 0.3s ease;
+    min-width: 160px; /* Prevents button from jumping when text changes */
+}

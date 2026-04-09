@@ -104,23 +104,32 @@ def close_connection(exception):
 
 # Updated fetch movie
 def fetch_movie_by_name_logic(movie_name):
+    print(f"DEBUG: Starting fetch for movie: '{movie_name}'")
     try:
         # check DB by Title 
         movie = db_functions.getMovieByTitle(movie_name) 
         if movie:
+            print(f"DEBUG: Found '{movie_name}' in Database.")
             movie_data = dict(movie)
             movie_data['genres'] = db_functions.getGenresForMovie(movie['movieID'])
             # ensure poster_url is a full URL 
             if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
                  movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
             return movie_data
-
+        print(f"DEBUG: '{movie_name}' not in DB. Searching TMDB...")
         #search TMDB by string
         tmdb_data = api.TMDB_search_first(movie_name)
         if not tmdb_data:
+            print(f"DEBUG: TMDB Search returned ZERO results for '{movie_name}'")
+            return None
+        print(f"DEBUG: TMDB found a match: {tmdb_search_result.get('title')} (ID: {tmdb_search_result.get('id')})")
+        # format
+        
+        full_details = api.TMDB_by_id(tmdb_data['id'])
+        if "error" in full_details:
+            print(f"DEBUG: TMDB Detail call failed: {full_details['error']}")
             return None
 
-        # format
         movie_info = {
             "movieID": full_details.get("id"),
             "title": full_details.get("title"),
@@ -130,9 +139,8 @@ def fetch_movie_by_name_logic(movie_name):
             "rating": full_details.get("vote_average"),
             "genres": full_details.get("genres", []) 
         }
-        full_details = api.TMDB_by_id(tmdb_data['id'])
-
         # save to DB
+        print(f"DEBUG: Attempting to save '{movie_info['title']}' to DB...")
         db_functions.createMovie(
             movieID=movie_info["movieID"],
             title=movie_info["title"],
@@ -144,6 +152,7 @@ def fetch_movie_by_name_logic(movie_name):
         )
 
         movie_info['genres'] = [g['name'] for g in movie_info['genres']]
+        print(f"DEBUG: Successfully saved to DB.")
         return movie_info
 
     except Exception as e:
@@ -207,7 +216,7 @@ def fetch_movie_logic(movie_id):
         return None
 #don't think I'm using this anymore so we can probably delete
 #changed name to pag
-@app.route('/movie/<int:movie_id>')
+
 def movie_details_pag(movie_id):
     # route that actually renders the HTML page.
     data = fetch_movie_logic(movie_id)

@@ -13,13 +13,12 @@
 
   <div class="headerItem" id="user-card">
 
-    {% if username %}
+    {% if session.get('id') %}
       <div onclick="toggleDropdown()" style="cursor: pointer;">
-        Welcome, {{ username }}
-
+        Welcome, {{ username }} &#9662;
         <div id="dropdown-menu" class="dropdown-content">
           <p><strong>{{ username }}</strong></p>
-          <hr>
+        <hr>
 
           <a href="/profile">My Profile</a>
 

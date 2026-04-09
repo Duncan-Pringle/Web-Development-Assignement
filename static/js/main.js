@@ -1,20 +1,37 @@
 function toggleDropdown() {
-    document.getElementById("dropdown-menu").classList.toggle("show");
+    const menu = document.getElementById("dropdown-menu");
+    if (menu) {
+        menu.classList.toggle("show");
+    }
 }
 
-// Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
     if (!event.target.closest('#user-card')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+        for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) {
+                dropdowns[i].classList.remove('show');
             }
         }
     }
 }
 
-function movieDetails() {
-    window.location.href = "/movie/0";
-}
+const watchlistbtn = document.getElementById('watchlist-btn');
+
+watchlistbtn.onclick = async () => {
+    const id = watchlistbtn.dataset.movieId;
+
+    const res = await fetch(`/toggle-watchlist/${id}`, {
+        method: 'POST'
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'added') {
+        watchlistbtn.textContent = '✓ In Watchlist';
+        watchlistbtn.classList.add('added');
+    } else {
+        watchlistbtn.textContent = '+ Add to Watchlist';
+        watchlistbtn.classList.remove('added');
+    }
+};

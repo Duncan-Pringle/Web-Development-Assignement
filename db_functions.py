@@ -220,6 +220,22 @@ def getUserWatchlist(userID):
         (userID,)
     )
 
+#declan db code (might break)
+def checkWatchlist(userID, movieID):
+    result = database.query_db_read(
+        "SELECT 1 FROM watchlist WHERE userID = %s AND movieID = %s",
+        (userID, movieID),
+        fetchone=True
+    )
+    return result is not None
+
+def getWatchlistMovieDetails(userID):
+    return database.query_db_read(
+        "SELECT m.* FROM movie m JOIN watchlist w ON m.movieID = w.movieID WHERE w.userID = %s",
+        (userID,)
+    )
+
+
 #=========userreports functions===========
 
 def createReportWithReview(reporter, reported, reviewID): #Creates a report from 2 userid's with a reviewID
@@ -247,3 +263,33 @@ def getAllUnhandledReports(): #Returns everything from the userreports table whe
 
 def handleReport(reportid): #Changes the "handled" variable from false to true in a report
     database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))
+
+#declan db code (might break)]
+# look up movies by name instead of ID
+def getMovieByTitle(title):
+    return database.query_db_read(
+        "SELECT * FROM movie WHERE title = %s",
+        (title,),
+        fetchone=True
+    )
+
+# get the actual genre names for a movie
+def getGenresForMovie(movieID):
+    query = """
+        SELECT g.name 
+        FROM genre g
+        JOIN movieGenres mg ON g.genreID = mg.genreID
+        WHERE mg.movieID = %s
+    """
+    results = database.query_db_read(query, (movieID,))
+    # Convert list of dicts/rows to a simple list of strings: ['Action', 'Comedy']
+    return [row['name'] for row in results] if results else []
+    
+def checkWatchlist(userID, movieID):
+#Returns True if the movie is in the user's watchlist, False otherwise
+    result = database.query_db_read(
+        "SELECT 1 FROM watchlist WHERE userID = %s AND movieID = %s",
+        (userID, movieID),
+        fetchone=True
+    )
+    return result is not None

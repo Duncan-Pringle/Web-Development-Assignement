@@ -6,7 +6,7 @@
 {% include 'header.html' %}
 <div class="profile-container">
     <aside class="profile-sidebar">
-        <div class="profile-avatar">
+        <div class="profile-avatar" style="background-color: {{ get_user_color(username) }};">
             {{ username[0].upper() }} </div>
         <h2>{{ username }}</h2>
         <p class="user-email">{% if email %}
@@ -15,8 +15,7 @@
             {% endif %}</p>
         <hr>
         <nav class="profile-nav">
-            <a href="#" class="active">Overview</a>
-            <a href="/watchlist">Watchlist</a>
+            <a href="/profile" class="active">Overview</a>
             <a href="/settings">Settings</a>
             <a href="/logout" style="color: #e74c3c;">Logout</a>
         </nav>
@@ -26,15 +25,15 @@
         <section class="profile-section">
             <h3>My Watchlist</h3>
             <div class="poster-grid">
-                <div class="poster-item">
-                    <div class="poster-img">Movie 1</div>
-                    <div class="poster-title">The Dark Knight</div>
-                </div>
-                <div class="poster-item">
-                    <div class="poster-img">Movie 2</div>
-                    <div class="poster-title">Inception</div>
-                </div>
-                </div>
+                {% for movie in watchlist %}
+                    <div class="poster-item">
+                        <div class="poster-img">
+                            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">  
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
         </section>
 
         <section class="profile-section">

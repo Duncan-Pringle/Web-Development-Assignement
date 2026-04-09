@@ -62,14 +62,14 @@ def TMDB_popular(page: int = 1):
         return {"error": f"Request failed with status {popular.status_code}"}
     return popular.json()
 
-
+#declan api code (might break)
 # helper method for poster URL
 def TMDB_poster_url(poster_path, size="w342"):
     if not poster_path:
         return None
     return f"{TMDB_IMAGE}{size}{poster_path}"
 
-#declan api code (might break)
+
 #don't think I'm using this anymore so we can probably delete
 def TMDB_by_id(movie_id):
     #Fetch a single movie's details by its ID.
@@ -77,3 +77,15 @@ def TMDB_by_id(movie_id):
     if response.status_code != 200:
         return {"error": "Movie not found"}
     return response.json()
+
+def TMDB_search_first(title):
+    """Search for a movie by name and return the very first result."""
+    response = httpx.get(
+        f"{TMDB}/search/movie", 
+        headers=HEADERS, 
+        params={"query": title, "page": 1}
+    )
+    if response.status_code == 200:
+        results = response.json().get("results")
+        return results[0] if results else None
+    return None

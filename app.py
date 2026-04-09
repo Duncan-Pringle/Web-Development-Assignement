@@ -152,7 +152,7 @@ def fetch_movie_by_name_logic(movie_name):
 
 #updated route
 @app.route('/movie/<path:movie_name>')
-def movie_details_pag(movie_name):
+def movie_details_page(movie_name):
     # handle URL-encoded spaces (%20)
     from urllib.parse import unquote
     clean_name = unquote(movie_name)
@@ -302,12 +302,12 @@ async def genres():
 
 @app.route('/tv')
 def tv():
-    return "TV Shows coming soon"
+    return render_template('404.html')
 
 
 @app.route('/people')
 def people():
-    return "People page coming soon"
+    return render_template('404.html')
 
 
 @app.route('/admin')

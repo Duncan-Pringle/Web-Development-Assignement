@@ -104,40 +104,60 @@ def close_connection(exception):
 
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
-@app.route('/movie/<int:movie_id>') #To fix, added await and removed error
-def get_movie(movie_id):
+def fetch_movie_logic(movie_id):
     try:
+        # check if we already have this movie in our database
         movie = db_functions.getMovieFromID(movie_id)
         if movie:
-            return jsonify(dict(movie)), 200
- 
+            return dict(movie)
+
         tmdb_data = api.TMDB_by_id(movie_id)
-        if "error" in tmdb_data:
-            return jsonify(tmdb_data), 502
- 
-        db_functions.createMovie(
-            movieID=tmdb_data["id"],
-            title=tmdb_data["title"],
-            description=tmdb_data.get("overview"),
-            poster_url=tmdb_data.get("poster_path"),
-            year=tmdb_data.get("release_date", "")[:4] or None,
-            genres=tmdb_data.get("genres", []), 
-            rating=tmdb_data.get("vote_average")
-        )
- 
-        return jsonify({
-            "movieID": tmdb_data["id"],
-            "title": tmdb_data["title"],
+        
+        # Check if the API gave us a movie
+        if not tmdb_data or "error" in tmdb_data:
+            return None
+
+        # Format the data so it's consistent for our app
+        # Using .get() for safety so the app doesn't crash if a field is missing
+        movie_info = {
+            "movieID": tmdb_data.get("id"),
+            "title": tmdb_data.get("title"),
             "description": tmdb_data.get("overview"),
             "poster_url": tmdb.get_poster_url(tmdb_data.get("poster_path")),
-            "year": tmdb_data.get("release_date", "")[:4] or None,
+            "year": tmdb_data.get("release_date", "")[:4] or "N/A",
             "rating": tmdb_data.get("vote_average"),
             "genres": tmdb_data.get("genres", [])
-        })
+        }
+
+        # Save it to the DB so the next person gets it faster
+        db_functions.createMovie(
+            movieID=movie_info["movieID"],
+            title=movie_info["title"],
+            description=movie_info["description"],
+            poster_url=tmdb_data.get("poster_path"), # Usually keep raw path in DB
+            year=movie_info["year"],
+            genres=movie_info["genres"],
+            rating=movie_info["rating"]
+        )
+
+        return movie_info
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-        
+        print(f"Error fetching movie {movie_id}: {e}")
+        return None
+
+@app.route('/movie/<int:movie_id>')
+def movie_details_page(movie_id):
+    #  get the data
+    movie_data = fetch_movie_logic(movie_id)
+    
+    # show a 404 page
+    if not movie_data:
+        return render_template('404.html'), 404
+
+    # Pass the dictionary to the template as the variable 'movie'
+    return render_template('movieDetails.html', movie=movie_data)  
+
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
 @app.route('/search') #To fix, added await and removed error
 async def search_movies():

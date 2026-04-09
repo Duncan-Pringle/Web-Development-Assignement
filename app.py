@@ -366,16 +366,24 @@ def make_admin():
 def close_connection(exception):
     database.close_connection(exception)
 
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+watchlist = set()  # placeholder storage
+
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
-    print(f"DEBUG: Watchlist toggle called for movie {movie_id}") 
-    
-    if 'id' not in session: # Use 'id' to match  header check
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    
-    #  logic to add/remove from DB .
-    return jsonify({"status": "added"}) 
+    if movie_id in watchlist:
+        db_functions.deleteWatchlistMovie(movie_id)
+        return jsonify(status='removed')
+    else:
+        db_functions.createWatchlistMovie(movie_id)
+        return jsonify(status='added')
 
-    
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

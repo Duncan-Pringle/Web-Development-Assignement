@@ -16,36 +16,22 @@ window.onclick = function(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const watchlistBtn = document.getElementById('watchlist-btn');
-    if (watchlistBtn) {
-        watchlistBtn.addEventListener('click', function() {
-            const btn = this;
-            const movieId = btn.getAttribute('data-movie-id');
-            console.log('Testing', movieId); // Debugging log
-            // If movieId is missing, stop here
-            if (!movieId) return;
+const watchlistbtn = document.getElementById('watchlist-btn');
 
-            fetch(`/toggle-watchlist/${movieId}`, { method: 'POST' })
-            .then(response => {
-                if (response.status === 401) {
-                    alert("Please log in to use the watchlist!");
-                    return;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                
-                if (data.status === 'added') {
-                    btn.innerText = '✓ In Watchlist';
-                    btn.classList.add('btn-added');
-                } else if (data.status === 'removed') {
-                    btn.innerText = '+ Add to Watchlist';
-                    btn.classList.remove('btn-added');
-                }
-            })
-            .catch(err => console.error('Error:', err));
-        });
+watchlistbtn.onclick = async () => {
+    const id = watchlistbtn.dataset.movieId;
+
+    const res = await fetch(`/toggle-watchlist/${id}`, {
+        method: 'POST'
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'added') {
+        watchlistbtn.textContent = '✓ In Watchlist';
+        watchlistbtn.classList.add('added');
+    } else {
+        watchlistbtn.textContent = '+ Add to Watchlist';
+        watchlistbtn.classList.remove('added');
     }
-});
+};

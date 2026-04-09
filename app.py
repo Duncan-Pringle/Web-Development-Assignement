@@ -381,3 +381,38 @@ async def search_shows():
  
     except Exception as e:
         return {"error": str(e)}, 500
+
+### Routes for creating reviews, getting reviews and frontend deletion of reviews
+### by the session user or an administrator
+
+@app.route('/movie/<int:movie_id>/reviews', methods=['GET'])
+def get_movie_reviews(movie_id):
+    reviews = db_functions.getMovieReviews(movie_id)
+    return jsonify(reviews)
+
+@app.route('/movie/<int:movie_id>/reviews', methods=['POST'])
+def create_review(movie_id):
+    if 'id' not in session:
+        return jsonify({"error": "You must be logged in to make a review."})
+
+    reviewtext = request.form.get('reviewtext', '').strip()
+    if not reviewtext:
+        return jsonify({"error": "Review text must not be empty."})
+    
+    db_functions.create_review(reviewtext, session['id'], movie_id)
+    return jsonify({"message": "Review created."})
+
+@app.route('/review/<int:review_id>/delete', methods=['POST'])
+def delete_review_user(review_id):
+    if 'id' not in session:
+        return jsonify({"error": "You must be logged in to delete a review."})
+ 
+    review = db_functions.getReviewFromID(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"})
+ 
+    if review['userid'] != session['id'] and not session.get('is_admin'):
+        return jsonify({"error": "You can only delete your own reviews"})
+ 
+    db_functions.deleteReview(review_id)
+    return jsonify({"message": "Review deleted successfully"})

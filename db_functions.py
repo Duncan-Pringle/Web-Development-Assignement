@@ -247,3 +247,18 @@ def getAllUnhandledReports(): #Returns everything from the userreports table whe
 
 def handleReport(reportid): #Changes the "handled" variable from false to true in a report
     database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))
+
+###tv show functions
+
+def createShow(showID, name, description, poster_url, first_air_date, number_of_seasons, rating):
+    database.query_db_write(
+        "INSERT INTO tvshow (showID, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
+        (showID, name, description, poster_url, first_air_date, number_of_seasons, rating)
+    )
+
+def getShowFromID(showID):
+    return database.query_db_read(
+        "SELECT * FROM tvshow WHERE showID = %s",
+        (showID,),
+        fetchone = True
+    )

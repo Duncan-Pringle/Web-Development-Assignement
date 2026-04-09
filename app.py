@@ -278,3 +278,102 @@ def delete_review(review_id):
     db_functions.deleteReview(review_id)
     return redirect('/admin')    
 
+###tv show routes, very similar to the film routes
+@app.route('/show/<int:movie_id>') #To fix, added await and removed error
+def get_show(show_id):
+    try:
+        show = db_functions.getShowFromID(show_id)
+        if show:
+            return jsonify(dict(show)), 200
+ 
+        tmdb_data = api.TMDB_show_by_id(show_id)
+        if "error" in tmdb_data:
+            return jsonify(tmdb_data), 502
+ 
+        db_functions.createShow(
+            showID=tmdb_data["id"],
+            name=tmdb_data["name"],
+            description=tmdb_data.get("overview"),
+            poster_url=tmdb_data.get("poster_path"),
+            first_air_date=tmdb_data.get("first_air_date"),
+            number_of_seasons=tmdb.data.get("number_of_seasons"),
+            rating=tmdb_data.get("vote_average")
+        )
+ 
+        return jsonify({
+            "showID": tmdb_data["id"],
+            "name": tmdb_data["name"],
+            "description": tmdb_data.get("overview"),
+            "poster_url": tmdb.get_poster_url(tmdb_data.get("poster_path")),
+            "first_air_date": tmdb_data.get("first_air_date"),
+            "number of seasons": tmdb_data.get("number_of_seasons"),
+            "rating": tmdb_data.get("vote_average")
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/shows/popular')
+def popular_shows():
+    page = request.args.get('page', 1, type=int)
+    try:
+        results = api.TMDB_shows_popular(page=page)
+        if "error" in results:
+            print(f"Error fetching popular shows: {results['error']}")
+            return results, 502
+ 
+        shows = []
+        for m in results.get("results", []):
+            shows.append({
+                "id": m["id"],
+                "name": m["name"],
+                "overview": m.get("overview"),
+                "first_air_date": m.get("first_air_date"),
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "vote_average": m.get("vote_average"),
+            })
+        print("Fetched popular shos from TMDB")
+        return {
+            "results": shows,
+            "total_results": results.get("total_results"),
+            "total_pages": results.get("total_pages"),
+            "page": results.get("page")
+        }
+ 
+    except Exception as e:
+        print(f"Error fetching popular shows: {e}")
+        return {"error": str(e)}, 500
+
+@app.route('/shows/search') #To fix, added await and removed error
+async def search_shows():
+    query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+ 
+    if not query:
+        return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
+ 
+    try:
+        results = await api.TMDB_show_search(query, page=page)
+        if "error" in results:
+            return results, 502
+ 
+        shows = []
+        for m in results.get("results", []):
+            shows.append({
+                "id": m["id"],
+                "name": m["name"],
+                "overview": m.get("overview"),
+                "first_air_date": m.get("first_air_date"),
+                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "vote_average": m.get("vote_average"),
+            })
+ 
+        return {
+            "results": shows,
+            "total_results": results.get("total_results"),
+            "total_pages": results.get("total_pages"),
+            "page": results.get("page")
+        }
+ 
+    except Exception as e:
+        return {"error": str(e)}, 500

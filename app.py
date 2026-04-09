@@ -1,37 +1,28 @@
 from flask import Flask, redirect, request, render_template, session, jsonify
 import db_functions
 import db as database
-import os
 import api
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
-pop_movies = {
-    0: {"title": "Inception", "year": 2010, "genre": "Sci-Fi", "rating": 8.8, "poster_url": "https://m.media-amazon.com/images/I/51s+qjv9ZlL._AC_.jpg", "description": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO."},
-    1: {"title": "The Shawshank Redemption", "year": 1994, "genre": "Drama", "rating": 9.3, "poster_url": "https://m.media-amazon.com/images/I/51NiGlapXlL._AC_.jpg", "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency."},
-    2: {"title": "The Godfather", "year": 1972, "genre": "Crime", "rating": 9.2, "poster_url": "https://m.media-amazon.com/images/I/41+eK8zBwQL._AC_.jpg", "description": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son."},
-    3: {"title": "The Dark Knight", "year": 2008, "genre": "Action", "rating": 9.0, "poster_url": "https://m.media-amazon.com/images/I/51EbJjlLJ-L._AC_.jpg", "description": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice."},
-    4: {"title": "Pulp Fiction", "year": 1994, "genre": "Crime", "rating": 8.9, "poster_url": "https://m.media-amazon.com/images/I/51V5ZpFyaFL._AC_.jpg", "description": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption."},
-    5: {"title": "Forrest Gump", "year": 1994, "genre": "Drama", "rating": 8.8, "poster_url": "https://m.media-amazon.com/images/I/41c9r+eH7-L._AC_.jpg", "description": "The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold through the perspective of an Alabama man with an IQ of 75."}
-}
 
-USER_DB = {
-    "admin": "password123"
-}
 
 @app.route("/")
 def home():
-    print(session.get('id'))
     if 'id' in session:
         username = db_functions.getUsernameFromID(session.get('id')).get("username")
     else:
         username = None
-    data = popular_movies()
-    
-    movie_list = data["results"]
-    
-    return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
 
+    data = popular_movies()
+    movie_list = data.get("results", [])
+
+    return render_template(
+        "index.html",
+        username=username,
+        featured_movie=movie_list[0] if movie_list else None,
+        popular_movies=movie_list
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -39,28 +30,28 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+
         user = db_functions.getUserFromUsername(username)
 
-        if user is None:
-            return render_template('login.html', error="Invalid username or password")
+        if not user:
+            return render_template('login.html', error="Invalid login")
 
-###replace this with a proper hash check @me
-        if password != user['hashedpass']:
-            return render_template('login.html', error="Invalid username or password")
-        
+        if password != user.get('hashedpass') and password != user.get('hashedPass'):
+            return render_template('login.html', error="Invalid login")
+
         session['id'] = user['userid']
         session['is_admin'] = (user['userlevel'] == 2)
+
         return redirect('/')
    
     return render_template('login.html')
 
 
-
 @app.route('/logout')
 def logout():
-    session.pop('id', None)
-    session.pop('is_admin', None)
+    session.clear()
     return redirect('/')
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -70,15 +61,12 @@ def signup():
         password = request.form.get('password')
 
         if db_functions.getUserFromUsername(username):
-            return render_template('signup.html', error = "Username is taken")
-        if db_functions.getUserFromEmail(email):
-            return render_template('signup.html', error = "Email already in use")
+            return render_template('signup.html', error="Username exists")
 
-        ###hash the pw before storing @me
         db_functions.createUser(username, email, password)
 
         session['id'] = db_functions.getIDFromUsername(username).get("userid")
-        return redirect('/')        
+        return redirect('/')
 
     return render_template('signup.html')
 
@@ -154,8 +142,7 @@ def get_movie(movie_id):
 @app.route('/search') #To fix, added await and removed error
 async def search_movies():
     query = request.args.get('q', '').strip()
-    page = request.args.get('page', 1, type=int)
- 
+
     if not query:
         return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
  
@@ -233,9 +220,15 @@ async def genres():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/tv')
+def tv():
+    return "TV Shows coming soon"
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+
+@app.route('/people')
+def people():
+    return "People page coming soon"
+
 
 @app.route('/admin')
 def admin():
@@ -257,8 +250,8 @@ def delete_user(user_id):
         return "Access denied", 403
 
     db_functions.deleteUser(user_id)
-    return redirect('/admin')        
-    
+    return redirect('/admin')
+
 
 @app.route('/admin/promote/<int:user_id>')
 def promote(user_id):
@@ -268,10 +261,33 @@ def promote(user_id):
     db_functions.setLevel(user_id, 2)
     return redirect('/admin')
 
-@app.route('/admin/delete_review/<int:review_id>')
-def delete_review(review_id):
-    if not session.get('is_admin'):
-        return "Access denied", 403
 
-    db_functions.deleteReview(review_id)
-    return redirect('/admin')    
+@app.route('/make_admin')
+def make_admin():
+    db_functions.setLevel(session['id'], 2)
+    session['is_admin'] = True
+    return "Now admin"
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    database.close_connection(exception)
+
+
+@app.route('/POPMOVIESNEEDSEDITED/popular')
+def popular_movies():
+    results = api.TMDB_popular()
+
+    movies = []
+    for m in results.get("results", []):
+        movies.append({
+            "id": m["id"],
+            "title": m["title"],
+            "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+        })
+
+    return {"results": movies}
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

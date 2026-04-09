@@ -577,3 +577,9 @@ a:has(#hub), a:has(#hub):visited {
         border: 1px solid #ccc;
     }
 }
+.poster-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+}

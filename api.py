@@ -68,3 +68,29 @@ def TMDB_poster_url(poster_path, size="w342"):
     if not poster_path:
         return None
     return f"{TMDB_IMAGE}{size}{poster_path}"
+
+###show methods, these are pretty much one-to-one with the movie equivalents above
+
+async def TMDB_show_by_id(show_id: int):
+    show = httpx.get(f"{TMDB}/tv/{show_id}", headers=HEADERS)
+    if show.status_code != 200:
+        return {"error": f"Request failed with status {show.status_code}"}
+    return show.json()
+
+async def TMDB_show_search(query: str, page: int = 1):
+    search = httpx.get(f"{TMDB}/search/tv", headers=HEADERS, params={"query": query, "page": page})
+    if search.status_code != 200:
+        return {"error": f"Request failed with status {search.status_code}"}
+    return search.json()
+
+def TMDB_shows_popular(page: int = 1):
+    popular = httpx.get(f"{TMDB}/tv/popular", headers=HEADERS, params={"page": page})
+    if popular.status_code != 200:
+        return {"error": f"Request failed with status {popular.status_code}"}
+    return popular.json()
+
+async def get_genres():
+    genrenames = httpx.get(f"{TMDB}/genre/tv/list", headers=HEADERS)
+    if genrenames.status_code != 200:
+        return {"error": f"Request failed with status {genrenames.status_code}"}
+    return genrenames.json()  

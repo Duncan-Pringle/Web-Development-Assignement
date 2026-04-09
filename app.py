@@ -152,7 +152,7 @@ def fetch_movie_by_name_logic(movie_name):
 
 #updated route
 @app.route('/movie/<path:movie_name>')
-def movie_details_page(movie_name):
+def movie_details_pag(movie_name):
     # handle URL-encoded spaces (%20)
     from urllib.parse import unquote
     clean_name = unquote(movie_name)
@@ -205,7 +205,18 @@ def fetch_movie_logic(movie_id):
     except Exception as e:
         print(f"Server-side error: {e}")
         return None
+#don't think I'm using this anymore so we can probably delete
+#changed name to pag
+@app.route('/movie/<int:movie_id>')
+def movie_details_pag(movie_id):
+    # route that actually renders the HTML page.
+    data = fetch_movie_logic(movie_id)
+    
+    if not data:
+        return "Movie not found", 404
 
+    # pass the dict to template as movie
+    return render_template('movieDetails.html', movie=data)
 
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
 @app.route('/search') #To fix, added await and removed error

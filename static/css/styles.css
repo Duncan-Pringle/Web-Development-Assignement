@@ -583,3 +583,87 @@ a:has(#hub), a:has(#hub):visited {
     align-items: center;
     margin-top: 5px;
 }
+
+.view-movie-details {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 40px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white; /* Optional: gives it a "card" look against your grey background */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* Left side: The Poster */
+.view-poster-column {
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+}
+
+.view-poster-column img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: block;
+}
+
+/* Right side: The Info */
+.view-info-column {
+    flex: 2;
+    min-width: 300px;
+}
+
+.view-info-column h1 {
+    font-size: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #1e1e2f; /* Matching your header color */
+}
+
+.view-metadata {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.view-metadata span {
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.view-description-heading {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    color: #888;
+    margin: 25px 0 10px 0;
+}
+
+.view-description-text {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+/* Mobile Tweak for the details view */
+@media (max-width: 768px) {
+    .view-movie-details {
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+    }
+    
+    .view-info-column {
+        text-align: center;
+    }
+
+    .view-metadata {
+        justify-content: center;
+    }
+}

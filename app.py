@@ -3,6 +3,7 @@ import db_functions
 import db as database
 import os
 import api
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
@@ -39,6 +40,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        password = hashlib.pbkdf2_hmac('sha256', password.encode(), os.environ.get("SALT").encode(), 260000).hex
         user = db_functions.getUserFromUsername(username)
 
         if user is None:
@@ -74,7 +76,7 @@ def signup():
         if db_functions.getUserFromEmail(email):
             return render_template('signup.html', error = "Email already in use")
 
-        ###hash the pw before storing @me
+        password = hashlib.pbkdf2_hmac('sha256', password.encode(), os.environ.get("SALT").encode(), 260000).hex()
         db_functions.createUser(username, email, password)
 
         session['id'] = db_functions.getIDFromUsername(username).get("userid")

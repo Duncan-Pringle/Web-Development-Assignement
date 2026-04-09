@@ -76,7 +76,7 @@ def page_not_found(e):
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"))
+    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"), watchlist = db_functions.getWatchlistMovieDetails(session.get('id')))
 
 @app.route('/watchlist')
 def watchlist():
@@ -314,7 +314,12 @@ def tv():
 
 @app.route('/people')
 def people():
-    return render_template('404.html')
+    try:
+        user_list = db_functions.getAllUsers()[:100] 
+    except:
+        user_list = []
+
+    return render_template('people.html', people=user_list, username=session.get('username'))
 
 
 @app.route('/admin')

@@ -787,3 +787,48 @@ a:has(#hub), a:has(#hub):visited {
     filter: brightness(1.1);
     transform: translateY(-1px);
 }
+
+#watchlist-container {
+    padding: 20px;
+}
+
+/* People Page Grid */
+.people-grid {
+    display: grid;
+    /* This creates a responsive grid: 200px wide cards, as many as fit */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+}
+
+.person-card {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #eee;
+}
+
+.person-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.person-card h3 {
+    margin: 15px 0;
+    color: #1e1e2f;
+    font-size: 1.1rem;
+    /* Prevents long names from breaking the card */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ensure the avatars stay consistent sizes in the grid */
+.person-card .profile-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+    margin: 0 auto;
+}

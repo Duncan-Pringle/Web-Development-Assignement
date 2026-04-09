@@ -162,12 +162,7 @@ def fetch_movie_by_name_logic(movie_name):
 #updated route
 @app.route('/movie/<path:movie_name>')
 def movie_details_page(movie_name):
-    is_in_watchlist = False
-    if session.get('user_id'):
-    # Check if this specific movie is in this user's list
-        is_in_watchlist = db_functions.checkWatchlist(session['user_id'], data['movieID'])
-
-return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist)
+    
     # handle URL-encoded spaces (%20)
     from urllib.parse import unquote
     clean_name = unquote(movie_name)
@@ -175,8 +170,11 @@ return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_wa
     data = fetch_movie_by_name_logic(clean_name)
     if not data:
         return "Movie not found", 404
-
-    return render_template('movieDetails.html', movie=data)
+    is_in_watchlist = False
+    if session.get('user_id'):
+    # Check if this specific movie is in this user's list
+        is_in_watchlist = db_functions.checkWatchlist(session['user_id'], data['movieID'])
+    return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist)
 
 #Think we can delete this despite all the refactoring I did 😭
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that

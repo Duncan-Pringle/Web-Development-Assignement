@@ -587,7 +587,7 @@ a:has(#hub), a:has(#hub):visited {
     max-width: 1100px;
     margin: 40px auto;
     padding: 20px;
-    background: white; /* Optional: gives it a "card" look against your grey background */
+    background: white; 
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
@@ -616,7 +616,7 @@ a:has(#hub), a:has(#hub):visited {
     font-size: 2.5rem;
     margin-top: 0;
     margin-bottom: 10px;
-    color: #1e1e2f; /* Matching your header color */
+    color: #1e1e2f; /* Matching header color */
 }
 
 .view-metadata {
@@ -763,14 +763,27 @@ a:has(#hub), a:has(#hub):visited {
     }
 }
 
-/* Styling for when the movie is in the watchlist */
-.btn-added {
-    background-color: #2c2c3a !important; /* Darker color */
-    border: 1px solid #4CAF50 !important;
-    color: #4CAF50 !important;
+.action-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px; /* Keeps a consistent gap between buttons */
+    flex-wrap: wrap; /* Stacks them nicely on mobile */
 }
 
 #watchlist-btn {
+    min-width: 170px; /* Prevents the button from changing size when text flips */
     transition: all 0.3s ease;
-    min-width: 160px; /* Prevents button from jumping when text changes */
+    cursor: pointer;
+}
+
+/* The state after it is added */
+.btn-added {
+    background-color: #2c2c3a !important; /* Darker theme match */
+    color: #4CAF50 !important; 
+    border: 1px solid #4CAF50 !important;
+}
+
+#watchlist-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }

@@ -84,6 +84,9 @@ def watchlist():
     if 'id' not in session:
         return redirect('/login')
     watchlist = db_functions.getWatchlistMovieDetails(session.get('id'))
+    for movie_data in watchlist:
+        if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
+            movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
     return render_template('watchlist.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), watchlist=watchlist)
 
 @app.route('/userdetails')

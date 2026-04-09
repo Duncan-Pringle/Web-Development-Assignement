@@ -33,10 +33,6 @@ def home():
     return render_template("index.html", username=username, featured_movie=movie_list[0], popular_movies=movie_list)
 
 
-@app.route('/movie/<int:movie_id>')
-def movie_detail(movie_id):
-    movie = popular_movies.get(movie_id)
-    return render_template('movieDetails.html', movie=movie)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -55,8 +51,7 @@ def login():
         session['id'] = user['userid']
         session['is_admin'] = (user['userlevel'] == 2)
         return redirect('/')
-
-    
+   
     return render_template('login.html')
 
 
@@ -87,11 +82,6 @@ def signup():
 
     return render_template('signup.html')
 
-@app.route('/search')
-def search():
-    term = request.args.get('term', 'nothing')
-    return f'Searching for: {term}'
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -118,24 +108,7 @@ def userdetails():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/test2') #Test route "https://web-development-assignement.onrender.com/test2"
-def testselects():
-        try:
-            test = {
-                "All users test": db_functions.getAllUsers(),
-                "userid 1": db_functions.getUserFromID(1),
-                "user from email": db_functions.getUserFromEmail("user2email@email.com"),
-                "email from id": db_functions.getEmailFromID(2),
-                "id from username": db_functions.getIDFromUsername("username3"),
-                "all movies": db_functions.getAllMovies(),
-                "user from id 2": db_functions.getUserFromID(2),
-                "movie reviews 550": db_functions.getMovieReviews(550),
-                "user reviews 4": db_functions.getUserReviews(4),
-                "review id 2": db_functions.getReviewFromID(2)
-            }
-            return jsonify(test), 200
-        except Exception as e:
-             return jsonify({"error": str(e)}), 500
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -143,7 +116,7 @@ def close_connection(exception):
 
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that
 #caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
-@app.route('/MOVIENEEDSEDITED/<int:movie_id>') 
+@app.route('/movie/<int:movie_id>') #To fix, added await and removed error
 def get_movie(movie_id):
     try:
         movie = db_functions.getMovieFromID(movie_id)
@@ -172,14 +145,14 @@ def get_movie(movie_id):
             "year": tmdb_data.get("release_date", "")[:4] or None,
             "rating": tmdb_data.get("vote_average"),
             "genres": tmdb_data.get("genres", [])
-        }), 200
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
         
-#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like /search?q=shrek or /search?q=shrek&page=2
-@app.route('/SEARCHNEEDSEDITED') 
-def search_movies():
+#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
+@app.route('/search') #To fix, added await and removed error
+async def search_movies():
     query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
  
@@ -187,7 +160,7 @@ def search_movies():
         return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
  
     try:
-        results = api.TMDB_search(query, page=page)
+        results = await api.TMDB_search(query, page=page)
         if "error" in results:
             return results, 502
  
@@ -208,13 +181,13 @@ def search_movies():
             "total_results": results.get("total_results"),
             "total_pages": results.get("total_pages"),
             "page": results.get("page")
-        }, 200
+        }
  
     except Exception as e:
         return {"error": str(e)}, 500
 
 #Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
-@app.route('/POPMOVIESNEEDSEDITED/popular') 
+@app.route('/POPMOVIESNEEDSEDITED/popular') #To fix, added await and removed error 
 def popular_movies():
     page = request.args.get('page', 1, type=int)
     try:
@@ -254,7 +227,7 @@ async def genres():
         result = await api.get_genres()
         if "error" in result:
             return jsonify(result), 502
-        return jsonify(result), 200
+        return jsonify(result)
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500

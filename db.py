@@ -54,7 +54,7 @@ def query_db_write(query, params=None):
 
 #This may surprise you but it closes the DB connection
 def close_connection(exception):
-    db = g.pop("db", None)
+    db = g.pop("_database", None)
     if db is not None:
         db.close()
 

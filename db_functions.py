@@ -87,7 +87,7 @@ def setPassword(userID, hashedPass):
 def deleteUser(userID):
     database.query_db_write(
         "DELETE FROM usertable where userID = %s",
-        (userID)
+        (userID,)
     )
 
 #==========Movie Functions==========
@@ -185,16 +185,20 @@ def getReviewFromID(reviewID): #Returns a review from a reviewID
 #GET EVERYTHING FROM THE DATABASE FUNCTION DELETE LATER
 #======================================================
 
-def getEverything(): #Prints the entire database
+def getEverything():
     tables = ["usertable", "movie", "genre", "likedmovies", "moviegenres", "review", "watchlist", "userreports"]
-
     results = {}
 
     for table in tables:
         result = database.query_db_read(f"SELECT * FROM {table}")
-        results[table] = result
+        
+        # Convert the list of RealDictRows into a list of regular dicts
+        if result:
+            results[table] = [dict(row) for row in result]
+        else:
+            results[table] = [] # Keep it as an empty list if no data
 
-    print(results)
+    return results
 
 #=========watchlist functions===========
 
@@ -211,9 +215,9 @@ def deleteWatchlistMovie(userID, movieID):
     )
 
 def getUserWatchlist(userID):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM watchlist WHERE userID = %s",
-        (userID)
+        (userID,)
     )
 
 #=========userreports functions===========
@@ -237,7 +241,9 @@ def deleteReportFromID(reportid):
     )
 
 def getAllUnhandledReports(): #Returns everything from the userreports table where handled = false
-    database.query_db_read("SELECT * FROM userreports WHERE handled = false")
+    return database.query_db_read(
+        "SELECT * FROM userreports WHERE handled = false"
+        )
 
 def handleReport(reportid): #Changes the "handled" variable from false to true in a report
     database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))

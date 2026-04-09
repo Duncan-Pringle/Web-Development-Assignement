@@ -1,32 +1,54 @@
-CREATE TABLE "userTable" (
-	"userID"	INTEGER NOT NULL UNIQUE,
-	"username"	TEXT NOT NULL UNIQUE,
-	"email"	TEXT NOT NULL UNIQUE,
-	"userLevel"	INTEGER NOT NULL DEFAULT 1,
-	"hashedPass"	TEXT NOT NULL,
-	PRIMARY KEY("userID" AUTOINCREMENT)
-)
+CREATE TABLE usertable (
+    userID SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    userLevel INTEGER DEFAULT 1,
+    hashedPass TEXT NOT NULL
+);
 
-CREATE TABLE "movie" (
-	"movieID"	INTEGER NOT NULL UNIQUE,
-	"title"	TEXT NOT NULL,
-	"description"	TEXT,
-	"posterLink"	TEXT,
-	PRIMARY KEY("movieID")
-)
+CREATE TABLE movie (
+    movieID INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    poster_url TEXT,
+    year INTEGER,
+    rating DECIMAL
+);
 
-CREATE TABLE "review" (
-	"reviewID"	INTEGER NOT NULL UNIQUE,
-	"reviewText"	TEXT NOT NULL,
-	"userID"	INTEGER NOT NULL,
-	"movieID"	INTEGER NOT NULL,
-	PRIMARY KEY("reviewID" AUTOINCREMENT)
-)
+CREATE TABLE review (
+    reviewID SERIAL PRIMARY KEY,
+    reviewText TEXT NOT NULL,
+    userID INTEGER REFERENCES usertable(userID) ON DELETE CASCADE,
+    movieID INTEGER REFERENCES movie(movieID) ON DELETE CASCADE
+);
 
-CREATE TABLE "likedMovies" (
-	"movieID"	INTEGER NOT NULL,
-	"userID"	INTEGER NOT NULL,
-	PRIMARY KEY("movieID","userID"),
-	FOREIGN KEY("movieID") REFERENCES "movie"("movieID"),
-	FOREIGN KEY("userID") REFERENCES "userTable"("userID")
-)
+CREATE TABLE likedmovies (
+    userID INTEGER REFERENCES usertable(userID) ON DELETE CASCADE,
+    movieID INTEGER REFERENCES movie(movieID) ON DELETE CASCADE,
+    PRIMARY KEY (userID, movieID)
+);
+
+CREATE TABLE watchlist (
+    userID INTEGER REFERENCES usertable(userID) ON DELETE CASCADE,
+    movieID INTEGER REFERENCES movie(movieID) ON DELETE CASCADE,
+    PRIMARY KEY (userID, movieID)
+);
+
+CREATE TABLE genre (
+    genreID INTEGER PRIMARY KEY,
+    name TEXT
+);
+
+CREATE TABLE movieGenres (
+    movieID INTEGER REFERENCES movie(movieID) ON DELETE CASCADE,
+    genreID INTEGER REFERENCES genre(genreID) ON DELETE CASCADE,
+    PRIMARY KEY (movieID, genreID)
+);
+
+CREATE TABLE userreports (
+    reportID SERIAL PRIMARY KEY,
+    reporter INTEGER REFERENCES usertable(userID),
+    reported INTEGER REFERENCES usertable(userID),
+    reviewID INTEGER REFERENCES review(reviewID),
+    handled BOOLEAN DEFAULT FALSE
+);

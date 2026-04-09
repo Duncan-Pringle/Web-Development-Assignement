@@ -11,6 +11,9 @@
           <p><strong>{{ username }}</strong></p>
           <hr>
           <a href="/profile">My Profile</a>
+          {% if session.get('is_admin') %}
+          <a href="/admin">Admin Panel</a>
+          {% endif %}
           <a href="/settings">Settings</a>
           <a href="/logout" style="color: red;">Sign Out</a>
         </div>

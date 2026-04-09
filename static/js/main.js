@@ -18,10 +18,9 @@ window.onclick = function(event) {
     }
 }
 
-// 3. Watchlist Logic (Wrapped to prevent errors)
 document.addEventListener('DOMContentLoaded', function() {
     const watchlistBtn = document.getElementById('watchlist-btn');
-
+    console.log('Watchlist Button:', watchlistBtn); // Debugging line
     if (watchlistBtn) {
         watchlistBtn.addEventListener('click', function() {
             const btn = this;

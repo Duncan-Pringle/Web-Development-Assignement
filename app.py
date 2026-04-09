@@ -83,7 +83,7 @@ def watchlist():
     #shouldn't be possible to get here without being logged in but just in case, redirect to login if we don't have a user id in the session
     if 'id' not in session:
         return redirect('/login')
-    watchlist = db_functions.getWatchlistMovieDetaiils(session.get('id'))
+    watchlist = db_functions.getWatchlistMovieDetails(session.get('id'))
     return render_template('watchlist.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), watchlist=watchlist)
 
 @app.route('/userdetails')

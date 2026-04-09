@@ -229,7 +229,7 @@ def checkWatchlist(userID, movieID):
     )
     return result is not None
 
-def getWatchlistMovieDetaiils(userID):
+def getWatchlistMovieDetails(userID):
     return database.query_db_read(
         "SELECT m.* FROM movie m JOIN watchlist w ON m.movieID = w.movieID WHERE w.userID = %s",
         (userID,)

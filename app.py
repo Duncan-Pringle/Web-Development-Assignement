@@ -111,7 +111,7 @@ def fetch_movie_by_name_logic(movie_name):
         if movie:
             print(f"DEBUG: Found '{movie_name}' in Database.")
             movie_data = dict(movie)
-            movie_data['genres'] = db_functions.getGenresForMovie(movie['movieID'])
+            movie_data['genres'] = db_functions.getGenresForMovie(movie['movieid'])
             # ensure poster_url is a full URL 
             if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
                  movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])

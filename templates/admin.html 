@@ -3,6 +3,7 @@
 {% block title %}Admin Panel{% endblock %}
 
 {% block content %}
+
 {% include 'header.html' %}
 
 <div class="admin-container">
@@ -31,14 +32,14 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.userID }}</td>
+                <td>{{ user.userid }}</td>
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.userlevel }}</td>
 
                 <td>
-                    <a href="/admin/promote/{{ user.userID }}" class="btn-small">Promote</a>
-                    <a href="/admin/delete_user/{{ user.userID }}" class="btn-small danger">Delete</a>
+                    <a href="/admin/promote/{{ user.userid }}" class="btn-small">Promote</a>
+                    <a href="/admin/delete_user/{{ user.userid }}" class="btn-small danger">Delete</a>
                 </td>
             </tr>
             {% endfor %}
@@ -62,7 +63,7 @@
         <tbody>
             {% for movie in movies %}
             <tr>
-                <td>{{ movie.movieID }}</td>
+                <td>{{ movie.movieid }}</td>
                 <td>{{ movie.title }}</td>
                 <td>{{ movie.year }}</td>
                 <td>{{ movie.rating }}</td>

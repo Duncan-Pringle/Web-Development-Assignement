@@ -174,7 +174,7 @@ def movie_details_page(movie_name):
     if session.get('user_id'):
     # Check if this specific movie is in this user's list
         is_in_watchlist = db_functions.checkWatchlist(session['user_id'], data['movieID'])
-    return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist)
+    return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist, username = db_functions.getUsernameFromID(session.get('id')).get("username") if 'id' in session else None)
 
 #Think we can delete this despite all the refactoring I did 😭
 #Returns movie data from tmdb, but checks if we have it in the db first to instead use that

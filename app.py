@@ -40,7 +40,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        password = hashlib.pbkdf2_hmac('sha256', password.encode(), os.environ.get("SALT").encode(), 260000).hex
+        password = hashlib.pbkdf2_hmac('sha256', password.encode(), os.environ.get("SALT").encode(), 260000).hex()
         user = db_functions.getUserFromUsername(username)
 
         if user is None:
@@ -277,3 +277,4 @@ def delete_review(review_id):
 
     db_functions.deleteReview(review_id)
     return redirect('/admin')    
+

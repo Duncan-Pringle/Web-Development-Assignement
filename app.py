@@ -366,12 +366,6 @@ def make_admin():
 def close_connection(exception):
     database.close_connection(exception)
 
-from flask import Flask, jsonify
-
-app = Flask(__name__)
-
-watchlist = set()  # placeholder storage
-
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
     if movie_id in watchlist:
@@ -384,6 +378,3 @@ def toggle_watchlist(movie_id):
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-if __name__ == '__main__':
-    app.run(debug=True)

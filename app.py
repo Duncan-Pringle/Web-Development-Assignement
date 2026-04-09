@@ -2,6 +2,7 @@ from flask import Flask, redirect, request, render_template, session, jsonify
 import db_functions
 import db as database
 import api
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
@@ -382,6 +383,28 @@ def toggle_watchlist(movie_id):
         print(f"DEBUG: Error occurred while toggling watchlist for movie_id={movie_id}: {e}")
         return jsonify(status='error'), 500
 
+
+#this is really stupd and unnecesary but it's a bit of fun and adds a nice touch of personalisation to the profiles
+#generates a unique color for each user based on their username using hashing
+def get_user_color(username):
+    # Create a unique number based on the username
+    hash_object = hashlib.md5(username.encode())
+    hash_hex = hash_object.hexdigest()
+    
+    # Take the first few characters of the hash and convert to an integer
+    # This gives us a number between 0 and 360 for the color wheel (Hue)
+    hue = int(hash_hex[:4], 16) % 360
+    
+    # Return an HSL string: 
+    # Hue (random), Saturation (60%), Lightness (50% - keeps it vibrant but readable)
+    return f"hsl({hue}, 60%, 50%)"
+
+# Make this function available inside HTML templates
+@app.context_processor
+def utility_processor():
+    return dict(get_user_color=get_user_color)
+
 if __name__ == '__main__':
     app.run(debug=True)
+
 

@@ -6,7 +6,7 @@
 {% include 'header.html' %}
 <div class="profile-container">
     <aside class="profile-sidebar">
-        <div class="profile-avatar">
+        <div class="profile-avatar" style="background-color: {{ get_user_color(person.username) }};">
             {{ username[0].upper() }} </div>
         <h2>{{ username }}</h2>
         <p class="user-email">{% if email %}

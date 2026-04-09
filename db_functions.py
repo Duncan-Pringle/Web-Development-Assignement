@@ -220,6 +220,16 @@ def getUserWatchlist(userID):
         (userID,)
     )
 
+#declan db code (might break)
+def checkWatchlist(userID, movieID):
+    result = database.query_db_read(
+        "SELECT 1 FROM watchlist WHERE userID = %s AND movieID = %s",
+        (userID, movieID),
+        fetchone=True
+    )
+    return result is not None
+
+
 #=========userreports functions===========
 
 def createReportWithReview(reporter, reported, reviewID): #Creates a report from 2 userid's with a reviewID

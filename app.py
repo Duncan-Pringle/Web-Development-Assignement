@@ -361,7 +361,7 @@ def close_connection(exception):
 def toggle_watchlist(movie_id):
     print(f"DEBUG: Toggling watchlist for movie_id={movie_id} and user_id={session.get('id')}")
     try:
-        if movie_id in db_functions.getUserWatchlist(session.get('id')):
+        if db_functions.checkWatchlist(session.get('id'), movie_id):
             print(f"DEBUG: Movie {movie_id} is currently in watchlist, removing...")
             db_functions.deleteWatchlistMovie(session.get('id'), movie_id)
             return jsonify(status='removed')

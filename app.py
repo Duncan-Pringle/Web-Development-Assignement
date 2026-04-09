@@ -173,7 +173,7 @@ def movie_details_page(movie_name):
     is_in_watchlist = False
     if session.get('id'):
     # Check if this specific movie is in this user's list
-        is_in_watchlist = db_functions.checkWatchlist(session.get('id'), data['movieID'])
+        is_in_watchlist = db_functions.checkWatchlist(session.get('id'), data['movieid'])
     return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist, username = db_functions.getUsernameFromID(session.get('id')).get("username") if 'id' in session else None)
 
 #Think we can delete this despite all the refactoring I did 😭
@@ -221,15 +221,6 @@ def fetch_movie_logic(movie_id):
 #don't think I'm using this anymore so we can probably delete
 #changed name to pag
 
-def movie_details_pag(movie_id):
-    # route that actually renders the HTML page.
-    data = fetch_movie_logic(movie_id)
-    
-    if not data:
-        return "Movie not found", 404
-
-    # pass the dict to template as movie
-    return render_template('movieDetails.html', movie=data)
 
 #Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
 @app.route('/search') #To fix, added await and removed error

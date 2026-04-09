@@ -9,9 +9,6 @@ app.secret_key = 'super_secret_key'
 
 @app.route("/")
 def home():
-
-        username = None
-
     data = popular_movies()
     movie_list = data.get("results", [])
 

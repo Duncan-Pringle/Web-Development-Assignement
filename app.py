@@ -369,7 +369,7 @@ def close_connection(exception):
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
     # Check if user is logged in
-    user_id = session.get('user_id')
+    user_id = session.get('id')
     if not user_id:
         return jsonify({"error": "unauthorized"}), 401
 

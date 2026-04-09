@@ -9,11 +9,17 @@ app.secret_key = 'super_secret_key'
 
 @app.route("/")
 def home():
+    if 'id' in session:
+        username = db_functions.getUsernameFromID(session.get('id')).get("username")
+    else:
+        username = None
+
     data = popular_movies()
     movie_list = data.get("results", [])
 
     return render_template(
         "index.html",
+        username=username,
         featured_movie=movie_list[0] if movie_list else None,
         popular_movies=movie_list
     )

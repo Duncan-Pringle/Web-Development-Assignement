@@ -15,11 +15,11 @@
 
     {% if session.get('id') %}
       <div onclick="toggleDropdown()" style="cursor: pointer;">
-        Welcome, {{ db_functions.getUsernameFromID(session.get('id')).get('username') }} &#9662;
+        Welcome, {{ username }} &#9658;
       </div>
 
         <div id="dropdown-menu" class="dropdown-content">
-          <p><strong>{{ db_functions.getUsernameFromID(session.get('id')).get('username') }}</strong></p>
+          <p><strong>{{ username }}</strong></p>
         <hr>
 
           <a href="/profile">My Profile</a>

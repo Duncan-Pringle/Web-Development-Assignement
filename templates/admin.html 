@@ -10,14 +10,16 @@
 
     <h1>Admin Dashboard</h1>
 
-
+    <!-- STATS -->
     <div class="admin-stats">
         <div class="stat-card">Users: {{ users|length }}</div>
         <div class="stat-card">Movies: {{ movies|length }}</div>
     </div>
 
-    
+    <!-- USERS -->
     <h2>Manage Users</h2>
+
+    {% if users %}
     <table class="admin-table">
         <thead>
             <tr>
@@ -32,24 +34,28 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.userid }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.userlevel }}</td>
-
+                <td>{{ user.get('userid') }}</td>
+                <td>{{ user.get('username') }}</td>
+                <td>{{ user.get('email') }}</td>
+                <td>{{ user.get('userlevel') }}</td>
                 <td>
-                    <a href="/admin/promote/{{ user.userid }}" class="btn-small">Promote</a>
-                    <a href="/admin/delete_user/{{ user.userid }}" class="btn-small danger">Delete</a>
+                    <a href="/admin/promote/{{ user.get('userid') }}" class="btn-small">Promote</a>
+                    <a href="/admin/delete_user/{{ user.get('userid') }}" class="btn-small danger">Delete</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
 
     <br><br>
 
-
+    <!-- MOVIES -->
     <h2>Movies in Database</h2>
+
+    {% if movies %}
     <table class="admin-table">
         <thead>
             <tr>
@@ -63,14 +69,17 @@
         <tbody>
             {% for movie in movies %}
             <tr>
-                <td>{{ movie.movieid }}</td>
-                <td>{{ movie.title }}</td>
-                <td>{{ movie.year }}</td>
-                <td>{{ movie.rating }}</td>
+                <td>{{ movie.get('movieid') }}</td>
+                <td>{{ movie.get('title') }}</td>
+                <td>{{ movie.get('year') }}</td>
+                <td>{{ movie.get('rating') }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No movies found.</p>
+    {% endif %}
 
 </div>
 

@@ -89,7 +89,7 @@ def TMDB_shows_popular(page: int = 1):
         return {"error": f"Request failed with status {popular.status_code}"}
     return popular.json()
 
-async def get_genres():
+async def get_show_genres():
     genrenames = httpx.get(f"{TMDB}/genre/tv/list", headers=HEADERS)
     if genrenames.status_code != 200:
         return {"error": f"Request failed with status {genrenames.status_code}"}

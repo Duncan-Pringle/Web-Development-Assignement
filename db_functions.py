@@ -87,7 +87,7 @@ def setPassword(userID, hashedPass):
 def deleteUser(userID):
     database.query_db_write(
         "DELETE FROM usertable where userID = %s",
-        (userID)
+        (userID,)
     )
 
 #==========Movie Functions==========
@@ -215,7 +215,7 @@ def deleteWatchlistMovie(userID, movieID):
     )
 
 def getUserWatchlist(userID):
-    database.query_db_read(
+    return database.query_db_read(
         "SELECT * FROM watchlist WHERE userID = %s",
         (userID,)
     )
@@ -241,7 +241,9 @@ def deleteReportFromID(reportid):
     )
 
 def getAllUnhandledReports(): #Returns everything from the userreports table where handled = false
-    database.query_db_read("SELECT * FROM userreports WHERE handled = false")
+    return database.query_db_read(
+        "SELECT * FROM userreports WHERE handled = false"
+        )
 
 def handleReport(reportid): #Changes the "handled" variable from false to true in a report
     database.query_db_write("UPDATE userreports SET handled = true WHERE reportid = %s", (reportid))

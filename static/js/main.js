@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         watchlistBtn.addEventListener('click', function() {
             const btn = this;
             const movieId = btn.getAttribute('data-movie-id');
-            console.log('Testing'); // Debugging log
+            console.log('Testing', movieId); // Debugging log
             // If movieId is missing, stop here
             if (!movieId) return;
 

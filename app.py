@@ -368,20 +368,14 @@ def close_connection(exception):
 
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
-    # Check if user is logged in
-    user_id = session.get('id')
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
+    print(f"DEBUG: Watchlist toggle called for movie {movie_id}") 
+    
+    if 'id' not in session: # Use 'id' to match  header check
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    #  logic to add/remove from DB .
+    return jsonify({"status": "added"}) 
 
-    # Check if it's already there
-    existing = db_functions.checkWatchlist(user_id, movie_id)
-
-    if existing:
-        db_functions.deleteWatchlistMovie(user_id, movie_id)
-        return jsonify({"status": "removed"})
-    else:
-        db_functions.createWatchlistMovie(user_id, movie_id)
-        return jsonify({"status": "added"})
-
+    
 if __name__ == '__main__':
     app.run(debug=True)

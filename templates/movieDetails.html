@@ -17,7 +17,7 @@
                 <span> {{ movie.year }}</span>
                 <span> {{ movie.rating }}</span>
             </div>
-
+            {{}}
             <p><strong>Genres:</strong> {{ movie.genres | join(', ') }}</p>
 
             <h3 class="view-description-heading">Overview</h3>
@@ -26,10 +26,11 @@
             <div class="action-buttons">
                 <a href="/" class="btn">Back to Hub</a>
     
-                <button id="watchlist-btn" class="btn {% if is_in_watchlist %}btn-added{% endif %}" data-movie-id="{{ movie.movieID }}">
                 {% if is_in_watchlist %}
+                    <button id="watchlist-btn" class="btn btn-added" data-movie-id="{{ movie.movieID }}">
                     ✓ In Watchlist
                 {% else %}
+                    <button id="watchlist-btn" class="btn" data-movie-id="{{ movie.movieID }}">
                     + Add to Watchlist
                 {% endif %}
                 </button>

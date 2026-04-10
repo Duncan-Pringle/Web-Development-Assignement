@@ -1135,7 +1135,7 @@ def testing():
   ("Test 0026:", db_functions.setUsername,[10, "updated test"]),
   ("Test 0027:", db_functions.deleteUser,[8]),
   ]
-  test = {}
+  results = {}
   for label, function, args in tests:
-    tests[label] = run_test(function, args)
+    results[label] = run_test(function, args)
   return jsonify(tests)

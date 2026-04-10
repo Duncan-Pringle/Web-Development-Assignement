@@ -152,9 +152,9 @@ def getTVShowByID(showID):
     return database.query_db_read(
         "SELECT * FROM tvshow WHERE showID = %s", (showID,), fetchone=True)
 
-def getTVShowByTitle(title):
+def getTVShowByTitle(name):
     return database.query_db_read(
-        "SELECT * FROM tvshow WHERE title = %s", (title,), fetchone=True)
+        "SELECT * FROM tvshow WHERE name = %s", (name,), fetchone=True)
 
 
 # TV Watchlist Functions
@@ -253,7 +253,7 @@ def createTVShow(showID, name, description, poster_url, first_air_date, genres, 
 
 
     database.query_db_write( #Inserts everything except for the genres   
-        "INSERT INTO tvshow (showid, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO tvshow (showID, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
         (showID, name, description, poster_url, first_air_date, number_of_seasons, rating)
     )                
 
@@ -286,4 +286,4 @@ def getAllShows(): #Returns dictionary of all shows in the database
     return database.query_db_read("SELECT * FROM tvshow")
 
 def getShowGenres(showID): #Returns dictionary of all genres for a tv show
-    return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID), fetchone = True)
+    return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID,), fetchone = True)

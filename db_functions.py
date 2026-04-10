@@ -183,10 +183,10 @@ def getTVWatchlistDetails(userID):
 
 
 # Review Functions
-def createMovieReview(reviewText, userID, movieID, rating):
+def createMovieReview(reviewtext, userID, movieID, rating):
     database.query_db_write(
-        "INSERT INTO review (reviewText, userID, movieID, rating) values (%s, %s, %s, %s)",
-        (reviewText,userID, movieID, rating)
+        "INSERT INTO review (reviewtext, userID, movieID, rating) values (%s, %s, %s, %s)",
+        (reviewtext,userID, movieID, rating)
     )
         
 
@@ -194,9 +194,9 @@ def deleteReview(reviewID):
     database.query_db_write(
         "DELETE FROM review WHERE reviewID = %s", (reviewID,))
 
-def setReviewText(reviewID, text):
+def setreviewtext(reviewID, text):
     database.query_db_write(
-        "UPDATE review SET reviewText = %s where reviewID = %s", (text, reviewID))
+        "UPDATE review SET reviewtext = %s where reviewID = %s", (text, reviewID))
 
 def getUserReviews(userID):
     return database.query_db_read(
@@ -291,18 +291,18 @@ def getShowGenres(showID): #Returns dictionary of all genres for a tv show
     return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID,), fetchone = True)
     
 # TV Review Functions
-def createTvReview(reviewText, userID, showID, rating):
+def createTvReview(reviewtext, userID, showID, rating):
     database.query_db_write(
-        "INSERT INTO showreview (reviewText, userID, showID, rating) values (%s, %s, %s, %s)",
-        (reviewText, userID, showID, rating))
+        "INSERT INTO showreview (reviewtext, userID, showID, rating) values (%s, %s, %s, %s)",
+        (reviewtext, userID, showID, rating))
 
 def deleteTvReview(reviewID):
     database.query_db_write(
         "DELETE FROM showreview WHERE reviewID = %s", (reviewID,))
 
-def setTvReviewText(reviewID, text):
+def setTvreviewtext(reviewID, text):
     database.query_db_write(
-        "UPDATE showreview SET reviewText = %s where reviewID = %s", (text, reviewID))
+        "UPDATE showreview SET reviewtext = %s where reviewID = %s", (text, reviewID))
 
 def getUserTvReviews(userID):
     return database.query_db_read(
@@ -321,7 +321,7 @@ def getRecentActivity(userID):
         """
         /* 1. Movie Reviews */
         SELECT 
-            r.timestamp, r.rating, r.reviewText, 'movie_review' AS type,
+            r.timestamp, r.rating, r.reviewtext, 'movie_review' AS type,
             m.title AS content_name, m.movieID AS content_id
         FROM review r
         JOIN movie m ON r.movieID = m.movieID
@@ -331,7 +331,7 @@ def getRecentActivity(userID):
 
         /* 2. Show Reviews */
         SELECT 
-            sr.timestamp, sr.rating, sr.reviewText, 'show_review' AS type,
+            sr.timestamp, sr.rating, sr.reviewtext, 'show_review' AS type,
             s.name AS content_name, s.showid AS content_id
         FROM showreview sr
         JOIN tvshow s ON sr.showID = s.showid
@@ -341,7 +341,7 @@ def getRecentActivity(userID):
 
         /* 3. Watchlist Additions */
         SELECT 
-            w.timestamp, NULL AS rating, NULL AS reviewText, 'watchlist' AS type,
+            w.timestamp, NULL AS rating, NULL AS reviewtext, 'watchlist' AS type,
             m.title AS content_name, m.movieID AS content_id
         FROM watchlist w
         JOIN movie m ON w.movieID = m.movieID

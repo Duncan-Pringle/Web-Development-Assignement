@@ -10,7 +10,8 @@ TMDB_IMAGE = "https://image.tmdb.org/t/p/"
 HEADERS = {
     "Authorization": f"Bearer {os.environ.get('TMDB_API')}",
     "accept": "application/json"
-    }
+}
+
 
 #basic methods to call for api functionallity, I'll add more as needed
 
@@ -31,61 +32,68 @@ HEADERS = {
 #vote count
 #video#vote_average
 
-# use this to get the key for translating the genre ids to english
-def get_genres():
-    genrenames = httpx.get(f"{TMDB}/genre/movie/list", headers=HEADERS)
-    if genrenames.status_code != 200:
-        return {"error": f"Request failed with status {genrenames.status_code}"}
-    return genrenames.json()
-
-
-# use this to run a search on tmdb
-def TMDB_search(query: str, page: int = 1):
-    search = httpx.get(
-        f"{TMDB}/search/movie",
-        headers=HEADERS,
-        params={"query": query, "page": page}
-    )
-    if search.status_code != 200:
-        return {"error": f"Request failed with status {search.status_code}"}
-    return search.json()
-
-
-# use this to get a page of popular movies
-def TMDB_popular(page: int = 1):
-    popular = httpx.get(
-        f"{TMDB}/movie/popular",
-        headers=HEADERS,
-        params={"page": page}
-    )
-    if popular.status_code != 200:
-        return {"error": f"Request failed with status {popular.status_code}"}
-    return popular.json()
-
-#declan api code (might break)
-# helper method for poster URL
 def TMDB_poster_url(poster_path, size="w342"):
     if not poster_path:
         return None
     return f"{TMDB_IMAGE}{size}{poster_path}"
 
 
-#don't think I'm using this anymore so we can probably delete
+# Movies 
+def get_genres():
+    r = httpx.get(f"{TMDB}/genre/movie/list", headers=HEADERS)
+    if r.status_code != 200:
+        return {"error": f"Request failed with status {r.status_code}"}
+    return r.json()
+
+def TMDB_search(query: str, page: int = 1):
+    r = httpx.get(f"{TMDB}/search/movie", headers=HEADERS,
+                  params={"query": query, "page": page})
+    if r.status_code != 200:
+        return {"error": f"Request failed with status {r.status_code}"}
+    return r.json()
+
+def TMDB_popular(page: int = 1):
+    r = httpx.get(f"{TMDB}/movie/popular", headers=HEADERS,
+                  params={"page": page})
+    if r.status_code != 200:
+        return {"error": f"Request failed with status {r.status_code}"}
+    return r.json()
+
 def TMDB_by_id(movie_id):
-    #Fetch a single movie's details by its ID.
-    response = httpx.get(f"{TMDB}/movie/{movie_id}", headers=HEADERS)
-    if response.status_code != 200:
+    r = httpx.get(f"{TMDB}/movie/{movie_id}", headers=HEADERS)
+    if r.status_code != 200:
         return {"error": "Movie not found"}
-    return response.json()
+    return r.json()
 
 def TMDB_search_first(title):
-    """Search for a movie by name and return the very first result."""
-    response = httpx.get(
-        f"{TMDB}/search/movie", 
-        headers=HEADERS, 
-        params={"query": title, "page": 1}
-    )
-    if response.status_code == 200:
-        results = response.json().get("results")
+    r = httpx.get(f"{TMDB}/search/movie", headers=HEADERS,
+                  params={"query": title, "page": 1})
+    if r.status_code == 200:
+        results = r.json().get("results")
         return results[0] if results else None
     return None
+
+
+#  TV Shows 
+def TMDB_tv_popular(page: int = 1):
+    """Returns a page of popular TV shows from TMDB."""
+    r = httpx.get(f"{TMDB}/tv/popular", headers=HEADERS,
+                  params={"page": page})
+    if r.status_code != 200:
+        return {"error": f"Request failed with status {r.status_code}"}
+    return r.json()
+
+def TMDB_tv_search(query: str, page: int = 1):
+    """Search TV shows by name."""
+    r = httpx.get(f"{TMDB}/search/tv", headers=HEADERS,
+                  params={"query": query, "page": page})
+    if r.status_code != 200:
+        return {"error": f"Request failed with status {r.status_code}"}
+    return r.json()
+
+def TMDB_tv_by_id(tv_id):
+    """Get full details for a single TV show by its TMDB id."""
+    r = httpx.get(f"{TMDB}/tv/{tv_id}", headers=HEADERS)
+    if r.status_code != 200:
+        return {"error": "TV show not found"}
+    return r.json()

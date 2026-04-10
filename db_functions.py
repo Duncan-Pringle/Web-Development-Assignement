@@ -289,3 +289,29 @@ def getAllShows(): #Returns dictionary of all shows in the database
 
 def getShowGenres(showID): #Returns dictionary of all genres for a tv show
     return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID,), fetchone = True)
+    
+# TV Review Functions
+def createTvReview(reviewText, userID, showID, rating):
+    database.query_db_write(
+        "INSERT INTO showreview (reviewText, userID, showID, rating) values (%s, %s, %s, %s)",
+        (reviewText, userID, showID, rating))
+
+def deleteTvReview(reviewID):
+    database.query_db_write(
+        "DELETE FROM showreview WHERE reviewID = %s", (reviewID,))
+
+def setTvReviewText(reviewID, text):
+    database.query_db_write(
+        "UPDATE showreview SET reviewText = %s where reviewID = %s", (text, reviewID))
+
+def getUserTvReviews(userID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE userID = %s", (userID,))
+
+def getTvReviews(showID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE showID = %s", (showID,))
+
+def getTvReviewFromID(reviewID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE reviewID = %s", (reviewID,), fetchone=True)

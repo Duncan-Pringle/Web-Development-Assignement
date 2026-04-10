@@ -1097,38 +1097,76 @@ def delete_tv_review(review_id):
 
 #############################################
 
+tests = {
+
+
+  "Test 0001:": api.TMDB_by_id(83533),
+  "Test 0002:": api.TMDB_by_id(-83533),
+  "Test 0003:": api.TMDB_by_id(),
+  "Test 0004:": api.TMDB_by_id("movie"),
+  "Test 0005:": api.TMDB_by_id(0),
+  "Test 0006:": api.get_genres(),
+  "Test 0007:": api.TMDB_search("batman"),
+  "Test 0008:": api.TMDB_search("invalid movie name"),
+  "Test 0009:": api.TMDB_search("batman", 1000),
+  "Test 0010:": api.TMDB_popular(),
+  "Test 0011:": api.TMDB_popular(1000),
+  "Test 0012:": api.TMDB_search_first("batman"),
+  "Test 0013:": api.TMDB_search_first("invalid movie name"),
+  "Test 0014:": api.TMDB_tv_popular(),
+  "Test 0015:": api.TMDB_tv_popular(1000),
+  "Test 0016:": api.TMDB_tv_search("breaking bad"),
+  "Test 0017:": api.TMDB_tv_search("invalid show name"),
+  "Test 0018:": api.TMDB_tv_search("breaking bad", 1000),
+  "Test 0019:": api.TMDB_tv_by_id(1396),
+  "Test 0020:": api.TMDB_tv_by_id(-1396),
+  "Test 0021:": api.TMDB_tv_by_id(),
+  "Test 0022:": api.TMDB_tv_by_id("tv show"),
+  "Test 0023:": api.TMDB_tv_by_id(0),
+  "Test 0025:": db_functions.getUserFromID(7),
+  "Test 0026:": db_functions.setUsername(10, "updated test"),
+  "Test 0027:": db_functions.deleteUser(8),
+}
+
+
+def run_test(function, args=[]):
+    try:
+      return function(*args) + "\n"
+    except Exception as e:
+      return jsonify({"error": str(e)}), 500
+
+tests = [
+  ("Test 0001:", api.TMDB_by_id,[83533]),
+  ("Test 0002:", api.TMDB_by_id,[-83533]),
+  ("Test 0003:", api.TMDB_by_id,[]),
+  ("Test 0004:", api.TMDB_by_id,["movie"]),
+  ("Test 0005:", api.TMDB_by_id,[0]),
+  ("Test 0006:", api.get_genres,[]),
+  ("Test 0007:", api.TMDB_search,["batman"]),
+  ("Test 0008:", api.TMDB_search,["invalid movie name"]),
+  ("Test 0009:", api.TMDB_search,["batman", 1000]),
+  ("Test 0010:", api.TMDB_popular,[]),
+  ("Test 0011:", api.TMDB_popular,[1000]),
+  ("Test 0012:", api.TMDB_search_first,["batman"]),
+  ("Test 0013:", api.TMDB_search_first,["invalid movie name"]),
+  ("Test 0014:", api.TMDB_tv_popular,[]),
+  ("Test 0015:", api.TMDB_tv_popular,[1000]),
+  ("Test 0016:", api.TMDB_tv_search,["breaking bad"]),
+  ("Test 0017:", api.TMDB_tv_search,["invalid show name"]),
+  ("Test 0018:", api.TMDB_tv_search,["breaking bad", 1000]),
+  ("Test 0019:", api.TMDB_tv_by_id,[1396]),
+  ("Test 0020:", api.TMDB_tv_by_id,[-1396]),
+  ("Test 0021:", api.TMDB_tv_by_id,[]),
+  ("Test 0022:", api.TMDB_tv_by_id,["tv show"]),
+  ("Test 0023:", api.TMDB_tv_by_id,[0]),
+  ("Test 0025:", db_functions.getUserFromID,[7]),
+  ("Test 0026:", db_functions.setUsername,[10, "updated test"]),
+  ("Test 0027:", db_functions.deleteUser,[8]),
+]
 
 @app.route('/testingtesting')
-def tests():
-    try:
-        test = {
-            "Test 0001:": api.TMDB_by_id(83533),
-            "Test 0002:": api.TMDB_by_id(-83533),
-            "Test 0003:": api.TMDB_by_id(),
-            "Test 0004:": api.TMDB_by_id("movie"),
-            "Test 0005:": api.TMDB_by_id(0),
-            "Test 0006:": api.get_genres(),
-            "Test 0007:": api.TMDB_search("batman"),
-            "Test 0008:": api.TMDB_search("invalid movie name"),
-            "Test 0009:": api.TMDB_search("batman", 1000),
-            "Test 0010:": api.TMDB_popular(),
-            "Test 0011:": api.TMDB_popular(1000),
-            "Test 0012:": api.TMDB_search_first("batman"),
-            "Test 0013:": api.TMDB_search_first("invalid movie name"),
-            "Test 0014:": api.TMDB_tv_popular(),
-            "Test 0015:": api.TMDB_tv_popular(1000),
-            "Test 0016:": api.TMDB_tv_search("breaking bad"),
-            "Test 0017:": api.TMDB_tv_search("invalid show name"),
-            "Test 0018:": api.TMDB_tv_search("breaking bad", 1000),
-            "Test 0019:": api.TMDB_tv_by_id(1396),
-            "Test 0020:": api.TMDB_tv_by_id(-1396),
-            "Test 0021:": api.TMDB_tv_by_id(),
-            "Test 0022:": api.TMDB_tv_by_id("tv show"),
-            "Test 0023:": api.TMDB_tv_by_id(0),
-            "Test 0025:": db_functions.getUserFromID(7),
-            "Test 0026:": db_functions.setUsername(10, "updated test"),
-            "Test 0027:": db_functions.deleteUser(8),
-        }
-        return jsonify(test), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+def testing():
+  test = {}
+  for label, function, args in tests:
+    tests[label] = run_test(fn, args)
+  return jsonify(tests)

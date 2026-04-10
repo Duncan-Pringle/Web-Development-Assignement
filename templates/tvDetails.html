@@ -42,6 +42,34 @@
                 {% endif %}
                 </button>
             </div>
+            <div class="review-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <h3 class="view-description-heading">Leave a Review & Rating</h3>
+            
+                {% if session.id %}
+                    <div class="review-form">
+                        <div style="margin-bottom: 15px;">
+                            <label for="show-review-rating" style="font-weight: bold; margin-right: 10px;">Your Rating:</label>
+                            <select id="show-review-rating" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                                {% for i in range(10, 0, -1) %}
+                                    <option value="{{ i }}">{{ i }} / 10</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+            
+                        <textarea id="show-review-text" placeholder="What did you think of {{ show.title }}?"
+                                style="width: 100%; height: 100px; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; font-family: inherit; resize: vertical;"></textarea>
+            
+                        <button id="submit-show-review" class="btn" data-show-id="{{ show.showID or show.showid }}">
+                            Submit Review
+                        </button>
+                        <span id="show-review-msg" style="margin-left: 10px; font-weight: 500;"></span>
+                    </div>
+                {% else %}
+                    <p style="font-size: 0.9rem; color: #666;">
+                        Please <a href="/login" style="color: #4CAF50; font-weight: bold; text-decoration: none;">Login</a> to share your thoughts.
+                    </p>
+                {% endif %}
+            </div>
         </div>
 
     </div>

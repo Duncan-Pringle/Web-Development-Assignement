@@ -97,3 +97,9 @@ def TMDB_tv_by_id(tv_id):
     if r.status_code != 200:
         return {"error": "TV show not found"}
     return r.json()
+
+def get_tv_genres():
+    genrenames = httpx.get(f"{TMDB}/genre/tv/list", headers=HEADERS)
+    if genrenames.status_code != 200:
+        return {"error": f"Request failed with status {genrenames.status_code}"}
+    return genrenames.json()  

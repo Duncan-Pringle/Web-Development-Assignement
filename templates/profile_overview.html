@@ -1,0 +1,40 @@
+{% extends 'profile_base.html' %}
+{% set active_page = 'overview' %}
+
+{% block profile_main_content %}
+    <section class="profile-section">
+        <h3>My Watchlist</h3>
+        <div class="poster-grid">
+            {% for movie in watchlist %}
+                {% include 'poster.html' with context %}
+            {% else %}
+                <p>Your watchlist is empty.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="profile-section">
+        <h3>Recent Activity</h3>
+        <div class="activity-feed">
+    {% for item in activity %}
+        <div class="activity-item" style="margin-bottom: 15px; padding: 10px; border-left: 3px solid #4CAF50; background: #fafafa;">
+            <small style="color: #888;">{{ item.timestamp.strftime('%d %b %Y') }}</small>
+            
+            {% if item.type == 'movie_review' %}
+                <p>You rated <strong>{{ item.content_name }}</strong> — <span>⭐ {{ item.rating }}/10</span></p>
+                <i style="font-size: 0.9rem; color: #555;">"{{ item.reviewtext[:60] }}{% if item.reviewtext|length > 60 %}...{% endif %}"</i>
+                
+            {% elif item.type == 'show_review' %}
+                <p>You reviewed the show <strong>{{ item.content_name }}</strong>— <span>⭐ {{ item.rating }}/10</span></p>
+                <i style="font-size: 0.9rem; color: #555;">"{{ item.reviewtext[:60] }}{% if item.reviewtext|length > 60 %}...{% endif %}"</i>
+                
+            {% elif item.type == 'watchlist' %}
+                <p>You added <strong>{{ item.content_name }}</strong> to your watchlist.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>No recent activity to show.</p>
+    {% endfor %}
+</div>
+    </section>
+{% endblock %}

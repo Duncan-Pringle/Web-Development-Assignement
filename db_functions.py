@@ -148,23 +148,13 @@ def getWatchlistMovieDetails(userID):
 
 # TV Show Functions
 
-def createTVShow(showID, title, description, poster_url, first_air_date, rating):
-    """Save a TV show to the tvshow table. Silently skips if it already exists."""
-    try:
-        database.query_db_write(
-            "INSERT INTO tvshow (showID, title, description, poster_url, first_air_date, rating) values (%s, %s, %s, %s, %s, %s)",
-            (showID, title, description, poster_url, first_air_date, rating)
-        )
-    except Exception:
-        pass  # already exists, skip
-
 def getTVShowByID(showID):
     return database.query_db_read(
         "SELECT * FROM tvshow WHERE showID = %s", (showID,), fetchone=True)
 
-def getTVShowByTitle(title):
+def getTVShowByTitle(name):
     return database.query_db_read(
-        "SELECT * FROM tvshow WHERE title = %s", (title,), fetchone=True)
+        "SELECT * FROM tvshow WHERE name = %s", (name,), fetchone=True)
 
 
 # TV Watchlist Functions
@@ -193,18 +183,20 @@ def getTVWatchlistDetails(userID):
 
 
 # Review Functions
-def createReview(reviewText, userID, movieID):
+def createMovieReview(reviewtext, userID, movieID, rating):
     database.query_db_write(
-        "INSERT INTO review (reviewText, userID, movieID) values (%s, %s, %s)",
-        (reviewText, userID, movieID,))
+        "INSERT INTO review (reviewtext, userID, movieID, rating) values (%s, %s, %s, %s)",
+        (reviewtext,userID, movieID, rating)
+    )
+        
 
 def deleteReview(reviewID):
     database.query_db_write(
         "DELETE FROM review WHERE reviewID = %s", (reviewID,))
 
-def setReviewText(reviewID, text):
+def setreviewtext(reviewID, text):
     database.query_db_write(
-        "UPDATE review SET reviewText = %s where reviewID = %s", (text, reviewID))
+        "UPDATE review SET reviewtext = %s where reviewID = %s", (text, reviewID))
 
 def getUserReviews(userID):
     return database.query_db_read(
@@ -254,3 +246,108 @@ def getEverything():
         result = database.query_db_read(f"SELECT * FROM {table}")
         results[table] = [dict(row) for row in result] if result else []
     return results
+
+
+#==========Tv Show Functions==========
+
+#Inserts a show into the tvshow table, and uses the genres json to insert the genres
+def createTVShow(showID, name, description, poster_url, first_air_date, genres, number_of_seasons, rating):
+
+
+    database.query_db_write( #Inserts everything except for the genres   
+        "INSERT INTO tvshow (showID, name, description, poster_url, first_air_date, number_of_seasons, rating) values (%s, %s, %s, %s, %s, %s, %s)",
+        (showID, name, description, poster_url, first_air_date, number_of_seasons, rating)
+    )                
+
+# Genre Format example from TMDB ----- [{"id": 18,"name": "Drama"}, {"id": 53,"name": "Thriller"}]
+    for genre in genres:
+        genreID = genre["id"]
+        genreName = genre["name"]
+        #Insert into genre table
+        database.query_db_write(
+            "INSERT INTO tvgenre (tvgenreid, name) values (%s, %s) ON CONFLICT DO NOTHING", 
+            (genreID, genreName)
+        )
+        #Insert into tvgenres join table
+        database.query_db_write(
+            "INSERT INTO tvgenres (showid, tvgenreid) values (%s, %s) ON CONFLICT DO NOTHING", 
+            (showID, genreID)
+        )
+    db = database.get_db()
+    db.commit() #Commit once after all genres are inserted
+
+def getShowFromID(showID): #Returns 1 show from its showID
+
+    return database.query_db_read(
+        "SELECT * FROM tvshow WHERE showid = %s",
+        (showID,),
+        fetchone = True
+    )
+
+def getAllShows(): #Returns dictionary of all shows in the database
+    return database.query_db_read("SELECT * FROM tvshow")
+
+def getShowGenres(showID): #Returns dictionary of all genres for a tv show
+    return database.query_db_read("SELECT * FROM tvgenres WHERE showid = %s", (showID,), fetchone = True)
+    
+# TV Review Functions
+def createTvReview(reviewtext, userID, showID, rating):
+    database.query_db_write(
+        "INSERT INTO showreview (reviewtext, userID, showID, rating) values (%s, %s, %s, %s)",
+        (reviewtext, userID, showID, rating))
+
+def deleteTvReview(reviewID):
+    database.query_db_write(
+        "DELETE FROM showreview WHERE reviewID = %s", (reviewID,))
+
+def setTvreviewtext(reviewID, text):
+    database.query_db_write(
+        "UPDATE showreview SET reviewtext = %s where reviewID = %s", (text, reviewID))
+
+def getUserTvReviews(userID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE userID = %s", (userID,))
+
+def getTvReviews(showID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE showID = %s", (showID,))
+
+def getTvReviewFromID(reviewID):
+    return database.query_db_read(
+        "SELECT * FROM showreview WHERE reviewID = %s", (reviewID,), fetchone=True)
+
+def getRecentActivity(userID):
+    return database.query_db_read(
+        """
+        /* 1. Movie Reviews */
+        SELECT 
+            r.timestamp, r.rating, r.reviewtext, 'movie_review' AS type,
+            m.title AS content_name, m.movieID AS content_id
+        FROM review r
+        JOIN movie m ON r.movieID = m.movieID
+        WHERE r.userID = %s
+
+        UNION ALL
+
+        /* 2. Show Reviews */
+        SELECT 
+            sr.timestamp, sr.rating, sr.reviewtext, 'show_review' AS type,
+            s.name AS content_name, s.showid AS content_id
+        FROM showreview sr
+        JOIN tvshow s ON sr.showID = s.showid
+        WHERE sr.userID = %s
+
+        UNION ALL
+
+        /* 3. Watchlist Additions */
+        SELECT 
+            w.timestamp, NULL AS rating, NULL AS reviewtext, 'watchlist' AS type,
+            m.title AS content_name, m.movieID AS content_id
+        FROM watchlist w
+        JOIN movie m ON w.movieID = m.movieID
+        WHERE w.userID = %s
+
+        ORDER BY timestamp DESC LIMIT 3
+        """,
+        (userID, userID, userID)
+    )

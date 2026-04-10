@@ -54,3 +54,94 @@ if (tvWatchlistBtn && tvWatchlistBtn.dataset.showId) {
         toggleWatchlistBtn(tvWatchlistBtn, `/toggle-tv-watchlist/${id}`);
     };
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewBtn = document.getElementById('submit-review');
+    
+    if (reviewBtn) {
+        reviewBtn.onclick = function() {
+            const movieId = this.getAttribute('data-movie-id');
+            const reviewInput = document.getElementById('review-text');
+            const ratingInput = document.getElementById('review-rating');
+            const msg = document.getElementById('review-msg');
+
+            const text = reviewInput.value.trim();
+            const rating = ratingInput.value;
+
+            if (!text) {
+                msg.innerText = "Please write a review!";
+                msg.style.color = "#e74c3c";
+                return;
+            }
+
+            fetch(`/post-review/${movieId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    reviewText: text,
+                    rating: rating 
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    msg.innerText = "✅ Review & Rating saved!";
+                    msg.style.color = "#4CAF50";
+                    reviewInput.value = ""; // Clear the text area
+                } else {
+                    msg.innerText = "❌ Error saving review.";
+                    msg.style.color = "#e74c3c";
+                }
+            })
+            .catch(err => {
+                console.error("Review error:", err);
+                msg.innerText = "Connection error.";
+            });
+        };
+    }
+
+    const showReviewBtn = document.getElementById('submit-show-review');
+ 
+    if (showReviewBtn) {
+        showReviewBtn.onclick = function() {
+            const showId = this.getAttribute('data-show-id');
+            const reviewInput = document.getElementById('show-review-text');
+            const ratingInput = document.getElementById('show-review-rating');
+            const msg = document.getElementById('show-review-msg');
+ 
+            const text = reviewInput.value.trim();
+            const rating = ratingInput.value;
+ 
+            if (!text) {
+                msg.innerText = "Please write a review!";
+                msg.style.color = "#e74c3c";
+                return;
+            }
+ 
+            fetch(`/tv/show/${showId}/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reviewText: text,
+                    rating: rating
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    msg.innerText = "✅ Review & Rating saved!";
+                    msg.style.color = "#4CAF50";
+                    reviewInput.value = "";
+                } else {
+                    msg.innerText = "❌ Error saving review.";
+                    msg.style.color = "#e74c3c";
+                }
+            })
+            .catch(err => {
+                console.error("TV Review error:", err);
+                msg.innerText = "Connection error.";
+            });
+        };
+    }
+});

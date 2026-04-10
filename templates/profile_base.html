@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_owner }}'s Profile{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+<div class="profile-container">
+    <aside class="profile-sidebar">
+    <div class="profile-avatar" style="background-color: {{ get_user_color(profile_owner) }};">
+        {{ profile_owner[0].upper() }} 
+    </div>
+    <h2>{{ profile_owner }}</h2>
+    
+    {% if current_user and current_user != profile_owner %}
+        <p style="font-size: 0.8rem; color: #888;">Logged in as: {{ current_user }}</p>
+    {% endif %}
+
+    <p class="user-email">
+        {{ email if email else "Email hidden" }}
+    </p>
+    <hr>
+    
+    <nav class="profile-nav">
+        <a href="/profile/{{ profile_owner }}" class="{{ 'active' if active_page == 'overview' }}">Overview</a>
+        
+        {% if is_own_profile %}
+            <a href="/settings" class="{{ 'active' if active_page == 'settings' }}">Settings</a>
+            <a href="/logout" style="color: #e74c3c;">Logout</a>
+        {% endif %}
+    </nav>
+</aside>
+
+    <main class="profile-main">
+        {% block profile_main_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

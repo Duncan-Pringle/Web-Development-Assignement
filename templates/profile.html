@@ -26,7 +26,7 @@
             <h3>My Watchlist</h3>
             <div class="poster-grid">
                 {% for movie in watchlist %}
-                    {% include poster with context %}
+                    {% include 'poster.html' with context %}
                 {% endfor %}
             </div>
 

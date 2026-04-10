@@ -33,6 +33,7 @@ MovieHub is a full-stack web application that allows users to browse movies and 
 1. Clone the repository
 
 git clone 
+
 cd Web-Development-Assignment
 
 
@@ -110,6 +111,7 @@ SALT
 
 Swagger UI is available when running the application and provides documentation for available API endpoints.
 
+http://127.0.0.1:5000/apidocs
 
 
 ## Security Note

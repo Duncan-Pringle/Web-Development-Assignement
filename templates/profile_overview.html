@@ -1,0 +1,28 @@
+{% extends 'profile_base.html' %}
+{% set active_page = 'overview' %}
+
+{% block profile_main_content %}
+    <section class="profile-section">
+        <h3>My Watchlist</h3>
+        <div class="poster-grid">
+            {% for movie in watchlist %}
+                {% include 'poster.html' with context %}
+            {% else %}
+                <p>Your watchlist is empty.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="profile-section">
+        <h3>Recent Activity</h3>
+        <div class="activity-feed">
+            {% if activity %}
+                {% for item in activity %}
+                    <p>{{ item }}</p>
+                {% endfor %}
+            {% else %}
+                <p>No recent activity found.</p>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

@@ -158,90 +158,63 @@ def signup():
 
 @app.route('/profile')
 def profile():
-    """
-    Current user's profile page
-    ---
-    tags:
-      - Users
-    responses:
-      200:
-        description: Profile page with watchlist and user details
-      302:
-        description: Redirect to login if not authenticated
-    """
     if 'id' not in session:
         return redirect('/login')
-    user_id      = session.get('id')
-    name_result  = db_functions.getUsernameFromID(user_id)
+    
+    user_id = session.get('id')
+    name_result = db_functions.getUsernameFromID(user_id)
     email_result = db_functions.getEmailFromID(user_id)
-    username     = name_result.get('username')  if name_result  else None
-    email        = email_result.get('email')    if email_result else None
+    
+    username = name_result.get('username') if name_result else None
+    email = email_result.get('email') if email_result else None
     watchlist = db_functions.getWatchlistMovieDetails(user_id) or []
+
     for m in watchlist:
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
-    return render_template('profile.html',
-                           username=username, email=email,
-                           watchlist=watchlist, show_nav=False)
 
+    return render_template('profile_overview.html',
+                           username=username, email=email,
+                           watchlist=watchlist, is_own_profile=True)
 
 
 @app.route('/profile/<username>')
 def view_profile(username):
-    """
-    View another user's public profile
-    ---
-    tags:
-      - Users
-    parameters:
-      - name: username
-        in: path
-        type: string
-        required: true
-        description: Username of the profile to view
-    responses:
-      200:
-        description: Public profile page (email hidden for other users)
-      404:
-        description: User not found
-    """
     user = db_functions.getUserFromUsername(username)
-    try:
-        currentUsername = db_functions.getUsernameFromID(session.get('id'))
-    except Exception as e:
-        print(f"Error fetching current username: {e}")
-        currentUsername = None
-    if currentUsername != username:
-        show = False
-    else:
-        show = True
     if not user:
         return render_template('404.html'), 404
+
+    # Check if the visitor is the owner of this profile
+    is_own_profile = False
+    if 'id' in session:
+        current_user_data = db_functions.getUsernameFromID(session.get('id'))
+        if current_user_data and current_user_data.get('username') == username:
+            is_own_profile = True
+
     watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
     for m in watchlist:
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
-    return render_template('profile.html',
+
+    # We hide the email and settings links if is_own_profile is False
+    return render_template('profile_overview.html',
                            username=user['username'],
-                           email=show,        # don't show other people's emails
+                           email=user['email'] if is_own_profile else None,
                            watchlist=watchlist,
-                           show_nav=show)
-
-
+                           is_own_profile=is_own_profile)
 @app.route('/settings')
 def settings():
-    """
-    Settings page - currently redirects to profile
-    ---
-    tags:
-      - Users
-    responses:
-      302:
-        description: Redirect to profile page, or login if not authenticated
-    """
     if 'id' not in session:
         return redirect('/login')
-    return redirect('/profile')
+
+    user_id = session.get('id')
+    user_data = db_functions.getUsernameFromID(user_id)
+    email_data = db_functions.getEmailFromID(user_id)
+
+    return render_template('profile_settings.html',
+                           username=user_data.get('username'),
+                           email=email_data.get('email'),
+                           is_own_profile=True)
 
 
 

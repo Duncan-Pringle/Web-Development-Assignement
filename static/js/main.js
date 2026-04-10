@@ -17,35 +17,40 @@ window.onclick = function(event) {
     }
 }
 
-// Watchlist button 
-const watchlistBtn = document.getElementById('watchlist-btn');
+//  Generic watchlist toggle helper 
+async function toggleWatchlistBtn(btn, endpoint) {
+    try {
+        const res  = await fetch(endpoint, { method: 'POST' });
+        const data = await res.json();
 
-if (watchlistBtn) {
-    watchlistBtn.onclick = async () => {
-        const id = watchlistBtn.dataset.movieId;
-
-        try {
-            const res = await fetch(`/toggle-watchlist/${id}`, {
-                method: 'POST'
-            });
-
-            const data = await res.json();
-
-            if (data.status === 'added') {
-                watchlistBtn.textContent = '✓ In Watchlist';
-                watchlistBtn.classList.add('btn-added');  // only add btn-added, never remove btn
-            } 
-            else if (data.status === 'removed') {
-                watchlistBtn.textContent = '+ Add to Watchlist';
-                watchlistBtn.classList.remove('btn-added');  // only remove btn-added, keep btn always
-            } 
-            else if (data.status === 'error' && res.status === 401) {
-        
-                window.location.href = '/login';
-            }
-        } 
-        catch (err) {
-            console.error('Watchlist toggle failed:', err);
+        if (data.status === 'added') {
+            btn.textContent = '✓ In Watchlist';
+            btn.classList.add('btn-added');
+        } else if (data.status === 'removed') {
+            btn.textContent = '+ Add to Watchlist';
+            btn.classList.remove('btn-added');
+        } else if (res.status === 401) {
+            window.location.href = '/login';
         }
+    } catch (err) {
+        console.error('Watchlist toggle failed:', err);
+    }
+}
+
+// Movie watchlist button 
+const movieWatchlistBtn = document.getElementById('watchlist-btn');
+if (movieWatchlistBtn && movieWatchlistBtn.dataset.movieId) {
+    movieWatchlistBtn.onclick = () => {
+        const id = movieWatchlistBtn.dataset.movieId;
+        toggleWatchlistBtn(movieWatchlistBtn, `/toggle-watchlist/${id}`);
+    };
+}
+
+// TV show watchlist button 
+const tvWatchlistBtn = document.getElementById('watchlist-btn');
+if (tvWatchlistBtn && tvWatchlistBtn.dataset.showId) {
+    tvWatchlistBtn.onclick = () => {
+        const id = tvWatchlistBtn.dataset.showId;
+        toggleWatchlistBtn(tvWatchlistBtn, `/toggle-tv-watchlist/${id}`);
     };
 }

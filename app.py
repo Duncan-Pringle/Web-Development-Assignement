@@ -9,6 +9,7 @@ from flasgger import Swagger
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
+swagger = Swagger(app)
 
 
 

@@ -866,7 +866,6 @@ def post_review(movie_id):
         return jsonify({"status": "error", "message": "Review and rating are required"}), 400
 
     try:
-        # Matches your function: reviewText, userID, movieID, rating
         db_functions.createMovieReview(text, user_id, movie_id, int(rating))
         return jsonify({"status": "success", "message": "Review added!"})
     except Exception as e:
@@ -908,3 +907,45 @@ def delete_review_user(review_id):
  
     db_functions.deleteReview(review_id)
     return jsonify({"message": "Review deleted successfully"})
+
+###TV show review routes
+
+@app.route('/tv/show/<int:show_id>/reviews', methods=['GET'])
+def get_tv_reviews(show_id):
+  reviews = db_functions.getTvReviews(show_id)
+  return jsonify(reviews)
+
+@app.route('/tv/show/<int:show_id>/reviews', methods=['POST'])
+def post_tv_review(show_id):
+  user_id = session.get('id')
+  if not user_id:
+      return jsonify({"status": "error", "message": "Unauthorized"}), 401
+
+  data = request.get_json()
+  text = data.get('reviewText', '').strip()
+  rating = data.get('rating')
+
+  if not text or not rating:
+      return jsonify({"status": "error", "message": "Review and rating are required"}), 400
+
+  try:
+      db_functions.createTvReview(text, user_id, show_id, int(rating))
+      return jsonify({"status": "success", "message": "Review added!"})
+  except Exception as e:
+      print(f"TV Review Error: {e}")
+      return jsonify({"status": "error", "message": "Failed to post review"}), 500
+
+@app.route('/tv/review/<int:review_id>/delete', methods=['POST'])
+def delete_tv_review(review_id):
+  if 'id' not in session:
+      return jsonify({"error": "You must be logged in to delete a review."}), 401
+
+  review = db_functions.getTvReviewFromID(review_id)
+  if not review:
+      return jsonify({"error": "Review not found"}), 404
+
+  if review['userid'] != session['id'] and not session.get('is_admin'):
+      return jsonify({"error": "You can only delete your own reviews"}), 403
+
+  db_functions.deleteTvReview(review_id)
+  return jsonify({"message": "Review deleted successfully"}), 200

@@ -11,8 +11,7 @@ def createUser(username, email, hashedPass):
 def getUserFromID(userID):
     return database.query_db_read(
         "SELECT * FROM usertable WHERE userID = %s",
-        (userID,),
-        fetchone=True
+        (userID,), fetchone=True
     )
 
 def getAllUsers():
@@ -21,91 +20,71 @@ def getAllUsers():
 def getUserFromEmail(email):
     return database.query_db_read(
         "SELECT * FROM usertable WHERE email = %s",
-        (email,),
-        fetchone=True
+        (email,), fetchone=True
     )
 
 def getEmailFromID(userID):
     return database.query_db_read(
         "SELECT email FROM usertable WHERE userID = %s",
-        (userID,),
-        fetchone=True
+        (userID,), fetchone=True
     )
 
 def getUsernameFromID(userID):
     return database.query_db_read(
         "SELECT username FROM usertable WHERE userID = %s",
-        (userID,),
-        fetchone=True
+        (userID,), fetchone=True
     )
 
 def getIDFromUsername(username):
     return database.query_db_read(
         "SELECT userID FROM usertable WHERE username = %s",
-        (username,),
-        fetchone=True
+        (username,), fetchone=True
     )
 
 def getUserFromUsername(username):
     return database.query_db_read(
         "SELECT * FROM usertable WHERE username = %s",
-        (username,),
-        fetchone=True
+        (username,), fetchone=True
     )
 
-# Sets
 def setUsername(userID, username):
     database.query_db_write(
-        "UPDATE usertable SET username = %s where userID = %s",
-        (username, userID)
-    )
+        "UPDATE usertable SET username = %s where userID = %s", (username, userID))
 
 def setEmail(userID, email):
     database.query_db_write(
-        "UPDATE usertable SET email = %s where userID = %s",
-        (email, userID)
-    )
+        "UPDATE usertable SET email = %s where userID = %s", (email, userID))
 
 def setLevel(userID, userLevel):
     database.query_db_write(
-        "UPDATE usertable SET userLevel = %s where userID = %s",
-        (userLevel, userID)
-    )
+        "UPDATE usertable SET userLevel = %s where userID = %s", (userLevel, userID))
 
 def setPassword(userID, hashedPass):
     database.query_db_write(
-        "UPDATE usertable SET hashedPass = %s where userID = %s",
-        (hashedPass, userID)
-    )
+        "UPDATE usertable SET hashedPass = %s where userID = %s", (hashedPass, userID))
 
 def deleteUser(userID):
     database.query_db_write(
-        "DELETE FROM usertable where userID = %s",
-        (userID,)
-    )
+        "DELETE FROM usertable where userID = %s", (userID,))
 
 
 # Movie Functions
 
 def createMovie(movieID, title, description, poster_url, year, genres, rating):
-    # FIX: wrap in try/except so a duplicate movie (already in DB) doesn't crash the app
     try:
         database.query_db_write(
             "INSERT INTO movie (movieID, title, description, poster_url, year, rating) values (%s, %s, %s, %s, %s, %s)",
             (movieID, title, description, poster_url, year, rating)
         )
     except Exception:
-        pass  # Movie already exists — that's fine, just skip the insert
+        pass  # already exists, skip
 
-    # FIX: genres from TMDB are dicts like {"id": 18, "name": "Drama"}
-    # but sometimes they may already be plain strings if called from old code — handle both
     for genre in genres:
         if isinstance(genre, dict):
             genreID   = genre["id"]
             genreName = genre["name"]
         else:
-            continue  # skip if it's not a dict (shouldn't happen but safe)
-
+            continue
         database.query_db_write(
             "INSERT INTO genre (genreID, name) values (%s, %s) ON CONFLICT DO NOTHING",
             (genreID, genreName)
@@ -117,104 +96,46 @@ def createMovie(movieID, title, description, poster_url, year, genres, rating):
 
 def createLikedMovie(userID, movieID):
     database.query_db_write(
-        "INSERT INTO likedmovies (userID, movieID) values (%s, %s)",
-        (userID, movieID)
-    )
+        "INSERT INTO likedmovies (userID, movieID) values (%s, %s)", (userID, movieID))
 
 def getMovieFromID(movieID):
     return database.query_db_read(
-        "SELECT * FROM movie WHERE movieID = %s",
-        (movieID,),
-        fetchone=True
-    )
+        "SELECT * FROM movie WHERE movieID = %s", (movieID,), fetchone=True)
 
 def getAllMovies():
     return database.query_db_read("SELECT * FROM movie")
 
 def getMovieByTitle(title):
     return database.query_db_read(
-        "SELECT * FROM movie WHERE title = %s",
-        (title,),
-        fetchone=True
-    )
+        "SELECT * FROM movie WHERE title = %s", (title,), fetchone=True)
 
 def getGenresForMovie(movieID):
-    query = """
-        SELECT g.name
-        FROM genre g
+    results = database.query_db_read("""
+        SELECT g.name FROM genre g
         JOIN movieGenres mg ON g.genreID = mg.genreID
         WHERE mg.movieID = %s
-    """
-    results = database.query_db_read(query, (movieID,))
+    """, (movieID,))
     return [row['name'] for row in results] if results else []
 
 
-# Review Functions
-
-def createReview(reviewText, userID, movieID):
-    database.query_db_write(
-        "INSERT INTO review (reviewText, userID, movieID) values (%s, %s, %s)",
-        (reviewText, userID, movieID,)
-    )
-
-def deleteReview(reviewID):
-    database.query_db_write(
-        "DELETE FROM review WHERE reviewID = %s",
-        (reviewID,)    # FIX: was missing the comma — (reviewID) is not a tuple, (reviewID,) is
-    )
-
-def setReviewText(reviewID, text):
-    database.query_db_write(
-        "UPDATE review SET reviewText = %s where reviewID = %s",
-        (text, reviewID)
-    )
-
-def getUserReviews(userID):
-    return database.query_db_read(
-        "SELECT * FROM review WHERE userID = %s",
-        (userID,)
-    )
-
-def getMovieReviews(movieID):
-    return database.query_db_read(
-        "SELECT * FROM review WHERE movieID = %s",
-        (movieID,)
-    )
-
-def getReviewFromID(reviewID):
-    return database.query_db_read(
-        "SELECT * FROM review WHERE reviewID = %s",
-        (reviewID,),
-        fetchone=True
-    )
-
-
-# Watchlist Functions
+# Movie Watchlist Functions
 
 def createWatchlistMovie(userID, movieID):
     database.query_db_write(
-        "INSERT INTO watchlist (userID, movieID) values (%s, %s)",
-        (userID, movieID)
-    )
+        "INSERT INTO watchlist (userID, movieID) values (%s, %s)", (userID, movieID))
 
 def deleteWatchlistMovie(userID, movieID):
     database.query_db_write(
-        "DELETE FROM watchlist WHERE userID = %s AND movieID = %s",
-        (userID, movieID)
-    )
+        "DELETE FROM watchlist WHERE userID = %s AND movieID = %s", (userID, movieID))
 
 def getUserWatchlist(userID):
     return database.query_db_read(
-        "SELECT * FROM watchlist WHERE userID = %s",
-        (userID,)
-    )
+        "SELECT * FROM watchlist WHERE userID = %s", (userID,))
 
-# FIX: was defined TWICE — removed the duplicate, kept one clean version
 def checkWatchlist(userID, movieID):
     result = database.query_db_read(
         "SELECT 1 FROM watchlist WHERE userID = %s AND movieID = %s",
-        (userID, movieID),
-        fetchone=True
+        (userID, movieID), fetchone=True
     )
     return result is not None
 
@@ -225,42 +146,109 @@ def getWatchlistMovieDetails(userID):
     )
 
 
+# TV Show Functions
+
+def createTVShow(showID, title, description, poster_url, first_air_date, rating):
+    """Save a TV show to the tvshow table. Silently skips if it already exists."""
+    try:
+        database.query_db_write(
+            "INSERT INTO tvshow (showID, title, description, poster_url, first_air_date, rating) values (%s, %s, %s, %s, %s, %s)",
+            (showID, title, description, poster_url, first_air_date, rating)
+        )
+    except Exception:
+        pass  # already exists, skip
+
+def getTVShowByID(showID):
+    return database.query_db_read(
+        "SELECT * FROM tvshow WHERE showID = %s", (showID,), fetchone=True)
+
+def getTVShowByTitle(title):
+    return database.query_db_read(
+        "SELECT * FROM tvshow WHERE title = %s", (title,), fetchone=True)
+
+
+# TV Watchlist Functions
+
+def createTVWatchlist(userID, showID):
+    database.query_db_write(
+        "INSERT INTO tv_watchlist (userID, showID) values (%s, %s)", (userID, showID))
+
+def deleteTVWatchlist(userID, showID):
+    database.query_db_write(
+        "DELETE FROM tv_watchlist WHERE userID = %s AND showID = %s", (userID, showID))
+
+def checkTVWatchlist(userID, showID):
+    result = database.query_db_read(
+        "SELECT 1 FROM tv_watchlist WHERE userID = %s AND showID = %s",
+        (userID, showID), fetchone=True
+    )
+    return result is not None
+
+def getTVWatchlistDetails(userID):
+    """Returns full tvshow rows for everything in a user's TV watchlist."""
+    return database.query_db_read(
+        "SELECT t.* FROM tvshow t JOIN tv_watchlist tw ON t.showID = tw.showID WHERE tw.userID = %s",
+        (userID,)
+    )
+
+
+# Review Functions
+def createReview(reviewText, userID, movieID):
+    database.query_db_write(
+        "INSERT INTO review (reviewText, userID, movieID) values (%s, %s, %s)",
+        (reviewText, userID, movieID,))
+
+def deleteReview(reviewID):
+    database.query_db_write(
+        "DELETE FROM review WHERE reviewID = %s", (reviewID,))
+
+def setReviewText(reviewID, text):
+    database.query_db_write(
+        "UPDATE review SET reviewText = %s where reviewID = %s", (text, reviewID))
+
+def getUserReviews(userID):
+    return database.query_db_read(
+        "SELECT * FROM review WHERE userID = %s", (userID,))
+
+def getMovieReviews(movieID):
+    return database.query_db_read(
+        "SELECT * FROM review WHERE movieID = %s", (movieID,))
+
+def getReviewFromID(reviewID):
+    return database.query_db_read(
+        "SELECT * FROM review WHERE reviewID = %s", (reviewID,), fetchone=True)
+
+
 # UserReports Functions
 
 def createReportWithReview(reporter, reported, reviewID):
     database.query_db_write(
         "INSERT INTO userreports (reporter, reported, reviewid) values (%s, %s, %s)",
-        (reporter, reported, reviewID)
-    )
+        (reporter, reported, reviewID))
 
 def createReport(reporter, reported):
     database.query_db_write(
         "INSERT INTO userreports (reporter, reported) values (%s, %s)",
-        (reporter, reported)
-    )
+        (reporter, reported))
 
 def deleteReportFromID(reportid):
     database.query_db_write(
-        "DELETE FROM userreports WHERE reportid = %s",
-        (reportid,)    # FIX: same missing comma bug as deleteReview
-    )
+        "DELETE FROM userreports WHERE reportid = %s", (reportid,))
 
 def getAllUnhandledReports():
     return database.query_db_read(
-        "SELECT * FROM userreports WHERE handled = false"
-    )
+        "SELECT * FROM userreports WHERE handled = false")
 
 def handleReport(reportid):
     database.query_db_write(
-        "UPDATE userreports SET handled = true WHERE reportid = %s",
-        (reportid,)    # FIX: same missing comma bug
-    )
+        "UPDATE userreports SET handled = true WHERE reportid = %s", (reportid,))
 
 
-#  Debug / Dev Tools
+# Debug / Dev Tools
 
 def getEverything():
-    tables = ["usertable", "movie", "genre", "likedmovies", "moviegenres", "review", "watchlist", "userreports"]
+    tables = ["usertable", "movie", "genre", "likedmovies", "moviegenres",
+              "review", "watchlist", "tv_watchlist", "tvshow", "userreports"]
     results = {}
     for table in tables:
         result = database.query_db_read(f"SELECT * FROM {table}")

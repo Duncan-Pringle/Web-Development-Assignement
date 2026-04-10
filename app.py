@@ -237,7 +237,7 @@ def settings():
                            email=email_data.get('email'),
                            is_own_profile=True,
                            current_user=user_data.get('username'),
-                           profile_owner=user.data.get('username'))
+                           profile_owner=user_data.get('username'))
 
 
 

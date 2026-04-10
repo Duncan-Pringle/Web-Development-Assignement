@@ -158,6 +158,17 @@ def signup():
 
 @app.route('/profile')
 def profile():
+    """
+    Current user's profile page
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: Profile page with watchlist and user details
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     
@@ -180,6 +191,23 @@ def profile():
 
 @app.route('/profile/<username>')
 def view_profile(username):
+    """
+    View another user's public profile
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: username
+        in: path
+        type: string
+        required: true
+        description: Username of the profile to view
+    responses:
+      200:
+        description: Public profile page (email hidden for other users)
+      404:
+        description: User not found
+    """
     user = db_functions.getUserFromUsername(username)
     if not user:
         return render_template('404.html'), 404
@@ -204,6 +232,17 @@ def view_profile(username):
                            is_own_profile=is_own_profile)
 @app.route('/settings')
 def settings():
+    """
+    Settings page
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: Profile settings page
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
 
@@ -827,6 +866,37 @@ def get_movie_reviews(movie_id):
 
 @app.route('/post-review/<int:movie_id>', methods=['POST'])
 def post_review(movie_id):
+    """
+    Create a review for a movie
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: movie_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the movie to review
+      - name: reviewText
+        in: formData
+        type: string
+        required: true
+        description: The review text content
+      - name: rating
+        in: formData
+        type: integer
+        required: true
+        description: Rating out of 10
+    responses:
+      200:
+        description: Review created successfully
+      400:
+        description: Missing review text or rating
+      401:
+        description: Not logged in
+      500:
+        description: Server error
+    """
     user_id = session.get('id')
     if not user_id:
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
@@ -879,17 +949,63 @@ def delete_review_user(review_id):
         return jsonify({"error": "You can only delete your own reviews"}), 403
  
     db_functions.deleteReview(review_id)
-    return jsonify({"message": "Review deleted successfully"})
+    return jsonify({"message": "Review deleted successfully"}), 200
 
 ###TV show review routes
 
 @app.route('/tv/show/<int:show_id>/reviews', methods=['GET'])
 def get_tv_reviews(show_id):
+    """
+    Get all reviews for a TV show
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: show_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the show to get reviews for
+    responses:
+      200:
+        description: List of reviews as JSON
+    """
   reviews = db_functions.getTvReviews(show_id)
   return jsonify(reviews)
 
 @app.route('/tv/show/<int:show_id>/reviews', methods=['POST'])
 def post_tv_review(show_id):
+    """
+    Create a review for a TV show
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: show_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the show to review
+      - name: reviewText
+        in: formData
+        type: string
+        required: true
+        description: The review text content
+      - name: rating
+        in: formData
+        type: integer
+        required: true
+        description: Rating out of 10
+    responses:
+      200:
+        description: Review created successfully
+      400:
+        description: Missing review text or rating
+      401:
+        description: Not logged in
+      500:
+        description: Server error
+    """
   user_id = session.get('id')
   if not user_id:
       return jsonify({"status": "error", "message": "Unauthorized"}), 401
@@ -910,6 +1026,27 @@ def post_tv_review(show_id):
 
 @app.route('/tv/review/<int:review_id>/delete', methods=['POST'])
 def delete_tv_review(review_id):
+    """
+    Delete a TV show review - users can only delete their own, admins can delete any
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: review_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the review to delete
+    responses:
+      200:
+        description: Review deleted successfully
+      401:
+        description: Not logged in
+      403:
+        description: Review belongs to another user and requester is not admin
+      404:
+        description: Review not found
+    """
   if 'id' not in session:
       return jsonify({"error": "You must be logged in to delete a review."}), 401
 

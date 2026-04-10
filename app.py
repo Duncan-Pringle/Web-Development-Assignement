@@ -1101,7 +1101,7 @@ def run_test(function, args=[]):
     try:
       return function(*args) + "\n"
     except Exception as e:
-      return jsonify({"error": str(e)}), 500
+      return f"error: {e}\n"
 
 
 

@@ -21,14 +21,16 @@
                         <span>{{ featured_show.first_air_date[:4] }}</span>
                     {% endif %}
                     {% if featured_show.vote_average %}
-                        <span>⭐{{ "%.1f"|format(featured_show.vote_average) }}</span>
+                        <span>⭐ {{ "%.1f"|format(featured_show.vote_average) }}</span>
                     {% endif %}
                 </div>
                 <p class="synopsis">{{ featured_show.overview }}</p>
                 <div class="button-group">
+                    <a href="/tv/show/{{ featured_show.id }}" class="btn btn-primary">
+                        View Details
+                    </a>
                     <a href="https://www.youtube.com/results?search_query={{ (featured_show.title ~ ' trailer') | urlencode }}"
-                       target="_blank"
-                       class="btn btn-primary">
+                       target="_blank" class="btn btn-outline">
                         Watch Trailer
                     </a>
                 </div>
@@ -45,11 +47,9 @@
                 <img src="{{ show.poster_url }}" alt="{{ show.title }}">
                 <p class="poster-title">{{ show.title }}</p>
                 <div class="poster-buttons">
+                    <a href="/tv/show/{{ show.id }}" class="btn">Details</a>
                     <a href="https://www.youtube.com/results?search_query={{ (show.title ~ ' trailer') | urlencode }}"
-                       target="_blank"
-                       class="btn">
-                        Watch Trailer
-                    </a>
+                       target="_blank" class="btn">Watch Trailer</a>
                 </div>
             </div>
             {% else %}

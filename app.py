@@ -23,7 +23,8 @@ def get_username():
     return result.get('username') if result else None
 
 def check_admin():
-    session['is_admin'] = (user.get('userlevel') == 2)
+    if 'id' in session:
+        session['is_admin'] = ((db_functions.getUserFromID(session.get('id')).get('userlevel')) == 2)
     return
 
 #  HOME

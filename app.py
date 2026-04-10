@@ -99,6 +99,23 @@ def profile():
                            watchlist=watchlist, show_nav=False)
 
 
+
+@app.route('/profile/<username>')
+def view_profile(username):
+    user = db_functions.getUserFromUsername(username)
+    if not user:
+        return render_template('404.html'), 404
+    watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
+    for m in watchlist:
+        if m.get('poster_url') and not m['poster_url'].startswith('http'):
+            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
+    return render_template('profile.html',
+                           username=user['username'],
+                           email=None,        # don't show other people's emails
+                           watchlist=watchlist,
+                           show_nav=True)
+
+
 @app.route('/settings')
 def settings():
     if 'id' not in session:
@@ -255,12 +272,15 @@ def tv_details_page(show_id):
                            username=get_username())
 
 
+
 def fetch_tv_by_id_logic(show_id):
-    """Check DB first, fall back to TMDB, cache in DB."""
     try:
         cached = db_functions.getTVShowByID(show_id)
         if cached:
-            return dict(cached)
+            data = dict(cached)
+            if data.get('poster_url') and not data['poster_url'].startswith('http'):
+                data['poster_url'] = api.TMDB_poster_url(data['poster_url'])
+            return data
         full = api.TMDB_tv_by_id(show_id)
         if "error" in full:
             return None
@@ -278,11 +298,10 @@ def fetch_tv_by_id_logic(show_id):
             showID=show_info["showID"],
             title=show_info["title"],
             description=show_info["description"],
-            poster_url=full.get("poster_path"),   
+            poster_url=full.get("poster_path"),
             first_air_date=show_info["first_air_date"],
             rating=show_info["rating"]
         )
-        
         return show_info
     except Exception as e:
         print(f"fetch_tv_by_id_logic error: {e}")
@@ -320,6 +339,7 @@ def search_movies():
         return render_template('404.html'), 500
 
 
+
 #  POPULAR MOVIES HELPER
 
 def popular_movies_logic(page=1):
@@ -346,7 +366,7 @@ def popular_movies_logic(page=1):
 
 
 
-#  TV SHOWS PAGE &  POPULAR HELPER
+#  TV SHOWS PAGE + POPULAR HELPER
 
 def popular_tv_logic(page=1):
     try:
@@ -416,7 +436,7 @@ def delete_user(user_id):
     return redirect('/admin')
 
 
-@app.route('/admin/promote/<int:user_id>')
+@app.route('/admin/promote/<int:user_id>'  )
 def promote(user_id):
     if not session.get('is_admin'):
         return render_template('404.html'), 403

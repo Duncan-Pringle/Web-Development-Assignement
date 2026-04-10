@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}People{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div id="main-content">
+    <h1 style="margin-bottom: 30px; color: #1e1e2f;">Community Members</h1>
+    
+    <div class="people-grid">
+        {% for person in people %}
+        <div class="person-card">
+            
+            <div class="profile-avatar" style="background-color: {{ get_user_color(person.username) }};">
+                {{ person.username[0].upper() }}
+            </div>
+            
+            <h3>{{ person.username }}</h3>
+            
+            <a href="/profile/{{ person.username }}" class="btn btn-small">View Profile</a>
+
+        </div>
+        {% else %}
+        <p>No members found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

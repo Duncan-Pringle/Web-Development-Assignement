@@ -3,13 +3,37 @@
 {% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
-    {% include 'header.html' %}
-    <div class="movie-details">
-        <h1>{{ movie.title }}</h1>
-        <p><strong>Year:</strong> {{ movie.year }}</p>
-        <p><strong>Genre:</strong> {{ movie.genre }}</p>
-        <p><strong>Rating:</strong> {{ movie.rating }}</p>
-        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
-        <p>{{ movie.description }}</p>
+{% include 'header.html' %}
+    <div class="view-movie-details">
+        
+        <div class="view-poster-column">
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+        </div>
+
+        <div class="view-info-column">
+            <h1>{{ movie.title }}</h1>
+            <div class="view-metadata">
+                <span> {{ movie.year }}</span>
+                <span> {{ movie.rating }}</span>
+            </div>
+            <p><strong>Genres:</strong> {{ movie.genres | join(', ') }}</p>
+
+            <h3 class="view-description-heading">Overview</h3>
+            <p class="view-description-text">{{ movie.description }}</p>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn">Back to Hub</a>
+    
+                {% if is_in_watchlist %}
+                    <button id="watchlist-btn" class="btn btn-added" data-movie-id="{{ movie.movieID or movie.movieid }}">
+                    ✓ In Watchlist
+                {% else %}
+                    <button id="watchlist-btn" class="btn" data-movie-id="{{ movie.movieID or movie.movieid }}">
+                    + Add to Watchlist
+                {% endif %}
+                </button>
+            </div>
+        </div>
+
     </div>
 {% endblock %}

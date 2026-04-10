@@ -1,4 +1,15 @@
 <div class="poster-item">
-        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
-        <p class="poster-title">{{ movie.title }}</p>
+    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+    
+    <p class="poster-title">{{ movie.title }}</p>
+
+    <div class="poster-buttons">
+        <a href="/movie/{{ movie.title | urlencode }}" class="btn">Details</a>
+
+        <a href="https://www.youtube.com/results?search_query={{ (movie.title ~ ' trailer') | urlencode }}"
+           target="_blank"
+           class="btn">
+           Watch Trailer
+        </a>
+    </div>
 </div>

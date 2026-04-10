@@ -1,15 +1,26 @@
 <section class="featured-section">
-            <h2>{{ featured_movie.title }}</h2>
-            <div class="featured-content">
-                <div class="image-placeholder featured-img">
-                    <img src="{{ featured_movie.poster_url }}" alt="{{ featured_movie.title }}"
-                </div>
-                <div class="featured-details">
-                    <p class="synopsis">{{ featured_movie.description }}</p>
-                    <div class="button-group">
-                        <button class="btn">Watch Trailer</button>
-                        <button class="btn" onclick="movieDetails()">Details</button>
-                    </div>
-                </div>
+    <div class="featured-container">
+        <div class="featured-img-wrapper">
+            <img src="{{ featured_movie.poster_url }}" alt="{{ featured_movie.title }}">
+        </div>
+
+        <div class="featured-text">
+            <h2 class="featured-title">{{ featured_movie.title }}</h2>
+            <div class="featured-meta">
+                <span>Featured Today</span>
             </div>
+            <p class="synopsis">{{ featured_movie.description }}</p>
+
+            <div class="button-group">
+                <a href="/movie/{{ featured_movie.title | urlencode }}" class="btn btn-primary">
+                    View Details
+                </a>
+                <a href="https://www.youtube.com/results?search_query={{ (featured_movie.title ~ ' trailer') | urlencode }}"
+                   target="_blank"
+                   class="btn btn-outline">
+                    Watch Trailer
+                </a>
+            </div>
+        </div>
+    </div>
 </section>

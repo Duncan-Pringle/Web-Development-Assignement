@@ -5,15 +5,12 @@
 {% block content %}
 {% include 'header.html' %}
 
-<div class="watchlist-container">
+<div id="watchlist-container">
     <h2>{{ username }}'s Watchlist</h2>
     {% if watchlist %}
         <div class="poster-grid">
             {% for movie in watchlist %}
-                <div class="poster-item">
-                    <div class="poster-img">{{ movie.title }}</div>
-                    <div class="poster-title">{{ movie.title }}</div>
-                </div>
+                {% include 'poster.html' with context %}
             {% endfor %}
         </div>
     {% else %}

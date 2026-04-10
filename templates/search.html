@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Search: {{ query }}{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div id="main-content">
+    <h2>Search results for: <em>{{ query }}</em></h2>
+
+    {% if movies %}
+        <div class="poster-grid">
+            {% for movie in movies %}
+                {% include 'poster.html' with context %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No results found for "<strong>{{ query }}</strong>". Try a different search term.</p>
+    {% endif %}
+</div>
+{% endblock %}

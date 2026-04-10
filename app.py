@@ -876,11 +876,11 @@ def create_review(movie_id):
         description: Not logged in
     """
     if 'id' not in session:
-        return jsonify({"error": "You must be logged in to make a review."})
+        return jsonify({"error": "You must be logged in to make a review."}), 401
 
     reviewtext = request.form.get('reviewtext', '').strip()
     if not reviewtext:
-        return jsonify({"error": "Review text must not be empty."})
+        return jsonify({"error": "Review text must not be empty."}), 400
     
     db_functions.createReview(reviewtext, session['id'], movie_id)
     return jsonify({"message": "Review created."})
@@ -909,14 +909,14 @@ def delete_review_user(review_id):
         description: Review not found
     """
     if 'id' not in session:
-        return jsonify({"error": "You must be logged in to delete a review."})
+        return jsonify({"error": "You must be logged in to delete a review."}), 401
  
     review = db_functions.getReviewFromID(review_id)
     if not review:
-        return jsonify({"error": "Review not found"})
+        return jsonify({"error": "Review not found"}), 404
  
     if review['userid'] != session['id'] and not session.get('is_admin'):
-        return jsonify({"error": "You can only delete your own reviews"})
+        return jsonify({"error": "You can only delete your own reviews"}), 403
  
     db_functions.deleteReview(review_id)
     return jsonify({"message": "Review deleted successfully"})

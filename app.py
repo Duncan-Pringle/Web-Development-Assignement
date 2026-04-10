@@ -1138,4 +1138,4 @@ def testing():
   results = {}
   for label, function, args in tests:
     results[label] = run_test(function, args)
-  return jsonify(tests)
+  return jsonify(results)

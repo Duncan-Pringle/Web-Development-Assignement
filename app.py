@@ -183,7 +183,7 @@ def profile():
                            watchlist=watchlist, 
                            activity=activity,
                            is_own_profile=True,
-                           username=current_user)
+                           username=username)
 
 @app.route('/profile/<username>')
 def view_profile(username):

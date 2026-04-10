@@ -175,9 +175,13 @@ def profile():
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
 
-    return render_template('profile_overview.html',
-                           username=username, email=email,
-                           watchlist=watchlist, is_own_profile=True)
+    return render_template('profile_overview.html', # Make sure this matches new filename
+                           username=username, 
+                           email=email,
+                           watchlist=watchlist, 
+                           activity=activity, # DON'T FORGET THIS
+                           is_own_profile=True,
+                           show_nav=False)
 
 
 @app.route('/profile/<username>')

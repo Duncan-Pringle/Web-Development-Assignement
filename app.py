@@ -859,14 +859,15 @@ def post_review(movie_id):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
     data = request.get_json()
-    # Grabbing 'reviewText' to match your DB function parameter
     text = data.get('reviewText', '').strip()
+    rating = data.get('rating')
 
-    if not text:
-        return jsonify({"status": "error", "message": "Review text is required"}), 400
+    if not text or not rating:
+        return jsonify({"status": "error", "message": "Review and rating are required"}), 400
 
     try:
-        db_functions.createReview(text, user_id, movie_id)
+        # Matches your function: reviewText, userID, movieID, rating
+        db_functions.createMovieReview(text, user_id, movie_id, int(rating))
         return jsonify({"status": "success", "message": "Review added!"})
     except Exception as e:
         print(f"DEBUG: Review Error - {e}")

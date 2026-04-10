@@ -63,11 +63,14 @@ document.addEventListener('DOMContentLoaded', function() {
         reviewBtn.onclick = function() {
             const movieId = this.getAttribute('data-movie-id');
             const reviewInput = document.getElementById('review-text');
+            const ratingInput = document.getElementById('review-rating');
             const msg = document.getElementById('review-msg');
+
             const text = reviewInput.value.trim();
+            const rating = ratingInput.value;
 
             if (!text) {
-                msg.innerText = "Please write something first!";
+                msg.innerText = "Please write a review!";
                 msg.style.color = "#e74c3c";
                 return;
             }
@@ -75,16 +78,19 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`/post-review/${movieId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reviewText: text })
+                body: JSON.stringify({ 
+                    reviewText: text,
+                    rating: rating 
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    msg.innerText = "✅ Review posted!";
+                    msg.innerText = "✅ Review & Rating saved!";
                     msg.style.color = "#4CAF50";
-                    reviewInput.value = ""; // Clear input on success
+                    reviewInput.value = ""; // Clear the text area
                 } else {
-                    msg.innerText = "❌ Error: " + (data.message || "Try again.");
+                    msg.innerText = "❌ Error saving review.";
                     msg.style.color = "#e74c3c";
                 }
             })

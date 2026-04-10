@@ -171,8 +171,10 @@ def profile():
     """
     if 'id' not in session:
         return redirect('/login')
-    
+     # Check terminal/logs for this!
     user_id = session.get('id')
+    activity = db_functions.getRecentActivity(user_id)
+    print(f"DEBUG ACTIVITY: {activity}")
     name_result = db_functions.getUsernameFromID(user_id)
     email_result = db_functions.getEmailFromID(user_id)
     

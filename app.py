@@ -31,7 +31,6 @@ def check_admin():
 
 @app.route("/")
 def home():
-    check_admin()
     """
     Home page - displays popular movies
     ---
@@ -41,6 +40,7 @@ def home():
       200:
         description: Home page rendered with popular movies
     """
+    check_admin()
     data       = popular_movies_logic()
     movie_list = data.get("results", [])
     return render_template(
@@ -776,6 +776,15 @@ def make_admin():
 
 @app.route('/update-username', methods=['POST'])
 def update_username():
+    """
+    Home page - displays popular movies
+    ---
+    tags:
+      - Pages
+    responses:
+      200:
+        description: Home page rendered with popular movies
+    """
     if 'id' not in session:
         return redirect('/login')
     
@@ -792,6 +801,23 @@ def update_username():
 
 @app.route('/update-password', methods=['POST'])
 def update_password():
+    """
+    Update the current user's password
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: new_password
+        in: formData
+        type: string
+        required: true
+        description: The desired new password (plaintext, hashed server-side)
+    responses:
+      302:
+        description: Redirect to settings page
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     
@@ -814,6 +840,17 @@ def update_password():
 
 @app.route('/delete-account', methods=['POST'])
 def delete_account():
+    """
+    Permanently delete the current user's account
+    ---
+    tags:
+      - Users
+    responses:
+      302:
+        description: Redirect to home page after deletion
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     

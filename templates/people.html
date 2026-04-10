@@ -12,7 +12,7 @@
         {% for person in people %}
         <div class="person-card">
             
-            <div class="profile-avatar" style="background-color: {{ get_user_color(person.username) or '#4a6fa5' }};">
+            <div class="profile-avatar" style="background-color: {{ get_user_color(person.username) or '#4a6fa5' }}">
                 {{ person.username[0].upper() }}
             </div>
             

@@ -1137,5 +1137,5 @@ def testing():
   ]
   test = {}
   for label, function, args in tests:
-    tests[label] = run_test(fn, args)
+    tests[label] = run_test(function, args)
   return jsonify(tests)

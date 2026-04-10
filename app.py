@@ -115,15 +115,9 @@ def profile():
 @app.route('/settings')
 def settings():
     if 'id' not in session:
-        return redirect('/login')
-    ##return redirect('/profile')
-    return render_template(
-        'profile.html',
-        username=get_username(),
-        email=db_functions.getEmailFromID(session['id']).get("email"),
-        show_nav=False
-    )
-
+    return redirect('/login')
+    return redirect('/profile')
+    
 
 #  WATCHLIST
 

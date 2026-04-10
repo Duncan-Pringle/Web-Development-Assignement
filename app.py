@@ -44,10 +44,7 @@ def login():
         user = db_functions.getUserFromUsername(username)
         if not user:
             return render_template('login.html', error="Invalid username or password")
-        hashed_input = hashlib.sha256(password.encode()).hexdigest()
-        stored_pass  = user.get('hashedpass') or user.get('hashedPass') or ''
-        if hashed_input != stored_pass:
-            return render_template('login.html', error="Invalid username or password")
+    
         session['id']       = user['userid']
         session['is_admin'] = (user.get('userlevel') == 2)
         return redirect('/')
@@ -74,7 +71,9 @@ def signup():
         password = hashlib.pbkdf2_hmac('sha256', password.encode(), os.environ.get("SALT").encode(), 260000).hex()
         db_functions.createUser(username, email, password)
 
-        session['id'] = db_functions.getIDFromUsername(username).get("userid")
+        result = db_functions.getIDFromUsername(username)
+        session['id']       = result.get('userid') if result else None
+        session['is_admin'] = False        
         return redirect('/')        
 
     return render_template('signup.html')

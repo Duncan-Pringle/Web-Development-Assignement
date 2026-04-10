@@ -22,7 +22,7 @@
             
             {% if item.type == 'movie_review' %}
                 <p>You rated <strong>{{ item.content_name }}</strong> — <span>⭐ {{ item.rating }}/10</span></p>
-                <i style="font-size: 0.9rem; color: #555;">"{{ item.reviewText[:60] }}{% if item.reviewText|length > 60 %}...{% endif %}"</i>
+                <i style="font-size: 0.9rem; color: #555;">"{{ item.reviewtext[:60] }}{% if item.reviewtext|length > 60 %}...{% endif %}"</i>
                 
             {% elif item.type == 'show_review' %}
                 <p>You reviewed the show <strong>{{ item.content_name }}</strong></p>

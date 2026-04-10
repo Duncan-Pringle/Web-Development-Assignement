@@ -1090,3 +1090,45 @@ def delete_tv_review(review_id):
 
     db_functions.deleteTvReview(review_id)
     return jsonify({"message": "Review deleted successfully"}), 200
+
+#############################################
+
+###### TESTING TESTING TESTING TESTING ######
+
+#############################################
+
+
+@app.route('/testingtesting')
+def tests():
+          try:
+            test = {
+                "Test 0001:": api.TMDB_by_id(83533) + "\n",
+                "Test 0002:": api.TMDB_by_id(-83533) + "\n",
+                "Test 0003:": api.TMDB_by_id() + "\n",
+                "Test 0004:": api.TMDB_by_id("movie") + "\n",
+                "Test 0005:": api.TMDB_by_id(0) + "\n",
+                "Test 0006:": api.get_genres() + "\n",
+                "Test 0007:": api.TMDB_search("batman") + "\n",
+                "Test 0008:": api.TMDB_search("invalid movie name") + "\n",
+                "Test 0009:": api.TMDB_search("batman", 1000) + "\n",
+                "Test 0010:": api.TMDB_popular() + "\n",
+                "Test 0011:": api.TMDB_popular(1000) + "\n",
+                "Test 0012:": api.TMDB_search_first("batman") + "\n",
+                "Test 0013:": api.TMDB_search_first("invalid movie name") + "\n",
+                "Test 0014:": api.TMDB_tv_popular() + "\n",
+                "Test 0015:": api.TMDB_tv_popular(1000) + "\n",
+                "Test 0016:": api.TMDB_tv_search("breaking bad") + "\n",
+                "Test 0017:": api.TMDB_tv_search("invalid show name") + "\n",
+                "Test 0018:": api.TMDB_tv_search("breaking bad", 1000) + "\n",
+                "Test 0019:": api.TMDB_tv_by_id(1396) + "\n",
+                "Test 0020:": api.TMDB_tv_by_id(-1396) + "\n",
+                "Test 0021:": api.TMDB_tv_by_id() + "\n",
+                "Test 0022:": api.TMDB_tv_by_id("tv show") + "\n",
+                "Test 0023:": api.TMDB_tv_by_id(0) + "\n",
+                "Test 0025:": db_functions.getUserFromID(7) + "\n",
+                "Test 0026:": db_functions.setUsername(10, "updated test") + "\n",
+                "Test 0027:": db_functions.deleteUser(8) + "\n",
+            }
+            return jsonify(test), 200
+        except Exception as e:
+             return jsonify({"error": str(e)}), 500

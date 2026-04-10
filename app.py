@@ -5,9 +5,14 @@ import api
 import hashlib
 import os
 from urllib.parse import unquote
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
+swagger = Swagger(app, template={"info": {
+    "title": "Moviehub API",
+    "version": "1.0.0"
+}})
 
 
 
@@ -23,6 +28,15 @@ def get_username():
 
 @app.route("/")
 def home():
+    """
+    Home page - displays popular movies
+    ---
+    tags:
+      - Pages
+    responses:
+      200:
+        description: Home page rendered with popular movies
+    """
     data       = popular_movies_logic()
     movie_list = data.get("results", [])
     return render_template(
@@ -38,6 +52,28 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Login page and authentication
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: username
+        in: formData
+        type: string
+        required: true
+        description: The user's username
+      - name: password
+        in: formData
+        type: string
+        required: true
+        description: The user's password (plaintext, hashed server-side)
+    responses:
+      302:
+        description: Redirect to home on successful login
+      200:
+        description: Login page returned with error message on failure
+    """
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -55,12 +91,48 @@ def login():
 
 @app.route('/logout')
 def logout():
+    """
+    Logs the current user out and clears their session
+    ---
+    tags:
+      - Auth
+    responses:
+      302:
+        description: Redirect to home page
+    """
     session.clear()
     return redirect('/')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """
+    Signup page and new user registration
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: username
+        in: formData
+        type: string
+        required: true
+        description: Desired username (must be unique)
+      - name: email
+        in: formData
+        type: string
+        required: true
+        description: User's email address (must be unique)
+      - name: password
+        in: formData
+        type: string
+        required: true
+        description: Desired password (plaintext, hashed server-side)
+    responses:
+      302:
+        description: Redirect to home on successful signup, user is logged in automatically
+      200:
+        description: Signup page returned with error if username or email already taken
+    """
     if request.method == 'POST':
         username = request.form.get('username')
         email    = request.form.get('email')
@@ -86,6 +158,17 @@ def signup():
 
 @app.route('/profile')
 def profile():
+    """
+    Current user's profile page
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: Profile page with watchlist and user details
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     user_id      = session.get('id')
@@ -105,6 +188,23 @@ def profile():
 
 @app.route('/profile/<username>')
 def view_profile(username):
+    """
+    View another user's public profile
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: username
+        in: path
+        type: string
+        required: true
+        description: Username of the profile to view
+    responses:
+      200:
+        description: Public profile page (email hidden for other users)
+      404:
+        description: User not found
+    """
     user = db_functions.getUserFromUsername(username)
     try:
         currentUsername = db_functions.getUsernameFromID(session.get('id'))
@@ -130,6 +230,15 @@ def view_profile(username):
 
 @app.route('/settings')
 def settings():
+    """
+    Settings page - currently redirects to profile
+    ---
+    tags:
+      - Users
+    responses:
+      302:
+        description: Redirect to profile page, or login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     return redirect('/profile')
@@ -140,6 +249,17 @@ def settings():
 
 @app.route('/watchlist')
 def watchlist():
+    """
+    Current user's movie watchlist page
+    ---
+    tags:
+      - Watchlist
+    responses:
+      200:
+        description: Watchlist page with all saved movies
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     user_id  = session.get('id')
@@ -157,6 +277,17 @@ def watchlist():
 
 @app.route('/tv-watchlist')
 def tv_watchlist():
+    """
+    Current user's TV show watchlist page
+    ---
+    tags:
+      - Watchlist
+    responses:
+      200:
+        description: TV watchlist page with all saved shows
+      302:
+        description: Redirect to login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     user_id  = session.get('id')
@@ -174,6 +305,30 @@ def tv_watchlist():
 
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
+    """
+    Add or remove a movie from the current user's watchlist
+    ---
+    tags:
+      - Watchlist
+    parameters:
+      - name: movie_id
+        in: path
+        type: integer
+        required: true
+        description: TMDB movie ID to add or remove
+    responses:
+      200:
+        description: JSON with status 'added' or 'removed'
+        schema:
+          properties:
+            status:
+              type: string
+              example: added
+      401:
+        description: Not logged in
+      500:
+        description: Server error
+    """
     if 'id' not in session:
         return jsonify(status='error', message='Not logged in'), 401
     user_id = session.get('id')
@@ -194,6 +349,30 @@ def toggle_watchlist(movie_id):
 
 @app.route('/toggle-tv-watchlist/<int:show_id>', methods=['POST'])
 def toggle_tv_watchlist(show_id):
+    """
+    Add or remove a TV show from the current user's watchlist
+    ---
+    tags:
+      - Watchlist
+    parameters:
+      - name: show_id
+        in: path
+        type: integer
+        required: true
+        description: TMDB show ID to add or remove
+    responses:
+      200:
+        description: JSON with status 'added' or 'removed'
+        schema:
+          properties:
+            status:
+              type: string
+              example: added
+      401:
+        description: Not logged in
+      500:
+        description: Server error
+    """
     if 'id' not in session:
         return jsonify(status='error', message='Not logged in'), 401
     user_id = session.get('id')
@@ -214,6 +393,23 @@ def toggle_tv_watchlist(show_id):
 
 @app.route('/movie/<path:movie_name>')
 def movie_details_page(movie_name):
+    """
+    Movie details page - checks local DB first, falls back to TMDB search
+    ---
+    tags:
+      - Movies
+    parameters:
+      - name: movie_name
+        in: path
+        type: string
+        required: true
+        description: Movie title (URL encoded)
+    responses:
+      200:
+        description: Movie details page
+      404:
+        description: Movie not found in DB or TMDB
+    """
     clean_name = unquote(movie_name)
     data = fetch_movie_by_name_logic(clean_name)
     if not data:
@@ -272,6 +468,23 @@ def fetch_movie_by_name_logic(movie_name):
 
 @app.route('/tv/show/<int:show_id>')
 def tv_details_page(show_id):
+    """
+    TV show details page - checks local DB first, falls back to TMDB
+    ---
+    tags:
+      - TV Shows
+    parameters:
+      - name: show_id
+        in: path
+        type: integer
+        required: true
+        description: TMDB TV show ID
+    responses:
+      200:
+        description: TV show details page
+      404:
+        description: Show not found
+    """
     data = fetch_tv_by_id_logic(show_id)
     if not data:
         return render_template('404.html'), 404
@@ -327,6 +540,31 @@ def fetch_tv_by_id_logic(show_id):
 
 @app.route('/search')
 def search_movies():
+    """
+    Search for movies via TMDB
+    ---
+    tags:
+      - Movies
+    parameters:
+      - name: q
+        in: query
+        type: string
+        required: true
+        description: Search query string
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number of results
+    responses:
+      200:
+        description: Search results page
+      302:
+        description: Redirect to home if query is empty
+      502:
+        description: TMDB API error
+    """
     query = request.args.get('q', '').strip()
     page  = request.args.get('page', 1, type=int)
     if not query:
@@ -406,6 +644,15 @@ def popular_tv_logic(page=1):
 
 @app.route('/tv')
 def tv():
+    """
+    TV shows home page - displays popular TV shows
+    ---
+    tags:
+      - TV Shows
+    responses:
+      200:
+        description: TV shows page with featured and popular shows
+    """
     data  = popular_tv_logic()
     shows = data.get("results", [])
     return render_template('tv.html',
@@ -419,6 +666,15 @@ def tv():
 
 @app.route('/people')
 def people():
+    """
+    People page - lists registered users
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: People page with list of up to 100 users
+    """
     try:
         user_list = db_functions.getAllUsers() or []
         user_list = user_list[:100]
@@ -433,6 +689,19 @@ def people():
 
 @app.route('/admin')
 def admin():
+    """
+    Admin dashboard - lists all users and movies
+    ---
+    tags:
+      - Admin
+    responses:
+      200:
+        description: Admin panel rendered
+      302:
+        description: Redirect to login if not authenticated
+      403:
+        description: Access denied if not admin
+    """
     if 'id' not in session:
         return redirect('/login')
     if not session.get('is_admin'):
@@ -444,6 +713,23 @@ def admin():
 
 @app.route('/admin/delete_user/<int:user_id>')
 def delete_user(user_id):
+    """
+    Delete a user by ID (admin only)
+    ---
+    tags:
+      - Admin
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user to delete
+    responses:
+      302:
+        description: Redirect to admin panel
+      403:
+        description: Access denied if not admin
+    """
     if not session.get('is_admin'):
         return render_template('404.html'), 403
     db_functions.deleteUser(user_id)
@@ -452,6 +738,23 @@ def delete_user(user_id):
 
 @app.route('/admin/promote/<int:user_id>'  )
 def promote(user_id):
+    """
+    Promote a user to admin (admin only)
+    ---
+    tags:
+      - Admin
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user to promote
+    responses:
+      302:
+        description: Redirect to admin panel
+      403:
+        description: Access denied if not admin
+    """
     if not session.get('is_admin'):
         return render_template('404.html'), 403
     db_functions.setLevel(user_id, 2)
@@ -460,6 +763,15 @@ def promote(user_id):
 
 @app.route('/make_admin')
 def make_admin():
+    """
+    Promote the currently logged in user to admin
+    ---
+    tags:
+      - Admin
+    responses:
+      302:
+        description: Redirect to admin panel, or login if not authenticated
+    """
     if 'id' not in session:
         return redirect('/login')
     db_functions.setLevel(session['id'], 2)
@@ -472,6 +784,17 @@ def make_admin():
 
 @app.route('/userdetails')
 def userdetails():
+    """
+    Debug route - returns entire database contents as JSON
+    ---
+    tags:
+      - Debug
+    responses:
+      200:
+        description: All database tables as JSON
+      500:
+        description: Server error
+    """
     try:
         return jsonify({"Details": db_functions.getEverything()}), 200
     except Exception as e:
@@ -511,9 +834,25 @@ if __name__ == '__main__':
 
 @app.route('/movie/<int:movie_id>/reviews', methods=['GET'])
 def get_movie_reviews(movie_id):
+    """
+    Get all reviews for a movie
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: movie_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the movie to get reviews for
+    responses:
+      200:
+        description: List of reviews as JSON
+    """
     reviews = db_functions.getMovieReviews(movie_id)
     return jsonify(reviews)
 
+<<<<<<< HEAD
 @app.route('/post-review/<int:movie_id>', methods=['POST'])
 def post_review(movie_id):
     user_id = session.get('id')
@@ -533,18 +872,76 @@ def post_review(movie_id):
     except Exception as e:
         print(f"DEBUG: Review Error - {e}")
         return jsonify({"status": "error", "message": "Failed to post review"}), 500
+=======
+@app.route('/movie/<int:movie_id>/reviews', methods=['POST'])
+def create_review(movie_id):
+    """
+    Create a review for a movie
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: movie_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the movie to review
+      - name: reviewtext
+        in: formData
+        type: string
+        required: true
+        description: The review text content
+    responses:
+      201:
+        description: Review created successfully
+      400:
+        description: Review text is empty
+      401:
+        description: Not logged in
+    """
+    if 'id' not in session:
+        return jsonify({"error": "You must be logged in to make a review."}), 401
+
+    reviewtext = request.form.get('reviewtext', '').strip()
+    if not reviewtext:
+        return jsonify({"error": "Review text must not be empty."}), 400
+    
+    db_functions.createReview(reviewtext, session['id'], movie_id)
+    return jsonify({"message": "Review created."})
+>>>>>>> f75cb363575a47c69e75ca4a2b228f76c82e089a
 
 @app.route('/review/<int:review_id>/delete', methods=['POST'])
 def delete_review_user(review_id):
+    """
+    Delete a review - users can only delete their own, admins can delete any
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: review_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the review to delete
+    responses:
+      200:
+        description: Review deleted successfully
+      401:
+        description: Not logged in
+      403:
+        description: Review belongs to another user and requester is not admin
+      404:
+        description: Review not found
+    """
     if 'id' not in session:
-        return jsonify({"error": "You must be logged in to delete a review."})
+        return jsonify({"error": "You must be logged in to delete a review."}), 401
  
     review = db_functions.getReviewFromID(review_id)
     if not review:
-        return jsonify({"error": "Review not found"})
+        return jsonify({"error": "Review not found"}), 404
  
     if review['userid'] != session['id'] and not session.get('is_admin'):
-        return jsonify({"error": "You can only delete your own reviews"})
+        return jsonify({"error": "You can only delete your own reviews"}), 403
  
     db_functions.deleteReview(review_id)
     return jsonify({"message": "Review deleted successfully"})

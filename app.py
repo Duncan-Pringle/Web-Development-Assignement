@@ -514,17 +514,25 @@ def get_movie_reviews(movie_id):
     reviews = db_functions.getMovieReviews(movie_id)
     return jsonify(reviews)
 
-@app.route('/movie/<int:movie_id>/reviews', methods=['POST'])
-def create_review(movie_id):
-    if 'id' not in session:
-        return jsonify({"error": "You must be logged in to make a review."})
+@app.route('/post-review/<int:movie_id>', methods=['POST'])
+def post_review(movie_id):
+    user_id = session.get('id')
+    if not user_id:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
-    reviewtext = request.form.get('reviewtext', '').strip()
-    if not reviewtext:
-        return jsonify({"error": "Review text must not be empty."})
-    
-    db_functions.createReview(reviewtext, session['id'], movie_id)
-    return jsonify({"message": "Review created."})
+    data = request.get_json()
+    # Grabbing 'reviewText' to match your DB function parameter
+    text = data.get('reviewText', '').strip()
+
+    if not text:
+        return jsonify({"status": "error", "message": "Review text is required"}), 400
+
+    try:
+        db_functions.createReview(text, user_id, movie_id)
+        return jsonify({"status": "success", "message": "Review added!"})
+    except Exception as e:
+        print(f"DEBUG: Review Error - {e}")
+        return jsonify({"status": "error", "message": "Failed to post review"}), 500
 
 @app.route('/review/<int:review_id>/delete', methods=['POST'])
 def delete_review_user(review_id):

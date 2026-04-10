@@ -183,10 +183,11 @@ def getTVWatchlistDetails(userID):
 
 
 # Review Functions
-def createReview(reviewText, userID, movieID):
+def createMovieReview(reviewText, userID, movieID):
     database.query_db_write(
         "INSERT INTO review (reviewText, userID, movieID) values (%s, %s, %s)",
         (reviewText, userID, movieID,))
+        
 
 def deleteReview(reviewID):
     database.query_db_write(

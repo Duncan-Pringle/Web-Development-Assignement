@@ -44,7 +44,8 @@ def login():
         user = db_functions.getUserFromUsername(username)
         if not user:
             return render_template('login.html', error="Invalid username or password")
-    
+        if password != user['hashedpass']:
+            return render_template('login.html', error="Invalid username or password")
         session['id']       = user['userid']
         session['is_admin'] = (user.get('userlevel') == 2)
         return redirect('/')

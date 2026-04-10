@@ -16,12 +16,14 @@ def get_username():
     result = db_functions.getUsernameFromID(session.get('id'))
     return result.get('username') if result else None
 
+
+
 #  HOME
+
 @app.route("/")
 def home():
     data       = popular_movies_logic()
     movie_list = data.get("results", [])
-
     return render_template(
         "index.html",
         username=get_username(),
@@ -38,21 +40,16 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
         user = db_functions.getUserFromUsername(username)
         if not user:
             return render_template('login.html', error="Invalid username or password")
-
         hashed_input = hashlib.sha256(password.encode()).hexdigest()
         stored_pass  = user.get('hashedpass') or user.get('hashedPass') or ''
-
         if hashed_input != stored_pass:
             return render_template('login.html', error="Invalid username or password")
-
         session['id']       = user['userid']
         session['is_admin'] = (user.get('userlevel') == 2)
         return redirect('/')
-
     return render_template('login.html')
 
 
@@ -68,21 +65,16 @@ def signup():
         username = request.form.get('username')
         email    = request.form.get('email')
         password = request.form.get('password')
-
         if db_functions.getUserFromUsername(username):
             return render_template('signup.html', error="Username already taken")
-
         if db_functions.getUserFromEmail(email):
             return render_template('signup.html', error="Email already registered")
-
         hashed = hashlib.sha256(password.encode()).hexdigest()
         db_functions.createUser(username, email, hashed)
-
         result = db_functions.getIDFromUsername(username)
         session['id']       = result.get('userid') if result else None
         session['is_admin'] = False
         return redirect('/')
-
     return render_template('signup.html')
 
 
@@ -93,59 +85,68 @@ def signup():
 def profile():
     if 'id' not in session:
         return redirect('/login')
-
     user_id      = session.get('id')
     name_result  = db_functions.getUsernameFromID(user_id)
     email_result = db_functions.getEmailFromID(user_id)
     username     = name_result.get('username')  if name_result  else None
     email        = email_result.get('email')    if email_result else None
-
     watchlist = db_functions.getWatchlistMovieDetails(user_id) or []
     for m in watchlist:
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
-
     return render_template('profile.html',
-                           username=username,
-                           email=email,
-                           watchlist=watchlist,
-                           show_nav=False)
+                           username=username, email=email,
+                           watchlist=watchlist, show_nav=False)
 
 
 @app.route('/settings')
 def settings():
     if 'id' not in session:
-    return redirect('/login')
+        return redirect('/login')
     return redirect('/profile')
-    
 
-#  WATCHLIST
+
+
+#  MOVIE WATCHLIST PAGE
 
 @app.route('/watchlist')
 def watchlist():
     if 'id' not in session:
         return redirect('/login')
-
     user_id  = session.get('id')
     result   = db_functions.getUsernameFromID(user_id)
     username = result.get('username') if result else None
-
     wl = db_functions.getWatchlistMovieDetails(user_id) or []
     for m in wl:
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
-
     return render_template('watchlist.html', username=username, watchlist=wl)
 
 
 
-#  TOGGLE WATCHLIST  
+#  TV WATCHLIST PAGE
+
+@app.route('/tv-watchlist')
+def tv_watchlist():
+    if 'id' not in session:
+        return redirect('/login')
+    user_id  = session.get('id')
+    result   = db_functions.getUsernameFromID(user_id)
+    username = result.get('username') if result else None
+    wl = db_functions.getTVWatchlistDetails(user_id) or []
+    for s in wl:
+        if s.get('poster_url') and not s['poster_url'].startswith('http'):
+            s['poster_url'] = api.TMDB_poster_url(s['poster_url'])
+    return render_template('tv_watchlist.html', username=username, watchlist=wl)
+
+
+
+#  TOGGLE MOVIE WATCHLIST 
 
 @app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
 def toggle_watchlist(movie_id):
     if 'id' not in session:
         return jsonify(status='error', message='Not logged in'), 401
-
     user_id = session.get('id')
     try:
         if db_functions.checkWatchlist(user_id, movie_id):
@@ -155,7 +156,27 @@ def toggle_watchlist(movie_id):
             db_functions.createWatchlistMovie(user_id, movie_id)
             return jsonify(status='added')
     except Exception as e:
-        print(f"Watchlist toggle error: {e}")
+        print(f"Movie watchlist toggle error: {e}")
+        return jsonify(status='error'), 500
+
+
+
+#  TOGGLE TV WATCHLIST (AJAX)
+
+@app.route('/toggle-tv-watchlist/<int:show_id>', methods=['POST'])
+def toggle_tv_watchlist(show_id):
+    if 'id' not in session:
+        return jsonify(status='error', message='Not logged in'), 401
+    user_id = session.get('id')
+    try:
+        if db_functions.checkTVWatchlist(user_id, show_id):
+            db_functions.deleteTVWatchlist(user_id, show_id)
+            return jsonify(status='removed')
+        else:
+            db_functions.createTVWatchlist(user_id, show_id)
+            return jsonify(status='added')
+    except Exception as e:
+        print(f"TV watchlist toggle error: {e}")
         return jsonify(status='error'), 500
 
 
@@ -168,12 +189,10 @@ def movie_details_page(movie_name):
     data = fetch_movie_by_name_logic(clean_name)
     if not data:
         return render_template('404.html'), 404
-
     is_in_watchlist = False
     if session.get('id'):
         movie_id = data.get('movieid') or data.get('movieID')
         is_in_watchlist = db_functions.checkWatchlist(session.get('id'), movie_id)
-
     return render_template('movieDetails.html',
                            movie=data,
                            is_in_watchlist=is_in_watchlist,
@@ -189,15 +208,12 @@ def fetch_movie_by_name_logic(movie_name):
             if movie_data.get('poster_url') and not movie_data['poster_url'].startswith('http'):
                 movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
             return movie_data
-
         tmdb_data = api.TMDB_search_first(movie_name)
         if not tmdb_data:
             return None
-
         full_details = api.TMDB_by_id(tmdb_data['id'])
         if "error" in full_details:
             return None
-
         movie_info = {
             "movieid":     full_details.get("id"),
             "movieID":     full_details.get("id"),
@@ -208,22 +224,68 @@ def fetch_movie_by_name_logic(movie_name):
             "rating":      full_details.get("vote_average"),
             "genres":      full_details.get("genres", [])
         }
-
         db_functions.createMovie(
-            movieID=movie_info["movieID"],
-            title=movie_info["title"],
+            movieID=movie_info["movieID"], title=movie_info["title"],
             description=movie_info["description"],
             poster_url=full_details.get("poster_path"),
-            year=movie_info["year"],
-            genres=movie_info["genres"],
+            year=movie_info["year"], genres=movie_info["genres"],
             rating=movie_info["rating"]
         )
-
         movie_info['genres'] = [g['name'] for g in movie_info['genres']]
         return movie_info
-
     except Exception as e:
         print(f"fetch_movie_by_name_logic error: {e}")
+        return None
+
+
+
+#  TV SHOW DETAILS
+
+@app.route('/tv/show/<int:show_id>')
+def tv_details_page(show_id):
+    data = fetch_tv_by_id_logic(show_id)
+    if not data:
+        return render_template('404.html'), 404
+    is_in_watchlist = False
+    if session.get('id'):
+        is_in_watchlist = db_functions.checkTVWatchlist(session.get('id'), show_id)
+    return render_template('tvDetails.html',
+                           show=data,
+                           is_in_watchlist=is_in_watchlist,
+                           username=get_username())
+
+
+def fetch_tv_by_id_logic(show_id):
+    """Check DB first, fall back to TMDB, cache in DB."""
+    try:
+        cached = db_functions.getTVShowByID(show_id)
+        if cached:
+            return dict(cached)
+        full = api.TMDB_tv_by_id(show_id)
+        if "error" in full:
+            return None
+        show_info = {
+            "showid":         full.get("id"),
+            "showID":         full.get("id"),
+            "title":          full.get("name") or full.get("original_name", "Unknown"),
+            "description":    full.get("overview"),
+            "poster_url":     api.TMDB_poster_url(full.get("poster_path")),
+            "first_air_date": full.get("first_air_date", ""),
+            "rating":         full.get("vote_average"),
+            "genres":         [g['name'] for g in full.get("genres", [])],
+        }
+        db_functions.createTVShow(
+            showID=show_info["showID"],
+            title=show_info["title"],
+            description=show_info["description"],
+            poster_url=full.get("poster_path"),   
+            first_air_date=show_info["first_air_date"],
+            rating=show_info["rating"]
+        )
+        
+        return show_info
+    except Exception as e:
+        print(f"fetch_tv_by_id_logic error: {e}")
         return None
 
 
@@ -234,15 +296,12 @@ def fetch_movie_by_name_logic(movie_name):
 def search_movies():
     query = request.args.get('q', '').strip()
     page  = request.args.get('page', 1, type=int)
-
     if not query:
         return redirect('/')
-
     try:
         results = api.TMDB_search(query, page=page)
         if "error" in results:
             return render_template('404.html'), 502
-
         movies = []
         for m in results.get("results", []):
             movies.append({
@@ -254,16 +313,11 @@ def search_movies():
                 "vote_average": m.get("vote_average"),
                 "genre_ids":    m.get("genre_ids", [])
             })
-
-        return render_template('search.html',
-                               movies=movies,
-                               query=query,
-                               username=get_username())
-
+        return render_template('search.html', movies=movies,
+                               query=query, username=get_username())
     except Exception as e:
         print(f"Search error: {e}")
         return render_template('404.html'), 500
-
 
 
 #  POPULAR MOVIES HELPER
@@ -273,7 +327,6 @@ def popular_movies_logic(page=1):
         results = api.TMDB_popular(page=page)
         if "error" in results:
             return {"results": []}
-
         movies = []
         for m in results.get("results", []):
             movies.append({
@@ -285,46 +338,33 @@ def popular_movies_logic(page=1):
                 "vote_average": m.get("vote_average"),
                 "genre_ids":    m.get("genre_ids", [])
             })
-
-        return {
-            "results":       movies,
-            "total_results": results.get("total_results"),
-            "total_pages":   results.get("total_pages"),
-            "page":          results.get("page")
-        }
+        return {"results": movies, "total_results": results.get("total_results"),
+                "total_pages": results.get("total_pages"), "page": results.get("page")}
     except Exception as e:
         print(f"popular_movies_logic error: {e}")
         return {"results": []}
 
 
 
-#  TV SHOWS
+#  TV SHOWS PAGE &  POPULAR HELPER
 
 def popular_tv_logic(page=1):
-    """Fetch popular TV shows from TMDB and normalise into the same shape as movies."""
     try:
         results = api.TMDB_tv_popular(page=page)
         if "error" in results:
             return {"results": []}
-
         shows = []
         for s in results.get("results", []):
             shows.append({
-                "id":         s["id"],
-                # TV shows use 'name' not 'title' in TMDB — normalise to 'title' so poster.html works
-                "title":      s.get("name") or s.get("original_name", "Unknown"),
-                "overview":   s.get("overview"),
-                "poster_url": api.TMDB_poster_url(s.get("poster_path")),
-                "vote_average": s.get("vote_average"),
+                "id":             s["id"],
+                "title":          s.get("name") or s.get("original_name", "Unknown"),
+                "overview":       s.get("overview"),
+                "poster_url":     api.TMDB_poster_url(s.get("poster_path")),
+                "vote_average":   s.get("vote_average"),
                 "first_air_date": s.get("first_air_date", ""),
             })
-
-        return {
-            "results":       shows,
-            "total_results": results.get("total_results"),
-            "total_pages":   results.get("total_pages"),
-            "page":          results.get("page")
-        }
+        return {"results": shows, "total_results": results.get("total_results"),
+                "total_pages": results.get("total_pages"), "page": results.get("page")}
     except Exception as e:
         print(f"popular_tv_logic error: {e}")
         return {"results": []}
@@ -332,13 +372,11 @@ def popular_tv_logic(page=1):
 
 @app.route('/tv')
 def tv():
-    data     = popular_tv_logic()
-    shows    = data.get("results", [])
-    featured = shows[0] if shows else None
-
+    data  = popular_tv_logic()
+    shows = data.get("results", [])
     return render_template('tv.html',
                            username=get_username(),
-                           featured_show=featured,
+                           featured_show=shows[0] if shows else None,
                            popular_shows=shows)
 
 
@@ -353,7 +391,6 @@ def people():
     except Exception as e:
         print(f"People page error: {e}")
         user_list = []
-
     return render_template('people.html', people=user_list, username=get_username())
 
 
@@ -366,10 +403,8 @@ def admin():
         return redirect('/login')
     if not session.get('is_admin'):
         return render_template('404.html'), 403
-
     users  = db_functions.getAllUsers()
     movies = db_functions.getAllMovies()
-
     return render_template("admin.html", users=users, movies=movies, username=get_username())
 
 
@@ -398,7 +433,9 @@ def make_admin():
     return redirect('/admin')
 
 
+
 #  MISC
+
 @app.route('/userdetails')
 def userdetails():
     try:
@@ -425,9 +462,6 @@ def get_user_color(username):
 def utility_processor():
     return dict(get_user_color=get_user_color)
 
-
-
-#  DB TEARDOWN
 
 @app.teardown_appcontext
 def close_connection(exception):

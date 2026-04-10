@@ -22,12 +22,15 @@ def get_username():
     result = db_functions.getUsernameFromID(session.get('id'))
     return result.get('username') if result else None
 
-
+def check_admin():
+    session['is_admin'] = (user.get('userlevel') == 2)
+    return
 
 #  HOME
 
 @app.route("/")
 def home():
+    check_admin()
     """
     Home page - displays popular movies
     ---
@@ -186,56 +189,48 @@ def profile():
         if m.get('poster_url') and not m['poster_url'].startswith('http'):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
 
-    return render_template('profile_overview.html', # Make sure this matches new filename
-                           username=username, 
-                           email=email,
-                           watchlist=watchlist, 
-                           activity=activity, # DON'T FORGET THIS
-                           is_own_profile=True,
-                           show_nav=False)
+    return render_template(
+    'profile_overview.html',
+    profile_owner=username,     # The name shown on the profile
+    current_user=username,      # The name of the person logged in
+    email=email,                # Only passed here because it's the user's own profile
+    watchlist=watchlist,        # The list of movie posters
+    activity=activity,          # The UNION ALL feed we built
+    is_own_profile=True,        # Enables the "Settings" link in the sidebar
+    active_page='overview'      # Highlights 'Overview' in the sidebar
+)
 
 
 @app.route('/profile/<username>')
 def view_profile(username):
-    """
-    View another user's public profile
-    ---
-    tags:
-      - Users
-    parameters:
-      - name: username
-        in: path
-        type: string
-        required: true
-        description: Username of the profile to view
-    responses:
-      200:
-        description: Public profile page (email hidden for other users)
-      404:
-        description: User not found
-    """
     user = db_functions.getUserFromUsername(username)
     if not user:
         return render_template('404.html'), 404
 
-    # Check if the visitor is the owner of this profile
+    # The person currently logged in
+    current_user_name = None
     is_own_profile = False
+    
     if 'id' in session:
         current_user_data = db_functions.getUsernameFromID(session.get('id'))
-        if current_user_data and current_user_data.get('username') == username:
-            is_own_profile = True
+        if current_user_data:
+            current_user_name = current_user_data.get('username')
+            if current_user_name == username:
+                is_own_profile = True
 
+    # Fetch activity and watchlist for the PROFILE OWNER (user['userid'])
+    activity = db_functions.getRecentActivity(user['userid']) or []
     watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
-    for m in watchlist:
-        if m.get('poster_url') and not m['poster_url'].startswith('http'):
-            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
 
-    # We hide the email and settings links if is_own_profile is False
     return render_template('profile_overview.html',
-                           username=user['username'],
+                           profile_owner=user['username'],  # The profile we are looking at
+                           current_user=current_user_name, # The person logged in
                            email=user['email'] if is_own_profile else None,
                            watchlist=watchlist,
+                           activity=activity,
                            is_own_profile=is_own_profile)
+
+
 @app.route('/settings')
 def settings():
     """
@@ -796,7 +791,54 @@ def make_admin():
     session['is_admin'] = True
     return redirect('/admin')
 
+@app.route('/update-username', methods=['POST'])
+def update_username():
+    if 'id' not in session:
+        return redirect('/login')
+    
+    new_username = request.form.get('new_username')
+    user_id = session.get('id')
+    
+    if new_username:
+        # Update DB
+        db_functions.setUsername(user_id, new_username)
+        # Sync session so the UI updates
+        session['username'] = new_username
+        
+    return redirect('/settings')
 
+@app.route('/update-password', methods=['POST'])
+def update_password():
+    if 'id' not in session:
+        return redirect('/login')
+    
+    new_password = request.form.get('new_password')
+    user_id = session.get('id')
+    
+    if new_password:
+        # Use your specific hashing logic
+        salt = os.environ.get("SALT").encode()
+        hashed_pw = hashlib.pbkdf2_hmac(
+            'sha256', 
+            new_password.encode(), 
+            salt, 
+            260000
+        ).hex()
+        
+        db_functions.setPassword(user_id, hashed_pw)
+        
+    return redirect('/settings')
+
+@app.route('/delete-account', methods=['POST'])
+def delete_account():
+    if 'id' not in session:
+        return redirect('/login')
+    
+    user_id = session.get('id')
+    db_functions.deleteUser(user_id)
+    
+    session.clear()
+    return redirect('/')
 
 #  MISC
 

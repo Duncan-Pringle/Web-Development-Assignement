@@ -3,37 +3,72 @@
 
 {% block profile_main_content %}
 <section class="profile-section">
-    <h3>Account Management</h3>
-    
-    <div class="settings-item">
-        <h4>Change Username</h4>
-        <form action="/update-username" method="POST">
-            <input type="text" name="new_username" placeholder="New username" required>
-            <button type="submit" class="btn btn-small">Update</button>
-        </form>
-    </div>
+    <h3>Account Settings</h3>
+    <p style="color: #666; margin-bottom: 2rem;">Manage your public profile and account security.</p>
 
-    <div class="settings-item">
-        <h4>Change Password</h4>
-        <form action="/update-password" method="POST">
-            <input type="password" name="old_password" placeholder="Current password" required>
-            <input type="password" name="new_password" placeholder="New password" required>
-            <button type="submit" class="btn btn-small">Change Password</button>
-        </form>
-    </div>
+    <div class="settings-grid">
+        <div class="settings-card">
+            <h4>Update Username</h4>
+            <form action="/update-username" method="POST">
+                <div class="input-group">
+                    <input type="text" name="new_username" placeholder="Enter new username" required>
+                    <button type="submit" class="btn-save">Update</button>
+                </div>
+            </form>
+        </div>
 
-    <div class="danger-zone" style="margin-top: 50px; padding: 20px; border: 1px dashed #e74c3c; border-radius: 8px;">
-        <h4 style="color: #e74c3c;">Danger Zone</h4>
-        <p style="font-size: 0.85rem; color: #666;">Once you delete your account, all your data will be permanently removed.</p>
-        <form action="/delete-account" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
-            <button type="submit" class="btn danger" style="background-color: #e74c3c;">Delete Account</button>
-        </form>
+        <div class="settings-card">
+            <h4>Security</h4>
+            <form action="/update-password" method="POST">
+                <div class="input-group">
+                    <input type="password" name="new_password" placeholder="Enter new password" required>
+                    <button type="submit" class="btn-save">Change Password</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="settings-card danger-zone">
+            <h4>Delete Account</h4>
+            <p>Warning: This will remove all your data, including watchlists and reviews.</p>
+            <form action="/delete-account" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+                <button type="submit" class="btn-delete">Permanently Delete Account</button>
+            </form>
+        </div>
     </div>
 </section>
 
 <style>
-    .settings-item { margin-bottom: 30px; }
-    .settings-item form { display: flex; gap: 10px; margin-top: 10px; }
-    .settings-item input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; max-width: 300px; }
+    .settings-grid { display: flex; flex-direction: column; gap: 20px; }
+    .settings-card { 
+        background: #fff; 
+        padding: 20px; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+    }
+    .input-group { display: flex; gap: 10px; margin-top: 10px; }
+    .input-group input { 
+        flex: 1; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        border-radius: 4px; 
+    }
+    .btn-save { 
+        background: #4CAF50; 
+        color: white; 
+        border: none; 
+        padding: 10px 20px; 
+        border-radius: 4px; 
+        cursor: pointer; 
+    }
+    .danger-zone { border: 1px solid #ff4d4d; background: #fff5f5; }
+    .btn-delete { 
+        background: #ff4d4d; 
+        color: white; 
+        border: none; 
+        padding: 10px 20px; 
+        border-radius: 4px; 
+        cursor: pointer; 
+        margin-top: 10px;
+    }
 </style>
 {% endblock %}

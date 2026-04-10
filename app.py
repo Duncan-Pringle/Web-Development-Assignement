@@ -3,6 +3,7 @@ import db_functions
 import db as database
 import api
 import hashlib
+import os
 from urllib.parse import unquote
 
 app = Flask(__name__)

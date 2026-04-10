@@ -162,45 +162,27 @@ def signup():
 
 @app.route('/profile')
 def profile():
-    """
-    Current user's profile page
-    ---
-    tags:
-      - Users
-    responses:
-      200:
-        description: Profile page with watchlist and user details
-      302:
-        description: Redirect to login if not authenticated
-    """
     if 'id' not in session:
         return redirect('/login')
-     # Check terminal/logs for this!
-    user_id = session.get('id')
-    activity = db_functions.getRecentActivity(user_id)
-    print(f"DEBUG ACTIVITY: {activity}")
-    name_result = db_functions.getUsernameFromID(user_id)
-    email_result = db_functions.getEmailFromID(user_id)
     
-    username = name_result.get('username') if name_result else None
-    email = email_result.get('email') if email_result else None
+    user_id = session.get('id')
+    username = db_functions.getUsernameFromID(user_id).get('username')
+    
+    #Fetch the raw data
     watchlist = db_functions.getWatchlistMovieDetails(user_id) or []
-
-    for m in watchlist:
-        if m.get('poster_url') and not m['poster_url'].startswith('http'):
-            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
-
-    return render_template(
-    'profile_overview.html',
-    profile_owner=username,     # The name shown on the profile
-    current_user=username,      # The name of the person logged in
-    email=email,                # Only passed here because it's the user's own profile
-    watchlist=watchlist,        # The list of movie posters
-    activity=activity,          # The UNION ALL feed we built
-    is_own_profile=True,        # Enables the "Settings" link in the sidebar
-    active_page='overview'      # Highlights 'Overview' in the sidebar
-)
-
+    activity = db_functions.getRecentActivity(user_id) or []
+    
+    # FIX THE IMAGE URLS HERE
+    for item in watchlist:
+        if item.get('poster_url') and not item['poster_url'].startswith('http'):
+            item['poster_url'] = api.TMDB_poster_url(item['poster_url'])
+            
+    return render_template('profile_overview.html',
+                           profile_owner=username,
+                           current_user=username,
+                           watchlist=watchlist, 
+                           activity=activity,
+                           is_own_profile=True)
 
 @app.route('/profile/<username>')
 def view_profile(username):
@@ -208,29 +190,25 @@ def view_profile(username):
     if not user:
         return render_template('404.html'), 404
 
-    # The person currently logged in
-    current_user_name = None
-    is_own_profile = False
-    
-    if 'id' in session:
-        current_user_data = db_functions.getUsernameFromID(session.get('id'))
-        if current_user_data:
-            current_user_name = current_user_data.get('username')
-            if current_user_name == username:
-                is_own_profile = True
+    target_id = user['userid']
+    watchlist = db_functions.getWatchlistMovieDetails(target_id) or []
+    activity = db_functions.getRecentActivity(target_id) or []
 
-    # Fetch activity and watchlist for the PROFILE OWNER (user['userid'])
-    activity = db_functions.getRecentActivity(user['userid']) or []
-    watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
+    # FIX THE IMAGE URLS FOR THE TARGET USER
+    for item in watchlist:
+        if item.get('poster_url') and not item['poster_url'].startswith('http'):
+            item['poster_url'] = api.TMDB_poster_url(item['poster_url'])
+
+    # Determine if the viewer is the owner
+    is_own_profile = (session.get('id') == target_id)
+    current_user = db_functions.getUsernameFromID(session.get('id')).get('username') if 'id' in session else None
 
     return render_template('profile_overview.html',
-                           profile_owner=user['username'],  # The profile we are looking at
-                           current_user=current_user_name, # The person logged in
-                           email=user['email'] if is_own_profile else None,
+                           profile_owner=username,
+                           current_user=current_user,
                            watchlist=watchlist,
                            activity=activity,
                            is_own_profile=is_own_profile)
-
 
 @app.route('/settings')
 def settings():

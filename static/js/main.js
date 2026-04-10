@@ -1,3 +1,4 @@
+// Dropdown 
 function toggleDropdown() {
     const menu = document.getElementById("dropdown-menu");
     if (menu) {
@@ -16,22 +17,40 @@ window.onclick = function(event) {
     }
 }
 
-const watchlistbtn = document.getElementById('watchlist-btn');
+//  Generic watchlist toggle helper 
+async function toggleWatchlistBtn(btn, endpoint) {
+    try {
+        const res  = await fetch(endpoint, { method: 'POST' });
+        const data = await res.json();
 
-watchlistbtn.onclick = async () => {
-    const id = watchlistbtn.dataset.movieId;
-
-    const res = await fetch(`/toggle-watchlist/${id}`, {
-        method: 'POST'
-    });
-
-    const data = await res.json();
-
-    if (data.status === 'added') {
-        watchlistbtn.textContent = '✓ In Watchlist';
-        watchlistbtn.classList.add('added');
-    } else {
-        watchlistbtn.textContent = '+ Add to Watchlist';
-        watchlistbtn.classList.remove('added');
+        if (data.status === 'added') {
+            btn.textContent = '✓ In Watchlist';
+            btn.classList.add('btn-added');
+        } else if (data.status === 'removed') {
+            btn.textContent = '+ Add to Watchlist';
+            btn.classList.remove('btn-added');
+        } else if (res.status === 401) {
+            window.location.href = '/login';
+        }
+    } catch (err) {
+        console.error('Watchlist toggle failed:', err);
     }
-};
+}
+
+// Movie watchlist button 
+const movieWatchlistBtn = document.getElementById('watchlist-btn');
+if (movieWatchlistBtn && movieWatchlistBtn.dataset.movieId) {
+    movieWatchlistBtn.onclick = () => {
+        const id = movieWatchlistBtn.dataset.movieId;
+        toggleWatchlistBtn(movieWatchlistBtn, `/toggle-watchlist/${id}`);
+    };
+}
+
+// TV show watchlist button 
+const tvWatchlistBtn = document.getElementById('watchlist-btn');
+if (tvWatchlistBtn && tvWatchlistBtn.dataset.showId) {
+    tvWatchlistBtn.onclick = () => {
+        const id = tvWatchlistBtn.dataset.showId;
+        toggleWatchlistBtn(tvWatchlistBtn, `/toggle-tv-watchlist/${id}`);
+    };
+}

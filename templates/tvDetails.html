@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ show.title }}{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+    <div class="view-movie-details">
+
+        <div class="view-poster-column">
+            <img src="{{ show.poster_url }}" alt="{{ show.title }}">
+        </div>
+
+        <div class="view-info-column">
+            <h1>{{ show.title }}</h1>
+            <div class="view-metadata">
+                {% if show.first_air_date %}
+                    <span>{{ show.first_air_date[:4] }}</span>
+                {% endif %}
+                {% if show.rating %}
+                    <span>⭐ {{ "%.1f"|format(show.rating) }}</span>
+                {% endif %}
+            </div>
+
+            {% if show.genres %}
+                <p><strong>Genres:</strong> {{ show.genres | join(', ') }}</p>
+            {% endif %}
+
+            <h3 class="view-description-heading">Overview</h3>
+            <p class="view-description-text">{{ show.description }}</p>
+
+            <div class="action-buttons">
+                <a href="/tv" class="btn">Back to TV Shows</a>
+
+                {% if is_in_watchlist %}
+                    <button id="watchlist-btn" class="btn btn-added"
+                            data-show-id="{{ show.showID or show.showid }}">
+                        ✓ In Watchlist
+                {% else %}
+                    <button id="watchlist-btn" class="btn"
+                            data-show-id="{{ show.showID or show.showid }}">
+                        + Add to Watchlist
+                {% endif %}
+                </button>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

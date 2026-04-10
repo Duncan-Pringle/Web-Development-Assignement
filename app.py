@@ -3,48 +3,53 @@ import db_functions
 import db as database
 import api
 import hashlib
+from urllib.parse import unquote
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
 
 
+
+def get_username():
+    if 'id' not in session:
+        return None
+    result = db_functions.getUsernameFromID(session.get('id'))
+    return result.get('username') if result else None
+
+
+
+#  HOME
+
 @app.route("/")
 def home():
-    if 'id' in session:
-        username = db_functions.getUsernameFromID(session.get('id')).get("username")
-    else:
-        username = None
-
-    data = popular_movies()
+    data       = popular_movies_logic()
     movie_list = data.get("results", [])
-
     return render_template(
         "index.html",
-        username=username,
+        username=get_username(),
         featured_movie=movie_list[0] if movie_list else None,
         popular_movies=movie_list
     )
 
+
+
+#  AUTH
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
         user = db_functions.getUserFromUsername(username)
-
         if not user:
-            return render_template('login.html', error="Invalid login")
-
-        if password != user.get('hashedpass') and password != user.get('hashedPass'):
-            return render_template('login.html', error="Invalid login")
-
-        session['id'] = user['userid']
-        session['is_admin'] = (user['userlevel'] == 2)
-
+            return render_template('login.html', error="Invalid username or password")
+        hashed_input = hashlib.sha256(password.encode()).hexdigest()
+        stored_pass  = user.get('hashedpass') or user.get('hashedPass') or ''
+        if hashed_input != stored_pass:
+            return render_template('login.html', error="Invalid username or password")
+        session['id']       = user['userid']
+        session['is_admin'] = (user.get('userlevel') == 2)
         return redirect('/')
-   
     return render_template('login.html')
 
 
@@ -58,353 +63,430 @@ def logout():
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
+        email    = request.form.get('email')
         password = request.form.get('password')
-
         if db_functions.getUserFromUsername(username):
-            return render_template('signup.html', error="Username exists")
-
-        db_functions.createUser(username, email, password)
-
-        session['id'] = db_functions.getIDFromUsername(username).get("userid")
+            return render_template('signup.html', error="Username already taken")
+        if db_functions.getUserFromEmail(email):
+            return render_template('signup.html', error="Email already registered")
+        hashed = hashlib.sha256(password.encode()).hexdigest()
+        db_functions.createUser(username, email, hashed)
+        result = db_functions.getIDFromUsername(username)
+        session['id']       = result.get('userid') if result else None
+        session['is_admin'] = False
         return redirect('/')
-
     return render_template('signup.html')
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+
+
+#  PROFILE & SETTINGS
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), show_nav=False, email=db_functions.getEmailFromID(session.get('id')).get("email"), watchlist = db_functions.getWatchlistMovieDetails(session.get('id')))
+    if 'id' not in session:
+        return redirect('/login')
+    user_id      = session.get('id')
+    name_result  = db_functions.getUsernameFromID(user_id)
+    email_result = db_functions.getEmailFromID(user_id)
+    username     = name_result.get('username')  if name_result  else None
+    email        = email_result.get('email')    if email_result else None
+    watchlist = db_functions.getWatchlistMovieDetails(user_id) or []
+    for m in watchlist:
+        if m.get('poster_url') and not m['poster_url'].startswith('http'):
+            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
+    return render_template('profile.html',
+                           username=username, email=email,
+                           watchlist=watchlist, show_nav=False)
+
+
+
+@app.route('/profile/<username>')
+def view_profile(username):
+    user = db_functions.getUserFromUsername(username)
+    if not user:
+        return render_template('404.html'), 404
+    watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
+    for m in watchlist:
+        if m.get('poster_url') and not m['poster_url'].startswith('http'):
+            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
+    return render_template('profile.html',
+                           username=user['username'],
+                           email=None,        # don't show other people's emails
+                           watchlist=watchlist,
+                           show_nav=True)
+
+
+@app.route('/settings')
+def settings():
+    if 'id' not in session:
+        return redirect('/login')
+    return redirect('/profile')
+
+
+
+#  MOVIE WATCHLIST PAGE
 
 @app.route('/watchlist')
 def watchlist():
-    #shouldn't be possible to get here without being logged in but just in case, redirect to login if we don't have a user id in the session
     if 'id' not in session:
         return redirect('/login')
-    watchlist = db_functions.getWatchlistMovieDetails(session.get('id'))
-    for movie_data in watchlist:
-        if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
-            movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
-    return render_template('watchlist.html', username=db_functions.getUsernameFromID(session.get('id')).get("username"), watchlist=watchlist)
+    user_id  = session.get('id')
+    result   = db_functions.getUsernameFromID(user_id)
+    username = result.get('username') if result else None
+    wl = db_functions.getWatchlistMovieDetails(user_id) or []
+    for m in wl:
+        if m.get('poster_url') and not m['poster_url'].startswith('http'):
+            m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
+    return render_template('watchlist.html', username=username, watchlist=wl)
 
-@app.route('/userdetails')
-def userdetails():
+
+
+#  TV WATCHLIST PAGE
+
+@app.route('/tv-watchlist')
+def tv_watchlist():
+    if 'id' not in session:
+        return redirect('/login')
+    user_id  = session.get('id')
+    result   = db_functions.getUsernameFromID(user_id)
+    username = result.get('username') if result else None
+    wl = db_functions.getTVWatchlistDetails(user_id) or []
+    for s in wl:
+        if s.get('poster_url') and not s['poster_url'].startswith('http'):
+            s['poster_url'] = api.TMDB_poster_url(s['poster_url'])
+    return render_template('tv_watchlist.html', username=username, watchlist=wl)
+
+
+
+#  TOGGLE MOVIE WATCHLIST 
+
+@app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
+def toggle_watchlist(movie_id):
+    if 'id' not in session:
+        return jsonify(status='error', message='Not logged in'), 401
+    user_id = session.get('id')
     try:
-        test = {
-            "Details": db_functions.getEverything()
-            }
-        return jsonify(test), 200
+        if db_functions.checkWatchlist(user_id, movie_id):
+            db_functions.deleteWatchlistMovie(user_id, movie_id)
+            return jsonify(status='removed')
+        else:
+            db_functions.createWatchlistMovie(user_id, movie_id)
+            return jsonify(status='added')
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Movie watchlist toggle error: {e}")
+        return jsonify(status='error'), 500
 
 
 
-@app.teardown_appcontext
-def close_connection(exception):
-    database.close_connection(exception)
+#  TOGGLE TV WATCHLIST (AJAX)
 
-# Updated fetch movie
-def fetch_movie_by_name_logic(movie_name):
-    print(f"DEBUG: Starting fetch for movie: '{movie_name}'")
+@app.route('/toggle-tv-watchlist/<int:show_id>', methods=['POST'])
+def toggle_tv_watchlist(show_id):
+    if 'id' not in session:
+        return jsonify(status='error', message='Not logged in'), 401
+    user_id = session.get('id')
     try:
-        # check DB by Title 
-        movie = db_functions.getMovieByTitle(movie_name) 
-        if movie:
-            print(f"DEBUG: Found '{movie_name}' in Database.")
-            movie_data = dict(movie)
-            movie_data['genres'] = db_functions.getGenresForMovie(movie['movieid'])
-            # ensure poster_url is a full URL 
-            if movie_data['poster_url'] and not movie_data['poster_url'].startswith('http'):
-                 movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
-            return movie_data
-        print(f"DEBUG: '{movie_name}' not in DB. Searching TMDB...")
-        #search TMDB by string
-        tmdb_data = api.TMDB_search_first(movie_name)
-        if not tmdb_data:
-            print(f"DEBUG: TMDB Search returned ZERO results for '{movie_name}'")
-            return None
-        print(f"DEBUG: TMDB found a match: {tmdb_data.get('title')} (ID: {tmdb_data.get('id')})")
-        # format
-        
-        full_details = api.TMDB_by_id(tmdb_data['id'])
-        if "error" in full_details:
-            print(f"DEBUG: TMDB Detail call failed: {full_details['error']}")
-            return None
-
-        movie_info = {
-            "movieID": full_details.get("id"),
-            "title": full_details.get("title"),
-            "description": full_details.get("overview"),
-            "poster_url": api.TMDB_poster_url(full_details.get("poster_path")),
-            "year": full_details.get("release_date", "")[:4] or "N/A",
-            "rating": full_details.get("vote_average"),
-            "genres": full_details.get("genres", []) 
-        }
-        # save to DB
-        print(f"DEBUG: Attempting to save '{movie_info['title']}' to DB...")
-        db_functions.createMovie(
-            movieID=movie_info["movieID"],
-            title=movie_info["title"],
-            description=movie_info["description"],
-            poster_url=full_details.get("poster_path"), # Save suffix only
-            year=movie_info["year"],
-            genres=movie_info["genres"],
-            rating=movie_info["rating"]
-        )
-
-        movie_info['genres'] = [g['name'] for g in movie_info['genres']]
-        print(f"DEBUG: Successfully saved to DB.")
-        return movie_info
-
+        if db_functions.checkTVWatchlist(user_id, show_id):
+            db_functions.deleteTVWatchlist(user_id, show_id)
+            return jsonify(status='removed')
+        else:
+            db_functions.createTVWatchlist(user_id, show_id)
+            return jsonify(status='added')
     except Exception as e:
-        print(f"Error: {e}")
-        return None
+        print(f"TV watchlist toggle error: {e}")
+        return jsonify(status='error'), 500
 
-#updated route
+
+
+#  MOVIE DETAILS
+
 @app.route('/movie/<path:movie_name>')
 def movie_details_page(movie_name):
-    
-    # handle URL-encoded spaces (%20)
-    from urllib.parse import unquote
     clean_name = unquote(movie_name)
-    
     data = fetch_movie_by_name_logic(clean_name)
     if not data:
-        return "Movie not found", 404
+        return render_template('404.html'), 404
     is_in_watchlist = False
     if session.get('id'):
-    # Check if this specific movie is in this user's list
-        is_in_watchlist = db_functions.checkWatchlist(session.get('id'), data['movieid'])
-    return render_template('movieDetails.html', movie=data, is_in_watchlist=is_in_watchlist, username = db_functions.getUsernameFromID(session.get('id')).get("username") if 'id' in session else None)
+        movie_id = data.get('movieid') or data.get('movieID')
+        is_in_watchlist = db_functions.checkWatchlist(session.get('id'), movie_id)
+    return render_template('movieDetails.html',
+                           movie=data,
+                           is_in_watchlist=is_in_watchlist,
+                           username=get_username())
 
-#Think we can delete this despite all the refactoring I did 😭
-#Returns movie data from tmdb, but checks if we have it in the db first to instead use that
-#caches the film in the DB for next time if we don't have it and stores the poster url as a suffix, use api.TMDB_poster_url() to build the full URL whenever we need it
-def fetch_movie_logic(movie_id):
+
+def fetch_movie_by_name_logic(movie_name):
     try:
-        # check local database first
-        movie = db_functions.getMovieFromID(movie_id)
+        movie = db_functions.getMovieByTitle(movie_name)
         if movie:
-            return dict(movie)
-
-        # not found, call TMDB
-        tmdb_data = api.TMDB_by_id(movie_id)
-        if "error" in tmdb_data:
+            movie_data = dict(movie)
+            movie_data['genres'] = db_functions.getGenresForMovie(movie['movieid'])
+            if movie_data.get('poster_url') and not movie_data['poster_url'].startswith('http'):
+                movie_data['poster_url'] = api.TMDB_poster_url(movie_data['poster_url'])
+            return movie_data
+        tmdb_data = api.TMDB_search_first(movie_name)
+        if not tmdb_data:
             return None
-
-        # clean up the data for our use
+        full_details = api.TMDB_by_id(tmdb_data['id'])
+        if "error" in full_details:
+            return None
         movie_info = {
-            "movieID": tmdb_data.get("id"),
-            "title": tmdb_data.get("title"),
-            "description": tmdb_data.get("overview"),
-            "poster_url": api.TMDB_poster_url(tmdb_data.get("poster_path")),
-            "year": tmdb_data.get("release_date", "")[:4] or "N/A",
-            "rating": tmdb_data.get("vote_average"),
-            "genres": [g['name'] for g in tmdb_data.get("genres", [])] # Extract names
+            "movieid":     full_details.get("id"),
+            "movieID":     full_details.get("id"),
+            "title":       full_details.get("title"),
+            "description": full_details.get("overview"),
+            "poster_url":  api.TMDB_poster_url(full_details.get("poster_path")),
+            "year":        full_details.get("release_date", "")[:4] or "N/A",
+            "rating":      full_details.get("vote_average"),
+            "genres":      full_details.get("genres", [])
         }
-
-        # cache it in our DB for later
         db_functions.createMovie(
-            movieID=movie_info["movieID"],
-            title=movie_info["title"],
+            movieID=movie_info["movieID"], title=movie_info["title"],
             description=movie_info["description"],
-            poster_url=tmdb_data.get("poster_path"), 
-            year=movie_info["year"],
-            genres=movie_info["genres"],
+            poster_url=full_details.get("poster_path"),
+            year=movie_info["year"], genres=movie_info["genres"],
             rating=movie_info["rating"]
         )
-
+        movie_info['genres'] = [g['name'] for g in movie_info['genres']]
         return movie_info
-
     except Exception as e:
-        print(f"Server-side error: {e}")
+        print(f"fetch_movie_by_name_logic error: {e}")
         return None
-#don't think I'm using this anymore so we can probably delete
-#changed name to pag
 
 
-#Search for movies thru TMDB, uses my method from api.py so you can do this with or without pages like ?q=shrek or ?q=shrek&page=2
-@app.route('/search') #To fix, added await and removed error
-async def search_movies():
-    query = request.args.get('q', '').strip()
 
-    if not query:
-        return jsonify({"error": "Missing search query. Use ?q=your+search+term"}), 400
- 
+#  TV SHOW DETAILS
+
+@app.route('/tv/show/<int:show_id>')
+def tv_details_page(show_id):
+    data = fetch_tv_by_id_logic(show_id)
+    if not data:
+        return render_template('404.html'), 404
+    is_in_watchlist = False
+    if session.get('id'):
+        is_in_watchlist = db_functions.checkTVWatchlist(session.get('id'), show_id)
+    return render_template('tvDetails.html',
+                           show=data,
+                           is_in_watchlist=is_in_watchlist,
+                           username=get_username())
+
+
+
+def fetch_tv_by_id_logic(show_id):
     try:
-        results = await api.TMDB_search(query, page=page)
+        cached = db_functions.getTVShowByID(show_id)
+        if cached:
+            data = dict(cached)
+            if data.get('poster_url') and not data['poster_url'].startswith('http'):
+                data['poster_url'] = api.TMDB_poster_url(data['poster_url'])
+            return data
+        full = api.TMDB_tv_by_id(show_id)
+        if "error" in full:
+            return None
+        show_info = {
+            "showid":         full.get("id"),
+            "showID":         full.get("id"),
+            "title":          full.get("name") or full.get("original_name", "Unknown"),
+            "description":    full.get("overview"),
+            "poster_url":     api.TMDB_poster_url(full.get("poster_path")),
+            "first_air_date": full.get("first_air_date", ""),
+            "rating":         full.get("vote_average"),
+            "genres":         [g['name'] for g in full.get("genres", [])],
+        }
+        db_functions.createTVShow(
+            showID=show_info["showID"],
+            title=show_info["title"],
+            description=show_info["description"],
+            poster_url=full.get("poster_path"),
+            first_air_date=show_info["first_air_date"],
+            rating=show_info["rating"]
+        )
+        return show_info
+    except Exception as e:
+        print(f"fetch_tv_by_id_logic error: {e}")
+        return None
+
+
+
+#  SEARCH
+
+@app.route('/search')
+def search_movies():
+    query = request.args.get('q', '').strip()
+    page  = request.args.get('page', 1, type=int)
+    if not query:
+        return redirect('/')
+    try:
+        results = api.TMDB_search(query, page=page)
         if "error" in results:
-            return results, 502
- 
+            return render_template('404.html'), 502
         movies = []
         for m in results.get("results", []):
             movies.append({
-                "id": m["id"],
-                "title": m["title"],
-                "overview": m.get("overview"),
+                "id":           m["id"],
+                "title":        m["title"],
+                "overview":     m.get("overview"),
                 "release_date": m.get("release_date"),
-                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "poster_url":   api.TMDB_poster_url(m.get("poster_path")),
                 "vote_average": m.get("vote_average"),
-                "genre_ids": m.get("genre_ids", [])
+                "genre_ids":    m.get("genre_ids", [])
             })
- 
-        return {
-            "results": movies,
-            "total_results": results.get("total_results"),
-            "total_pages": results.get("total_pages"),
-            "page": results.get("page")
-        }
- 
+        return render_template('search.html', movies=movies,
+                               query=query, username=get_username())
     except Exception as e:
-        return {"error": str(e)}, 500
+        print(f"Search error: {e}")
+        return render_template('404.html'), 500
 
-#Returns a list of popular movies from tmdb, also has the option for us to grab more pages of popular films just like the search method above
-@app.route('/POPMOVIESNEEDSEDITED/popular') #To fix, added await and removed error 
-def popular_movies():
-    page = request.args.get('page', 1, type=int)
+
+
+#  POPULAR MOVIES HELPER
+
+def popular_movies_logic(page=1):
     try:
         results = api.TMDB_popular(page=page)
         if "error" in results:
-            print(f"Error fetching popular movies: {results['error']}")
-            return results, 502
- 
+            return {"results": []}
         movies = []
         for m in results.get("results", []):
             movies.append({
-                "id": m["id"],
-                "title": m["title"],
-                "overview": m.get("overview"),
+                "id":           m["id"],
+                "title":        m["title"],
+                "overview":     m.get("overview"),
                 "release_date": m.get("release_date"),
-                "poster_url": api.TMDB_poster_url(m.get("poster_path")),
+                "poster_url":   api.TMDB_poster_url(m.get("poster_path")),
                 "vote_average": m.get("vote_average"),
-                "genre_ids": m.get("genre_ids", [])
+                "genre_ids":    m.get("genre_ids", [])
             })
-        print("Fetched popular movies from TMDB")
-        return {
-            "results": movies,
-            "total_results": results.get("total_results"),
-            "total_pages": results.get("total_pages"),
-            "page": results.get("page")
-        }
- 
+        return {"results": movies, "total_results": results.get("total_results"),
+                "total_pages": results.get("total_pages"), "page": results.get("page")}
     except Exception as e:
-        print(f"Error fetching popular movies: {e}")
-        return {"error": str(e)}, 500
+        print(f"popular_movies_logic error: {e}")
+        return {"results": []}
 
-#very simple method that gives us just a plaintext of the full tmdb genres list. could be useful for translating genre ids
-#might be useless, but it was very simple to add regardless so figured why not, can just delete later
-@app.route('/GENRESNEEDSEDITED') 
-async def genres():
+
+
+#  TV SHOWS PAGE + POPULAR HELPER
+
+def popular_tv_logic(page=1):
     try:
-        result = await api.get_genres()
-        if "error" in result:
-            return jsonify(result), 502
-        return jsonify(result)
-        
+        results = api.TMDB_tv_popular(page=page)
+        if "error" in results:
+            return {"results": []}
+        shows = []
+        for s in results.get("results", []):
+            shows.append({
+                "id":             s["id"],
+                "title":          s.get("name") or s.get("original_name", "Unknown"),
+                "overview":       s.get("overview"),
+                "poster_url":     api.TMDB_poster_url(s.get("poster_path")),
+                "vote_average":   s.get("vote_average"),
+                "first_air_date": s.get("first_air_date", ""),
+            })
+        return {"results": shows, "total_results": results.get("total_results"),
+                "total_pages": results.get("total_pages"), "page": results.get("page")}
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"popular_tv_logic error: {e}")
+        return {"results": []}
 
 
 @app.route('/tv')
 def tv():
-    return render_template('404.html')
+    data  = popular_tv_logic()
+    shows = data.get("results", [])
+    return render_template('tv.html',
+                           username=get_username(),
+                           featured_show=shows[0] if shows else None,
+                           popular_shows=shows)
 
+
+
+#  PEOPLE
 
 @app.route('/people')
 def people():
     try:
-        user_list = db_functions.getAllUsers()[:100] 
-    except:
+        user_list = db_functions.getAllUsers() or []
+        user_list = user_list[:100]
+    except Exception as e:
+        print(f"People page error: {e}")
         user_list = []
+    return render_template('people.html', people=user_list, username=get_username())
 
-    return render_template('people.html', people=user_list, username=session.get('username'))
 
+
+#  ADMIN
 
 @app.route('/admin')
 def admin():
     if 'id' not in session:
         return redirect('/login')
-
     if not session.get('is_admin'):
-        return "Access denied", 403
-
-    users = db_functions.getAllUsers()
+        return render_template('404.html'), 403
+    users  = db_functions.getAllUsers()
     movies = db_functions.getAllMovies()
-
-    return render_template("admin.html", users=users, movies=movies, username=db_functions.getUsernameFromID(session.get('id')).get("username"))
+    return render_template("admin.html", users=users, movies=movies, username=get_username())
 
 
 @app.route('/admin/delete_user/<int:user_id>')
 def delete_user(user_id):
     if not session.get('is_admin'):
-        return "Access denied", 403
-
+        return render_template('404.html'), 403
     db_functions.deleteUser(user_id)
     return redirect('/admin')
 
 
-@app.route('/admin/promote/<int:user_id>')
+@app.route('/admin/promote/<int:user_id>'  )
 def promote(user_id):
     if not session.get('is_admin'):
-        return "Access denied", 403
-
+        return render_template('404.html'), 403
     db_functions.setLevel(user_id, 2)
     return redirect('/admin')
 
 
 @app.route('/make_admin')
 def make_admin():
+    if 'id' not in session:
+        return redirect('/login')
     db_functions.setLevel(session['id'], 2)
     session['is_admin'] = True
-    return "Now admin"
+    return redirect('/admin')
+
+
+
+#  MISC
+
+@app.route('/userdetails')
+def userdetails():
+    try:
+        return jsonify({"Details": db_functions.getEverything()}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+
+#  UTILITIES
+
+def get_user_color(username):
+    hash_hex = hashlib.md5(username.encode()).hexdigest()
+    hue = int(hash_hex[:4], 16) % 360
+    return f"hsl({hue}, 60%, 50%)"
+
+
+@app.context_processor
+def utility_processor():
+    return dict(get_user_color=get_user_color)
 
 
 @app.teardown_appcontext
 def close_connection(exception):
     database.close_connection(exception)
 
-@app.route('/toggle-watchlist/<int:movie_id>', methods=['POST'])
-def toggle_watchlist(movie_id):
-    print(f"DEBUG: Toggling watchlist for movie_id={movie_id} and user_id={session.get('id')}")
-    try:
-        if db_functions.checkWatchlist(session.get('id'), movie_id):
-            print(f"DEBUG: Movie {movie_id} is currently in watchlist, removing...")
-            db_functions.deleteWatchlistMovie(session.get('id'), movie_id)
-            return jsonify(status='removed')
-        else:
-            print(f"DEBUG: Movie {movie_id} is not in watchlist, adding...")
-            db_functions.createWatchlistMovie(session.get('id'), movie_id)
-            return jsonify(status='added')
-
-    except Exception as e:
-        print(f"DEBUG: Error occurred while toggling watchlist for movie_id={movie_id}: {e}")
-        return jsonify(status='error'), 500
-
-
-#this is really stupd and unnecesary but it's a bit of fun and adds a nice touch of personalisation to the profiles
-#generates a unique color for each user based on their username using hashing
-def get_user_color(username):
-    # Create a unique number based on the username
-    hash_object = hashlib.md5(username.encode())
-    hash_hex = hash_object.hexdigest()
-    
-    # Take the first few characters of the hash and convert to an integer
-    # This gives us a number between 0 and 360 for the color wheel (Hue)
-    hue = int(hash_hex[:4], 16) % 360
-    
-    # Return an HSL string: 
-    # Hue (random), Saturation (60%), Lightness (50% - keeps it vibrant but readable)
-    return f"hsl({hue}, 60%, 50%)"
-
-# Make this function available inside HTML templates
-@app.context_processor
-def utility_processor():
-    return dict(get_user_color=get_user_color)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

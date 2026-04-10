@@ -4,9 +4,9 @@
     <p class="poster-title">{{ movie.title }}</p>
 
     <div class="poster-buttons">
-        <a href="/movie/{{ movie.title }}" class="btn">Details</a>
+        <a href="/movie/{{ movie.title | urlencode }}" class="btn">Details</a>
 
-        <a href="https://www.youtube.com/results?search_query={{ movie.title }} trailer"
+        <a href="https://www.youtube.com/results?search_query={{ (movie.title ~ ' trailer') | urlencode }}"
            target="_blank"
            class="btn">
            Watch Trailer

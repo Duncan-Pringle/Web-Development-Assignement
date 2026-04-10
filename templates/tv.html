@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}TV Shows{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div id="main-content">
+
+    {% if featured_show %}
+    <section class="featured-section">
+        <div class="featured-container">
+            <div class="featured-img-wrapper">
+                <img src="{{ featured_show.poster_url }}" alt="{{ featured_show.title }}">
+            </div>
+            <div class="featured-text">
+                <h2 class="featured-title">{{ featured_show.title }}</h2>
+                <div class="featured-meta">
+                    <span>Featured Today</span>
+                    {% if featured_show.first_air_date %}
+                        <span>{{ featured_show.first_air_date[:4] }}</span>
+                    {% endif %}
+                    {% if featured_show.vote_average %}
+                        <span>⭐ {{ "%.1f"|format(featured_show.vote_average) }}</span>
+                    {% endif %}
+                </div>
+                <p class="synopsis">{{ featured_show.overview }}</p>
+                <div class="button-group">
+                    <a href="/tv/show/{{ featured_show.id }}" class="btn btn-primary">
+                        View Details
+                    </a>
+                    <a href="https://www.youtube.com/results?search_query={{ (featured_show.title ~ ' trailer') | urlencode }}"
+                       target="_blank" class="btn btn-outline">
+                        Watch Trailer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="popular-section">
+        <h2 style="margin-bottom: 0px;">Popular TV Shows</h2>
+        <div class="poster-grid">
+            {% for show in popular_shows %}
+            <div class="poster-item">
+                <img src="{{ show.poster_url }}" alt="{{ show.title }}">
+                <p class="poster-title">{{ show.title }}</p>
+                <div class="poster-buttons">
+                    <a href="/tv/show/{{ show.id }}" class="btn">Details</a>
+                    <a href="https://www.youtube.com/results?search_query={{ (show.title ~ ' trailer') | urlencode }}"
+                       target="_blank" class="btn">Watch Trailer</a>
+                </div>
+            </div>
+            {% else %}
+                <p>Could not load TV shows right now. Try again later.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

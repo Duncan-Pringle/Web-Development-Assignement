@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ username }}'s TV Watchlist{% endblock %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div id="watchlist-container">
+    <h2>{{ username }}'s TV Watchlist</h2>
+    {% if watchlist %}
+        <div class="poster-grid">
+            {% for show in watchlist %}
+            <div class="poster-item">
+                <img src="{{ show.poster_url }}" alt="{{ show.title }}">
+                <p class="poster-title">{{ show.title }}</p>
+                <div class="poster-buttons">
+                    <a href="/tv/show/{{ show.showid }}" class="btn">Details</a>
+                    <a href="https://www.youtube.com/results?search_query={{ (show.title ~ ' trailer') | urlencode }}"
+                       target="_blank" class="btn">Watch Trailer</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Your TV watchlist is empty. Go to <a href="/tv">TV Shows</a> to add some!</p>
+    {% endif %}
+</div>
+{% endblock %}

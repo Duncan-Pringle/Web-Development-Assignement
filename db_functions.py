@@ -334,7 +334,7 @@ def getRecentActivity(userID):
             sr.timestamp, sr.rating, sr.reviewText, 'show_review' AS type,
             s.title AS content_name, s.showID AS content_id
         FROM showreview sr
-        JOIN show s ON sr.showID = s.showID
+        JOIN tvshow s ON sr.showID = s.showID
         WHERE sr.userID = %s
 
         UNION ALL

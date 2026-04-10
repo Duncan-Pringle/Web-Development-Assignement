@@ -15,12 +15,15 @@
         </p>
         <hr>
         <nav class="profile-nav">
-            <a href="/profile/{{ username }}" class="active">Overview</a>
+            <a href="/profile" class="{{ 'active' if active_page == 'overview' else '' }}">
+                Overview
+            </a>
     
-            {% if is_own_profile %}
-                <a href="/settings">Settings</a>
-                <a href="/logout" style="color: #e74c3c;">Logout</a>
-            {% endif %}
+            <a href="/settings" class="{{ 'active' if active_page == 'settings' else '' }}">
+                Settings
+            </a>
+    
+            <a href="/logout" style="color: #e74c3c;">Logout</a>
         </nav>
     </aside>
 

@@ -315,3 +315,39 @@ def getTvReviews(showID):
 def getTvReviewFromID(reviewID):
     return database.query_db_read(
         "SELECT * FROM showreview WHERE reviewID = %s", (reviewID,), fetchone=True)
+
+def getRecentActivity(userID):
+    return database.query_db_read(
+        """
+        /* 1. Movie Reviews */
+        SELECT 
+            r.timestamp, r.rating, r.reviewText, 'movie_review' AS type,
+            m.title AS content_name, m.movieID AS content_id
+        FROM review r
+        JOIN movie m ON r.movieID = m.movieID
+        WHERE r.userID = %s
+
+        UNION ALL
+
+        /* 2. Show Reviews */
+        SELECT 
+            sr.timestamp, sr.rating, sr.reviewText, 'show_review' AS type,
+            s.title AS content_name, s.showID AS content_id
+        FROM showreview sr
+        JOIN show s ON sr.showID = s.showID
+        WHERE sr.userID = %s
+
+        UNION ALL
+
+        /* 3. Watchlist Additions */
+        SELECT 
+            w.timestamp, NULL AS rating, NULL AS reviewText, 'watchlist' AS type,
+            m.title AS content_name, m.movieID AS content_id
+        FROM watchlist w
+        JOIN movie m ON w.movieID = m.movieID
+        WHERE w.userID = %s
+
+        ORDER BY timestamp DESC LIMIT 3
+        """,
+        (userID, userID, userID)
+    )

@@ -16,13 +16,24 @@
     <section class="profile-section">
         <h3>Recent Activity</h3>
         <div class="activity-feed">
-            {% if activity %}
-                {% for item in activity %}
-                    <p>{{ item }}</p>
-                {% endfor %}
-            {% else %}
-                <p>No recent activity found.</p>
+    {% for item in activity %}
+        <div class="activity-item" style="margin-bottom: 15px; padding: 10px; border-left: 3px solid #4CAF50; background: #fafafa;">
+            <small style="color: #888;">{{ item.timestamp.strftime('%d %b %Y') }}</small>
+            
+            {% if item.type == 'movie_review' %}
+                <p>You rated <strong>{{ item.content_name }}</strong> — <span>⭐ {{ item.rating }}/10</span></p>
+                <i style="font-size: 0.9rem; color: #555;">"{{ item.reviewText[:60] }}{% if item.reviewText|length > 60 %}...{% endif %}"</i>
+                
+            {% elif item.type == 'show_review' %}
+                <p>You reviewed the show <strong>{{ item.content_name }}</strong></p>
+                
+            {% elif item.type == 'watchlist' %}
+                <p>You added <strong>{{ item.content_name }}</strong> to your watchlist.</p>
             {% endif %}
         </div>
+    {% else %}
+        <p>No recent activity to show.</p>
+    {% endfor %}
+</div>
     </section>
 {% endblock %}

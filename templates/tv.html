@@ -21,7 +21,7 @@
                         <span>{{ featured_show.first_air_date[:4] }}</span>
                     {% endif %}
                     {% if featured_show.vote_average %}
-                        <span>⭐ {{ "%.1f"|format(featured_show.vote_average) }}</span>
+                        <span>⭐{{ "%.1f"|format(featured_show.vote_average) }}</span>
                     {% endif %}
                 </div>
                 <p class="synopsis">{{ featured_show.overview }}</p>

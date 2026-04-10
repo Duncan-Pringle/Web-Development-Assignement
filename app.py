@@ -297,10 +297,12 @@ def fetch_tv_by_id_logic(show_id):
         }
         db_functions.createTVShow(
             showID=show_info["showID"],
-            title=show_info["title"],
+            name=show_info["title"],
             description=show_info["description"],
             poster_url=full.get("poster_path"),
             first_air_date=show_info["first_air_date"],
+            genres=full.get("genres", []),
+            number_of_seasons=full.get("number_of_seasons"),
             rating=show_info["rating"]
         )
         return show_info

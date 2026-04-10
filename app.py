@@ -182,7 +182,8 @@ def profile():
                            current_user=username,
                            watchlist=watchlist, 
                            activity=activity,
-                           is_own_profile=True)
+                           is_own_profile=True,
+                           username=current_user)
 
 @app.route('/profile/<username>')
 def view_profile(username):
@@ -208,7 +209,8 @@ def view_profile(username):
                            current_user=current_user,
                            watchlist=watchlist,
                            activity=activity,
-                           is_own_profile=is_own_profile)
+                           is_own_profile=is_own_profile,
+                           username=current_user)
 
 @app.route('/settings')
 def settings():

@@ -108,7 +108,9 @@ def view_profile(username):
     user = db_functions.getUserFromUsername(username)
     try:
         currentUsername = db_functions.getUsernameFromID(session.get('id'))
-    except Exception as e
+    except Exception as e:
+        print(f"Error fetching current username: {e}")
+        currentUsername = None
     if currentUsername != username:
         show = False
     else:

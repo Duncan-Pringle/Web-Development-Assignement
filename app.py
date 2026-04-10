@@ -510,7 +510,7 @@ def create_review(movie_id):
     if not reviewtext:
         return jsonify({"error": "Review text must not be empty."})
     
-    db_functions.create_review(reviewtext, session['id'], movie_id)
+    db_functions.createReview(reviewtext, session['id'], movie_id)
     return jsonify({"message": "Review created."})
 
 @app.route('/review/<int:review_id>/delete', methods=['POST'])

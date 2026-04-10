@@ -1135,7 +1135,11 @@ def run_test(function, args=[]):
     except Exception as e:
       return jsonify({"error": str(e)}), 500
 
-tests = [
+
+
+@app.route('/testingtesting')
+def testing():
+  tests = [
   ("Test 0001:", api.TMDB_by_id,[83533]),
   ("Test 0002:", api.TMDB_by_id,[-83533]),
   ("Test 0003:", api.TMDB_by_id,[]),
@@ -1162,10 +1166,7 @@ tests = [
   ("Test 0025:", db_functions.getUserFromID,[7]),
   ("Test 0026:", db_functions.setUsername,[10, "updated test"]),
   ("Test 0027:", db_functions.deleteUser,[8]),
-]
-
-@app.route('/testingtesting')
-def testing():
+  ]
   test = {}
   for label, function, args in tests:
     tests[label] = run_test(fn, args)

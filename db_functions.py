@@ -148,16 +148,6 @@ def getWatchlistMovieDetails(userID):
 
 # TV Show Functions
 
-def createTVShow(showID, title, description, poster_url, first_air_date, rating):
-    """Save a TV show to the tvshow table. Silently skips if it already exists."""
-    try:
-        database.query_db_write(
-            "INSERT INTO tvshow (showID, title, description, poster_url, first_air_date, rating) values (%s, %s, %s, %s, %s, %s)",
-            (showID, title, description, poster_url, first_air_date, rating)
-        )
-    except Exception:
-        pass  # already exists, skip
-
 def getTVShowByID(showID):
     return database.query_db_read(
         "SELECT * FROM tvshow WHERE showID = %s", (showID,), fetchone=True)
@@ -259,7 +249,7 @@ def getEverything():
 #==========Tv Show Functions==========
 
 #Inserts a show into the tvshow table, and uses the genres json to insert the genres
-def createShow(showID, name, description, poster_url, first_air_date, genres, number_of_seasons, rating):
+def createTVShow(showID, name, description, poster_url, first_air_date, genres, number_of_seasons, rating):
 
 
     database.query_db_write( #Inserts everything except for the genres   

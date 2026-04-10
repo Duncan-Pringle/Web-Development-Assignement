@@ -13,6 +13,11 @@
         <label>Password</label>
         <input type="password" name="password" required placeholder="Enter your password">
     </div>
+    {% if error %}
+        <div class="alert">
+            {{ error }}
+        </div>
+    {% endif %}
     <button type="submit" class="btn auth-btn">Login</button>
 </form>
 {% endblock %}

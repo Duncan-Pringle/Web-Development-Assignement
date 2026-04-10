@@ -235,7 +235,9 @@ def settings():
     return render_template('profile_settings.html',
                            username=user_data.get('username'),
                            email=email_data.get('email'),
-                           is_own_profile=True)
+                           is_own_profile=True,
+                           current_user=user_data.get('username'),
+                           profile_owner=user.data.get('username'))
 
 
 

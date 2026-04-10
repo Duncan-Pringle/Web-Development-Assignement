@@ -1012,23 +1012,23 @@ def post_tv_review(show_id):
       500:
         description: Server error
     """
-  user_id = session.get('id')
-  if not user_id:
+    user_id = session.get('id')
+    if not user_id:
       return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
-  data = request.get_json()
-  text = data.get('reviewText', '').strip()
-  rating = data.get('rating')
+    data = request.get_json()
+    text = data.get('reviewText', '').strip()
+    rating = data.get('rating')
 
-  if not text or not rating:
-      return jsonify({"status": "error", "message": "Review and rating are required"}), 400
+    if not text or not rating:
+        return jsonify({"status": "error", "message": "Review and rating are required"}), 400
 
-  try:
-      db_functions.createTvReview(text, user_id, show_id, int(rating))
-      return jsonify({"status": "success", "message": "Review added!"})
-  except Exception as e:
-      print(f"TV Review Error: {e}")
-      return jsonify({"status": "error", "message": "Failed to post review"}), 500
+    try:
+        db_functions.createTvReview(text, user_id, show_id, int(rating))
+        return jsonify({"status": "success", "message": "Review added!"})
+    except Exception as e:
+        print(f"TV Review Error: {e}")
+        return jsonify({"status": "error", "message": "Failed to post review"}), 500
 
 @app.route('/tv/review/<int:review_id>/delete', methods=['POST'])
 def delete_tv_review(review_id):
@@ -1053,15 +1053,15 @@ def delete_tv_review(review_id):
       404:
         description: Review not found
     """
-  if 'id' not in session:
-      return jsonify({"error": "You must be logged in to delete a review."}), 401
+    if 'id' not in session:
+        return jsonify({"error": "You must be logged in to delete a review."}), 401
 
-  review = db_functions.getTvReviewFromID(review_id)
-  if not review:
-      return jsonify({"error": "Review not found"}), 404
+    review = db_functions.getTvReviewFromID(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
 
-  if review['userid'] != session['id'] and not session.get('is_admin'):
-      return jsonify({"error": "You can only delete your own reviews"}), 403
+    if review['userid'] != session['id'] and not session.get('is_admin'):
+        return jsonify({"error": "You can only delete your own reviews"}), 403
 
-  db_functions.deleteTvReview(review_id)
-  return jsonify({"message": "Review deleted successfully"}), 200
+    db_functions.deleteTvReview(review_id)
+    return jsonify({"message": "Review deleted successfully"}), 200

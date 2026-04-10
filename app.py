@@ -106,6 +106,13 @@ def profile():
 @app.route('/profile/<username>')
 def view_profile(username):
     user = db_functions.getUserFromUsername(username)
+    try:
+        currentUsername = db_functions.getUsernameFromID(session.get('id'))
+    except Exception as e
+    if currentUsername != username:
+        show = False
+    else:
+        show = True
     if not user:
         return render_template('404.html'), 404
     watchlist = db_functions.getWatchlistMovieDetails(user['userid']) or []
@@ -114,9 +121,9 @@ def view_profile(username):
             m['poster_url'] = api.TMDB_poster_url(m['poster_url'])
     return render_template('profile.html',
                            username=user['username'],
-                           email=None,        # don't show other people's emails
+                           email=show,        # don't show other people's emails
                            watchlist=watchlist,
-                           show_nav=True)
+                           show_nav=show)
 
 
 @app.route('/settings')

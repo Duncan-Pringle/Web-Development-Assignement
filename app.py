@@ -1099,7 +1099,7 @@ def delete_tv_review(review_id):
 
 def run_test(function, args=[]):
     try:
-      return function(*args) + "\n"
+      return function(*args)
     except Exception as e:
       return f"error: {e}\n"
 

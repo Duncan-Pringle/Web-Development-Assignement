@@ -12,10 +12,10 @@
             <p class="synopsis">{{ featured_movie.description }}</p>
 
             <div class="button-group">
-                <a href="/movie/{{ featured_movie.title }}" class="btn btn-primary">
+                <a href="/movie/{{ featured_movie.title | urlencode }}" class="btn btn-primary">
                     View Details
                 </a>
-                <a href="https://www.youtube.com/results?search_query={{ featured_movie.title }} trailer"
+                <a href="https://www.youtube.com/results?search_query={{ (featured_movie.title ~ ' trailer') | urlencode }}"
                    target="_blank"
                    class="btn btn-outline">
                     Watch Trailer

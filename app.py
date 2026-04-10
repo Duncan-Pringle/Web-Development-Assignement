@@ -976,8 +976,8 @@ def get_tv_reviews(show_id):
       200:
         description: List of reviews as JSON
     """
-  reviews = db_functions.getTvReviews(show_id)
-  return jsonify(reviews)
+    reviews = db_functions.getTvReviews(show_id)
+    return jsonify(reviews)
 
 @app.route('/tv/show/<int:show_id>/reviews', methods=['POST'])
 def post_tv_review(show_id):
